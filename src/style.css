@@ -17,3 +17,8 @@
 .hero-intro-line{display:block;white-space:nowrap}.hero h1.hero-intro{font-size:clamp(22px,2.3vw,30px)}@media(min-width:521px) and (max-width:849px){.hero-copy{max-width:55%}}@media(max-width:520px){.hero h1.hero-intro{font-size:clamp(17px,5vw,21px)}}
 
 .backup-photo-option{display:flex;align-items:center;justify-content:center;gap:9px;font-size:12px;color:#637e8f}.backup-photo-option input{width:16px;height:16px;margin:0;accent-color:#80a6be}.backup-photo-help{font-size:10px!important;line-height:1.9!important;margin:11px 0;color:#8b969e!important}
+
+.finance-view{display:flex;gap:5px;padding:5px;border:1px solid #dce4e7;background:#fffcf4;border-radius:16px;margin:22px 0 26px}
+.finance-view button{flex:1;border:0;border-radius:11px;background:transparent;color:#7c8b96;padding:12px 10px;font-size:13px;font-weight:650}
+.finance-view button[aria-pressed=true]{background:#e3eef5;color:#4c7793;box-shadow:0 2px 0 #d3e2ec}
+@media(max-width:520px){.finance-view{margin:20px 0 23px}.finance-view button{font-size:12px;padding:12px 8px}}
