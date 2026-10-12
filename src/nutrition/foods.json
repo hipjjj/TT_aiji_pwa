@@ -1,0 +1,3348 @@
+[
+  {
+    "id": "rice",
+    "name": "米饭（熟）",
+    "group": "主食",
+    "aliases": [
+      "米饭",
+      "白米饭",
+      "白饭"
+    ],
+    "per100": {
+      "kcal": 130.0,
+      "protein": 2.38,
+      "carbs": 28.59,
+      "fat": 0.21
+    },
+    "portions": {
+      "碗": 150.0,
+      "份": 150.0
+    },
+    "defaultGrams": 150.0,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28",
+    "sourceId": "20051",
+    "sourceName": "Rice, white, medium-grain, enriched, cooked",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "brown-rice",
+    "name": "糙米饭（熟）",
+    "group": "主食",
+    "aliases": [
+      "糙米饭"
+    ],
+    "per100": {
+      "kcal": 112.0,
+      "protein": 2.32,
+      "carbs": 23.51,
+      "fat": 0.83
+    },
+    "portions": {
+      "碗": 150.0,
+      "份": 150.0
+    },
+    "defaultGrams": 150.0,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28",
+    "sourceId": "20041",
+    "sourceName": "Rice, brown, medium-grain, cooked",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "sticky-rice",
+    "name": "糯米饭（熟）",
+    "group": "主食",
+    "aliases": [
+      "糯米饭"
+    ],
+    "per100": {
+      "kcal": 97.0,
+      "protein": 2.02,
+      "carbs": 21.09,
+      "fat": 0.19
+    },
+    "portions": {
+      "碗": 150.0,
+      "份": 150.0
+    },
+    "defaultGrams": 150.0,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28",
+    "sourceId": "20055",
+    "sourceName": "Rice, white, glutinous, unenriched, cooked",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "corn",
+    "name": "玉米粒（水煮）",
+    "group": "主食",
+    "aliases": [
+      "玉米粒",
+      "水煮玉米"
+    ],
+    "per100": {
+      "kcal": 96.0,
+      "protein": 3.41,
+      "carbs": 20.98,
+      "fat": 1.5
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11168",
+    "sourceName": "Corn, sweet, yellow, cooked, boiled, drained, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "oatmeal",
+    "name": "燕麦粥（无糖）",
+    "group": "主食",
+    "aliases": [
+      "燕麦粥"
+    ],
+    "per100": {
+      "kcal": 71.0,
+      "protein": 2.54,
+      "carbs": 12.0,
+      "fat": 1.52
+    },
+    "portions": {
+      "碗": 200.0,
+      "份": 200.0
+    },
+    "defaultGrams": 200.0,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28",
+    "sourceId": "08121",
+    "sourceName": "Cereals, oats, regular and quick, unenriched, cooked with water (includes boiling and microwaving), without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "oats-dry",
+    "name": "燕麦片（干）",
+    "group": "主食",
+    "aliases": [
+      "燕麦片",
+      "干燕麦"
+    ],
+    "per100": {
+      "kcal": 379.0,
+      "protein": 13.15,
+      "carbs": 67.7,
+      "fat": 6.52
+    },
+    "portions": {
+      "份": 40.0
+    },
+    "defaultGrams": 40.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "08120",
+    "sourceName": "Cereals, oats, regular and quick, not fortified, dry",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "potato",
+    "name": "土豆（水煮去皮）",
+    "group": "主食",
+    "aliases": [
+      "水煮土豆",
+      "熟土豆"
+    ],
+    "per100": {
+      "kcal": 86.0,
+      "protein": 1.71,
+      "carbs": 20.01,
+      "fat": 0.1
+    },
+    "portions": {
+      "个": 150.0,
+      "份": 150.0
+    },
+    "defaultGrams": 150.0,
+    "defaultUnit": "个",
+    "reference": "USDA SR28",
+    "sourceId": "11367",
+    "sourceName": "Potatoes, boiled, cooked without skin, flesh, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "sweet-potato",
+    "name": "红薯（水煮去皮）",
+    "group": "主食",
+    "aliases": [
+      "红薯",
+      "地瓜",
+      "水煮红薯"
+    ],
+    "per100": {
+      "kcal": 76.0,
+      "protein": 1.37,
+      "carbs": 17.72,
+      "fat": 0.14
+    },
+    "portions": {
+      "个": 150.0,
+      "份": 150.0
+    },
+    "defaultGrams": 150.0,
+    "defaultUnit": "个",
+    "reference": "USDA SR28",
+    "sourceId": "11510",
+    "sourceName": "Sweet potato, cooked, boiled, without skin",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "baked-sweet-potato",
+    "name": "烤红薯（可食部分）",
+    "group": "主食",
+    "aliases": [
+      "烤红薯"
+    ],
+    "per100": {
+      "kcal": 90.0,
+      "protein": 2.01,
+      "carbs": 20.71,
+      "fat": 0.15
+    },
+    "portions": {
+      "个": 150.0,
+      "份": 150.0
+    },
+    "defaultGrams": 150.0,
+    "defaultUnit": "个",
+    "reference": "USDA SR28",
+    "sourceId": "11508",
+    "sourceName": "Sweet potato, cooked, baked in skin, flesh, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "pumpkin",
+    "name": "南瓜（水煮）",
+    "group": "蔬菜",
+    "aliases": [
+      "南瓜",
+      "水煮南瓜"
+    ],
+    "per100": {
+      "kcal": 20.0,
+      "protein": 0.72,
+      "carbs": 4.9,
+      "fat": 0.07
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11423",
+    "sourceName": "Pumpkin, cooked, boiled, drained, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "egg-noodles",
+    "name": "面条（煮熟参考）",
+    "group": "主食",
+    "aliases": [
+      "面条",
+      "水煮面条",
+      "煮面条"
+    ],
+    "per100": {
+      "kcal": 138.0,
+      "protein": 4.54,
+      "carbs": 25.16,
+      "fat": 2.07
+    },
+    "portions": {
+      "碗": 200.0,
+      "份": 200.0
+    },
+    "defaultGrams": 200.0,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28",
+    "sourceId": "20110",
+    "sourceName": "Noodles, egg, enriched, cooked",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "rice-noodles",
+    "name": "米粉（煮熟）",
+    "group": "主食",
+    "aliases": [
+      "米粉",
+      "熟米粉"
+    ],
+    "per100": {
+      "kcal": 108.0,
+      "protein": 1.79,
+      "carbs": 24.01,
+      "fat": 0.2
+    },
+    "portions": {
+      "碗": 200.0,
+      "份": 200.0
+    },
+    "defaultGrams": 200.0,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28",
+    "sourceId": "20134",
+    "sourceName": "Rice noodles, cooked",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "white-bread",
+    "name": "白吐司",
+    "group": "主食",
+    "aliases": [
+      "吐司",
+      "白吐司",
+      "白面包"
+    ],
+    "per100": {
+      "kcal": 266.0,
+      "protein": 8.85,
+      "carbs": 49.42,
+      "fat": 3.33
+    },
+    "portions": {
+      "片": 30.0,
+      "份": 30.0
+    },
+    "defaultGrams": 30.0,
+    "defaultUnit": "片",
+    "reference": "USDA SR28",
+    "sourceId": "18069",
+    "sourceName": "Bread, white, commercially prepared (includes soft bread crumbs)",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "whole-bread",
+    "name": "全麦面包",
+    "group": "主食",
+    "aliases": [
+      "全麦面包",
+      "全麦吐司"
+    ],
+    "per100": {
+      "kcal": 252.0,
+      "protein": 12.45,
+      "carbs": 42.71,
+      "fat": 3.5
+    },
+    "portions": {
+      "片": 30.0,
+      "份": 30.0
+    },
+    "defaultGrams": 30.0,
+    "defaultUnit": "片",
+    "reference": "USDA SR28",
+    "sourceId": "18075",
+    "sourceName": "Bread, whole-wheat, commercially prepared",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "quinoa",
+    "name": "藜麦（熟）",
+    "group": "主食",
+    "aliases": [
+      "藜麦",
+      "熟藜麦"
+    ],
+    "per100": {
+      "kcal": 120.0,
+      "protein": 4.4,
+      "carbs": 21.3,
+      "fat": 1.92
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "20137",
+    "sourceName": "Quinoa, cooked",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "flour",
+    "name": "小麦面粉（干）",
+    "group": "主食",
+    "aliases": [
+      "面粉",
+      "小麦粉"
+    ],
+    "per100": {
+      "kcal": 364.0,
+      "protein": 10.33,
+      "carbs": 76.31,
+      "fat": 0.98
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "20081",
+    "sourceName": "Wheat flour, white, all-purpose, enriched, bleached",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "millet-dry",
+    "name": "小米（干）",
+    "group": "主食",
+    "aliases": [
+      "干小米"
+    ],
+    "per100": {
+      "kcal": 378.0,
+      "protein": 11.02,
+      "carbs": 72.85,
+      "fat": 4.22
+    },
+    "portions": {
+      "份": 40.0
+    },
+    "defaultGrams": 40.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "20031",
+    "sourceName": "Millet, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "rice-dry",
+    "name": "大米（干）",
+    "group": "主食",
+    "aliases": [
+      "大米",
+      "生大米"
+    ],
+    "per100": {
+      "kcal": 360.0,
+      "protein": 6.61,
+      "carbs": 79.34,
+      "fat": 0.58
+    },
+    "portions": {
+      "份": 50.0
+    },
+    "defaultGrams": 50.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "20050",
+    "sourceName": "Rice, white, medium-grain, raw, enriched",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "egg",
+    "name": "鸡蛋（水煮、去壳）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "鸡蛋",
+      "水煮蛋",
+      "煮鸡蛋",
+      "白煮蛋"
+    ],
+    "per100": {
+      "kcal": 155.0,
+      "protein": 12.58,
+      "carbs": 1.12,
+      "fat": 10.61
+    },
+    "portions": {
+      "个": 50.0,
+      "份": 50.0
+    },
+    "defaultGrams": 50.0,
+    "defaultUnit": "个",
+    "reference": "USDA SR28",
+    "sourceId": "01129",
+    "sourceName": "Egg, whole, cooked, hard-boiled",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "raw-egg",
+    "name": "鸡蛋（生、去壳）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "生鸡蛋"
+    ],
+    "per100": {
+      "kcal": 143.0,
+      "protein": 12.56,
+      "carbs": 0.72,
+      "fat": 9.51
+    },
+    "portions": {
+      "个": 50.0,
+      "份": 50.0
+    },
+    "defaultGrams": 50.0,
+    "defaultUnit": "个",
+    "reference": "USDA SR28",
+    "sourceId": "01123",
+    "sourceName": "Egg, whole, raw, fresh",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "fried-egg",
+    "name": "煎鸡蛋（参考）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "煎鸡蛋",
+      "荷包蛋"
+    ],
+    "per100": {
+      "kcal": 196.0,
+      "protein": 13.61,
+      "carbs": 0.83,
+      "fat": 14.84
+    },
+    "portions": {
+      "个": 50.0,
+      "份": 50.0
+    },
+    "defaultGrams": 50.0,
+    "defaultUnit": "个",
+    "reference": "USDA SR28",
+    "sourceId": "01128",
+    "sourceName": "Egg, whole, cooked, fried",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "egg-white",
+    "name": "蛋清（生）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "蛋清",
+      "生蛋清"
+    ],
+    "per100": {
+      "kcal": 52.0,
+      "protein": 10.9,
+      "carbs": 0.73,
+      "fat": 0.17
+    },
+    "portions": {
+      "个": 33.0,
+      "份": 33.0
+    },
+    "defaultGrams": 33.0,
+    "defaultUnit": "个",
+    "reference": "USDA SR28",
+    "sourceId": "01124",
+    "sourceName": "Egg, white, raw, fresh",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "chicken",
+    "name": "鸡胸肉（熟、去皮）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "鸡胸肉",
+      "熟鸡胸肉",
+      "水煮鸡胸肉"
+    ],
+    "per100": {
+      "kcal": 151.0,
+      "protein": 28.98,
+      "carbs": 0.0,
+      "fat": 3.03
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "05065",
+    "sourceName": "Chicken, broilers or fryers, breast, meat only, cooked, stewed",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "raw-chicken",
+    "name": "鸡胸肉（生、去皮）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "生鸡胸肉"
+    ],
+    "per100": {
+      "kcal": 120.0,
+      "protein": 22.5,
+      "carbs": 0.0,
+      "fat": 2.62
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "05062",
+    "sourceName": "Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "roast-chicken",
+    "name": "鸡胸肉（烤、去皮）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "烤鸡胸肉"
+    ],
+    "per100": {
+      "kcal": 165.0,
+      "protein": 31.02,
+      "carbs": 0.0,
+      "fat": 3.57
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "05064",
+    "sourceName": "Chicken, broilers or fryers, breast, meat only, cooked, roasted",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "pork",
+    "name": "猪里脊（熟、瘦肉）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "猪瘦肉",
+      "猪里脊",
+      "瘦猪肉"
+    ],
+    "per100": {
+      "kcal": 204.0,
+      "protein": 28.57,
+      "carbs": 0.0,
+      "fat": 9.12
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "10025",
+    "sourceName": "Pork, fresh, loin, whole, separable lean only, cooked, braised",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "raw-pork",
+    "name": "猪里脊（生、瘦肉）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "生猪瘦肉",
+      "生猪里脊"
+    ],
+    "per100": {
+      "kcal": 143.0,
+      "protein": 21.43,
+      "carbs": 0.0,
+      "fat": 5.66
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "10024",
+    "sourceName": "Pork, fresh, loin, whole, separable lean only, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "beef",
+    "name": "牛肉（熟、瘦肉参考）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "牛肉",
+      "熟牛肉",
+      "瘦牛肉"
+    ],
+    "per100": {
+      "kcal": 191.0,
+      "protein": 29.21,
+      "carbs": 0.0,
+      "fat": 7.31
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "13156",
+    "sourceName": "Beef, round, full cut, separable lean only, trimmed to 1/4\" fat, choice, cooked, broiled",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "duck",
+    "name": "鸭肉（烤、去皮）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "鸭肉",
+      "去皮烤鸭肉"
+    ],
+    "per100": {
+      "kcal": 201.0,
+      "protein": 23.48,
+      "carbs": 0.0,
+      "fat": 11.2
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "05142",
+    "sourceName": "Duck, domesticated, meat only, cooked, roasted",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "lamb",
+    "name": "羊肉（熟、瘦肉参考）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "羊肉",
+      "熟羊肉"
+    ],
+    "per100": {
+      "kcal": 206.0,
+      "protein": 28.22,
+      "carbs": 0.0,
+      "fat": 9.52
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "17004",
+    "sourceName": "Lamb, domestic, composite of trimmed retail cuts, separable lean only, trimmed to 1/4\" fat, choice, cooked",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "salmon",
+    "name": "三文鱼（生）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "三文鱼",
+      "生三文鱼"
+    ],
+    "per100": {
+      "kcal": 208.0,
+      "protein": 20.42,
+      "carbs": 0.0,
+      "fat": 13.42
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "15236",
+    "sourceName": "Fish, salmon, Atlantic, farmed, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "tilapia",
+    "name": "罗非鱼（熟）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "罗非鱼",
+      "熟罗非鱼"
+    ],
+    "per100": {
+      "kcal": 128.0,
+      "protein": 26.15,
+      "carbs": 0.0,
+      "fat": 2.65
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "15262",
+    "sourceName": "Fish, tilapia, cooked, dry heat",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "cod",
+    "name": "鳕鱼（熟）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "鳕鱼",
+      "熟鳕鱼"
+    ],
+    "per100": {
+      "kcal": 105.0,
+      "protein": 22.83,
+      "carbs": 0.0,
+      "fat": 0.86
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "15016",
+    "sourceName": "Fish, cod, Atlantic, cooked, dry heat",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "shrimp",
+    "name": "虾仁（水煮）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "虾仁",
+      "水煮虾",
+      "熟虾仁"
+    ],
+    "per100": {
+      "kcal": 119.0,
+      "protein": 22.78,
+      "carbs": 1.52,
+      "fat": 1.7
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "15151",
+    "sourceName": "Crustaceans, shrimp, mixed species, cooked, moist heat (may have been previously frozen)",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "squid",
+    "name": "鱿鱼（生）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "生鱿鱼"
+    ],
+    "per100": {
+      "kcal": 92.0,
+      "protein": 15.58,
+      "carbs": 3.08,
+      "fat": 1.38
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "15175",
+    "sourceName": "Mollusks, squid, mixed species, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "crab",
+    "name": "蟹肉（熟、去壳参考）",
+    "group": "肉蛋鱼",
+    "aliases": [
+      "蟹肉",
+      "熟蟹肉"
+    ],
+    "per100": {
+      "kcal": 83.0,
+      "protein": 17.88,
+      "carbs": 0.0,
+      "fat": 0.74
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "15140",
+    "sourceName": "Crustaceans, crab, blue, cooked, moist heat",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "milk",
+    "name": "全脂牛奶",
+    "group": "奶豆",
+    "aliases": [
+      "牛奶",
+      "全脂牛奶",
+      "纯牛奶"
+    ],
+    "per100": {
+      "kcal": 61.0,
+      "protein": 3.15,
+      "carbs": 4.8,
+      "fat": 3.25
+    },
+    "portions": {
+      "杯": 250,
+      "份": 250.0,
+      "盒": 250
+    },
+    "defaultGrams": 250.0,
+    "defaultUnit": "杯",
+    "reference": "USDA SR28",
+    "sourceId": "01077",
+    "sourceName": "Milk, whole, 3.25% milkfat, with added vitamin D",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "low-fat-milk",
+    "name": "低脂牛奶（2%）",
+    "group": "奶豆",
+    "aliases": [
+      "低脂牛奶"
+    ],
+    "per100": {
+      "kcal": 50.0,
+      "protein": 3.3,
+      "carbs": 4.8,
+      "fat": 1.98
+    },
+    "portions": {
+      "杯": 250,
+      "份": 250.0,
+      "盒": 250
+    },
+    "defaultGrams": 250.0,
+    "defaultUnit": "杯",
+    "reference": "USDA SR28",
+    "sourceId": "01079",
+    "sourceName": "Milk, reduced fat, fluid, 2% milkfat, with added vitamin A and vitamin D",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "yogurt",
+    "name": "原味酸奶（无添加糖参考）",
+    "group": "奶豆",
+    "aliases": [
+      "原味酸奶",
+      "无糖酸奶"
+    ],
+    "per100": {
+      "kcal": 61.0,
+      "protein": 3.47,
+      "carbs": 4.66,
+      "fat": 3.25
+    },
+    "portions": {
+      "杯": 150.0,
+      "份": 150.0
+    },
+    "defaultGrams": 150.0,
+    "defaultUnit": "杯",
+    "reference": "USDA SR28",
+    "sourceId": "01116",
+    "sourceName": "Yogurt, plain, whole milk, 8 grams protein per 8 ounce",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "low-fat-yogurt",
+    "name": "低脂原味酸奶",
+    "group": "奶豆",
+    "aliases": [
+      "低脂酸奶"
+    ],
+    "per100": {
+      "kcal": 63.0,
+      "protein": 5.25,
+      "carbs": 7.04,
+      "fat": 1.55
+    },
+    "portions": {
+      "杯": 150.0,
+      "份": 150.0
+    },
+    "defaultGrams": 150.0,
+    "defaultUnit": "杯",
+    "reference": "USDA SR28",
+    "sourceId": "01117",
+    "sourceName": "Yogurt, plain, low fat, 12 grams protein per 8 ounce",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "soymilk",
+    "name": "无糖豆浆（参考）",
+    "group": "奶豆",
+    "aliases": [
+      "豆浆",
+      "无糖豆浆"
+    ],
+    "per100": {
+      "kcal": 33.0,
+      "protein": 2.86,
+      "carbs": 1.74,
+      "fat": 1.61
+    },
+    "portions": {
+      "杯": 250,
+      "份": 250.0,
+      "盒": 250
+    },
+    "defaultGrams": 250.0,
+    "defaultUnit": "杯",
+    "reference": "USDA SR28",
+    "sourceId": "16222",
+    "sourceName": "Soymilk (all flavors), unsweetened, with added calcium, vitamins A and D",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "tofu",
+    "name": "北豆腐（未加油）",
+    "group": "奶豆",
+    "aliases": [
+      "北豆腐",
+      "老豆腐",
+      "豆腐"
+    ],
+    "per100": {
+      "kcal": 144.0,
+      "protein": 17.27,
+      "carbs": 2.78,
+      "fat": 8.72
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "16426",
+    "sourceName": "Tofu, raw, firm, prepared with calcium sulfate",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "soft-tofu",
+    "name": "嫩豆腐（未加油）",
+    "group": "奶豆",
+    "aliases": [
+      "嫩豆腐",
+      "南豆腐"
+    ],
+    "per100": {
+      "kcal": 61.0,
+      "protein": 7.17,
+      "carbs": 1.18,
+      "fat": 3.69
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "16127",
+    "sourceName": "Tofu, soft, prepared with calcium sulfate and magnesium chloride (nigari)",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "fried-tofu",
+    "name": "炸豆腐（参考）",
+    "group": "奶豆",
+    "aliases": [
+      "炸豆腐",
+      "油豆腐"
+    ],
+    "per100": {
+      "kcal": 270.0,
+      "protein": 18.82,
+      "carbs": 8.86,
+      "fat": 20.18
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "16129",
+    "sourceName": "Tofu, fried",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "edamame",
+    "name": "毛豆仁（水煮）",
+    "group": "奶豆",
+    "aliases": [
+      "毛豆仁",
+      "毛豆"
+    ],
+    "per100": {
+      "kcal": 141.0,
+      "protein": 12.35,
+      "carbs": 11.05,
+      "fat": 6.4
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11451",
+    "sourceName": "Soybeans, green, cooked, boiled, drained, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "mung-beans",
+    "name": "绿豆（熟）",
+    "group": "奶豆",
+    "aliases": [
+      "熟绿豆",
+      "水煮绿豆"
+    ],
+    "per100": {
+      "kcal": 105.0,
+      "protein": 7.02,
+      "carbs": 19.15,
+      "fat": 0.38
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "16081",
+    "sourceName": "Mung beans, mature seeds, cooked, boiled, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "lentils",
+    "name": "小扁豆（熟）",
+    "group": "奶豆",
+    "aliases": [
+      "熟小扁豆"
+    ],
+    "per100": {
+      "kcal": 116.0,
+      "protein": 9.02,
+      "carbs": 20.13,
+      "fat": 0.38
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "16070",
+    "sourceName": "Lentils, mature seeds, cooked, boiled, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "chickpeas",
+    "name": "鹰嘴豆（熟）",
+    "group": "奶豆",
+    "aliases": [
+      "鹰嘴豆",
+      "熟鹰嘴豆"
+    ],
+    "per100": {
+      "kcal": 164.0,
+      "protein": 8.86,
+      "carbs": 27.42,
+      "fat": 2.59
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "16057",
+    "sourceName": "Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "broccoli",
+    "name": "西兰花（水煮）",
+    "group": "蔬菜",
+    "aliases": [
+      "西兰花",
+      "水煮西兰花"
+    ],
+    "per100": {
+      "kcal": 35.0,
+      "protein": 2.38,
+      "carbs": 7.18,
+      "fat": 0.41
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11091",
+    "sourceName": "Broccoli, cooked, boiled, drained, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "raw-broccoli",
+    "name": "西兰花（生）",
+    "group": "蔬菜",
+    "aliases": [
+      "生西兰花"
+    ],
+    "per100": {
+      "kcal": 34.0,
+      "protein": 2.82,
+      "carbs": 6.64,
+      "fat": 0.37
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11090",
+    "sourceName": "Broccoli, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "bok-choy",
+    "name": "小白菜（水煮）",
+    "group": "蔬菜",
+    "aliases": [
+      "小白菜",
+      "水煮小白菜"
+    ],
+    "per100": {
+      "kcal": 12.0,
+      "protein": 1.56,
+      "carbs": 1.78,
+      "fat": 0.16
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11117",
+    "sourceName": "Cabbage, chinese (pak-choi), cooked, boiled, drained, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "napa",
+    "name": "大白菜（水煮）",
+    "group": "蔬菜",
+    "aliases": [
+      "大白菜",
+      "水煮大白菜"
+    ],
+    "per100": {
+      "kcal": 14.0,
+      "protein": 1.5,
+      "carbs": 2.41,
+      "fat": 0.17
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11120",
+    "sourceName": "Cabbage, chinese (pe-tsai), cooked, boiled, drained, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "spinach",
+    "name": "菠菜（水煮）",
+    "group": "蔬菜",
+    "aliases": [
+      "菠菜",
+      "水煮菠菜"
+    ],
+    "per100": {
+      "kcal": 23.0,
+      "protein": 2.97,
+      "carbs": 3.75,
+      "fat": 0.26
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11458",
+    "sourceName": "Spinach, cooked, boiled, drained, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "raw-spinach",
+    "name": "菠菜（生）",
+    "group": "蔬菜",
+    "aliases": [
+      "生菠菜"
+    ],
+    "per100": {
+      "kcal": 23.0,
+      "protein": 2.86,
+      "carbs": 3.63,
+      "fat": 0.39
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11457",
+    "sourceName": "Spinach, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "cucumber",
+    "name": "黄瓜（生、带皮）",
+    "group": "蔬菜",
+    "aliases": [
+      "黄瓜",
+      "青瓜"
+    ],
+    "per100": {
+      "kcal": 15.0,
+      "protein": 0.65,
+      "carbs": 3.63,
+      "fat": 0.11
+    },
+    "portions": {
+      "根": 150.0,
+      "份": 150.0
+    },
+    "defaultGrams": 150.0,
+    "defaultUnit": "根",
+    "reference": "USDA SR28",
+    "sourceId": "11205",
+    "sourceName": "Cucumber, with peel, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "eggplant",
+    "name": "茄子（水煮）",
+    "group": "蔬菜",
+    "aliases": [
+      "茄子",
+      "水煮茄子"
+    ],
+    "per100": {
+      "kcal": 35.0,
+      "protein": 0.83,
+      "carbs": 8.73,
+      "fat": 0.23
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11210",
+    "sourceName": "Eggplant, cooked, boiled, drained, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "raw-eggplant",
+    "name": "茄子（生）",
+    "group": "蔬菜",
+    "aliases": [
+      "生茄子"
+    ],
+    "per100": {
+      "kcal": 25.0,
+      "protein": 0.98,
+      "carbs": 5.88,
+      "fat": 0.18
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11209",
+    "sourceName": "Eggplant, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "tomato",
+    "name": "番茄（生）",
+    "group": "蔬菜",
+    "aliases": [
+      "番茄",
+      "西红柿"
+    ],
+    "per100": {
+      "kcal": 18.0,
+      "protein": 0.88,
+      "carbs": 3.89,
+      "fat": 0.2
+    },
+    "portions": {
+      "个": 150.0,
+      "份": 150.0
+    },
+    "defaultGrams": 150.0,
+    "defaultUnit": "个",
+    "reference": "USDA SR28",
+    "sourceId": "11529",
+    "sourceName": "Tomatoes, red, ripe, raw, year round average",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "cooked-tomato",
+    "name": "番茄（熟、未加油）",
+    "group": "蔬菜",
+    "aliases": [
+      "熟番茄",
+      "熟西红柿"
+    ],
+    "per100": {
+      "kcal": 18.0,
+      "protein": 0.95,
+      "carbs": 4.01,
+      "fat": 0.11
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11530",
+    "sourceName": "Tomatoes, red, ripe, cooked",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "mushroom",
+    "name": "白蘑菇（水煮）",
+    "group": "蔬菜",
+    "aliases": [
+      "蘑菇",
+      "水煮蘑菇"
+    ],
+    "per100": {
+      "kcal": 28.0,
+      "protein": 2.17,
+      "carbs": 5.29,
+      "fat": 0.47
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11261",
+    "sourceName": "Mushrooms, white, cooked, boiled, drained, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "shiitake",
+    "name": "香菇（熟、未加油）",
+    "group": "蔬菜",
+    "aliases": [
+      "香菇",
+      "熟香菇"
+    ],
+    "per100": {
+      "kcal": 56.0,
+      "protein": 1.56,
+      "carbs": 14.39,
+      "fat": 0.22
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11269",
+    "sourceName": "Mushrooms, shiitake, cooked, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "peas",
+    "name": "豌豆（水煮）",
+    "group": "蔬菜",
+    "aliases": [
+      "豌豆",
+      "熟豌豆"
+    ],
+    "per100": {
+      "kcal": 84.0,
+      "protein": 5.36,
+      "carbs": 15.63,
+      "fat": 0.22
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11305",
+    "sourceName": "Peas, green, cooked, boiled, drained, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "green-pepper",
+    "name": "青椒（生）",
+    "group": "蔬菜",
+    "aliases": [
+      "青椒",
+      "绿甜椒"
+    ],
+    "per100": {
+      "kcal": 20.0,
+      "protein": 0.86,
+      "carbs": 4.64,
+      "fat": 0.17
+    },
+    "portions": {
+      "个": 80.0,
+      "份": 80.0
+    },
+    "defaultGrams": 80.0,
+    "defaultUnit": "个",
+    "reference": "USDA SR28",
+    "sourceId": "11333",
+    "sourceName": "Peppers, sweet, green, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "cooked-pepper",
+    "name": "青椒（水煮）",
+    "group": "蔬菜",
+    "aliases": [
+      "熟青椒"
+    ],
+    "per100": {
+      "kcal": 28.0,
+      "protein": 0.92,
+      "carbs": 6.7,
+      "fat": 0.2
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11334",
+    "sourceName": "Peppers, sweet, green, cooked, boiled, drained, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "lettuce",
+    "name": "生菜（生）",
+    "group": "蔬菜",
+    "aliases": [
+      "生菜"
+    ],
+    "per100": {
+      "kcal": 15.0,
+      "protein": 1.36,
+      "carbs": 2.87,
+      "fat": 0.15
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11253",
+    "sourceName": "Lettuce, green leaf, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "zucchini",
+    "name": "西葫芦（水煮）",
+    "group": "蔬菜",
+    "aliases": [
+      "西葫芦",
+      "熟西葫芦"
+    ],
+    "per100": {
+      "kcal": 15.0,
+      "protein": 1.14,
+      "carbs": 2.69,
+      "fat": 0.36
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "11478",
+    "sourceName": "Squash, summer, zucchini, includes skin, cooked, boiled, drained, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "ginger",
+    "name": "生姜（生）",
+    "group": "调味",
+    "aliases": [
+      "姜",
+      "生姜"
+    ],
+    "per100": {
+      "kcal": 80.0,
+      "protein": 1.82,
+      "carbs": 17.77,
+      "fat": 0.75
+    },
+    "portions": {
+      "片": 5.0,
+      "份": 5.0
+    },
+    "defaultGrams": 5.0,
+    "defaultUnit": "片",
+    "reference": "USDA SR28",
+    "sourceId": "11216",
+    "sourceName": "Ginger root, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "apple",
+    "name": "苹果（带皮可食部分）",
+    "group": "水果",
+    "aliases": [
+      "苹果"
+    ],
+    "per100": {
+      "kcal": 52.0,
+      "protein": 0.26,
+      "carbs": 13.81,
+      "fat": 0.17
+    },
+    "portions": {
+      "个": 180.0,
+      "份": 180.0
+    },
+    "defaultGrams": 180.0,
+    "defaultUnit": "个",
+    "reference": "USDA SR28",
+    "sourceId": "09003",
+    "sourceName": "Apples, raw, with skin",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "banana",
+    "name": "香蕉（去皮）",
+    "group": "水果",
+    "aliases": [
+      "香蕉"
+    ],
+    "per100": {
+      "kcal": 89.0,
+      "protein": 1.09,
+      "carbs": 22.84,
+      "fat": 0.33
+    },
+    "portions": {
+      "根": 100.0,
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "根",
+    "reference": "USDA SR28",
+    "sourceId": "09040",
+    "sourceName": "Bananas, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "pear",
+    "name": "梨（可食部分）",
+    "group": "水果",
+    "aliases": [
+      "梨"
+    ],
+    "per100": {
+      "kcal": 57.0,
+      "protein": 0.36,
+      "carbs": 15.23,
+      "fat": 0.14
+    },
+    "portions": {
+      "个": 180.0,
+      "份": 180.0
+    },
+    "defaultGrams": 180.0,
+    "defaultUnit": "个",
+    "reference": "USDA SR28",
+    "sourceId": "09252",
+    "sourceName": "Pears, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "kiwi",
+    "name": "猕猴桃（去皮）",
+    "group": "水果",
+    "aliases": [
+      "猕猴桃",
+      "奇异果"
+    ],
+    "per100": {
+      "kcal": 61.0,
+      "protein": 1.14,
+      "carbs": 14.66,
+      "fat": 0.52
+    },
+    "portions": {
+      "个": 75.0,
+      "份": 75.0
+    },
+    "defaultGrams": 75.0,
+    "defaultUnit": "个",
+    "reference": "USDA SR28",
+    "sourceId": "09148",
+    "sourceName": "Kiwifruit, green, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "grapes",
+    "name": "葡萄（可食部分）",
+    "group": "水果",
+    "aliases": [
+      "葡萄",
+      "提子"
+    ],
+    "per100": {
+      "kcal": 69.0,
+      "protein": 0.72,
+      "carbs": 18.1,
+      "fat": 0.16
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "09132",
+    "sourceName": "Grapes, red or green (European type, such as Thompson seedless), raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "mango",
+    "name": "芒果（去皮去核）",
+    "group": "水果",
+    "aliases": [
+      "芒果"
+    ],
+    "per100": {
+      "kcal": 60.0,
+      "protein": 0.82,
+      "carbs": 14.98,
+      "fat": 0.38
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "09176",
+    "sourceName": "Mangos, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "strawberry",
+    "name": "草莓（可食部分）",
+    "group": "水果",
+    "aliases": [
+      "草莓"
+    ],
+    "per100": {
+      "kcal": 32.0,
+      "protein": 0.67,
+      "carbs": 7.68,
+      "fat": 0.3
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "09316",
+    "sourceName": "Strawberries, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "blueberry",
+    "name": "蓝莓",
+    "group": "水果",
+    "aliases": [
+      "蓝莓"
+    ],
+    "per100": {
+      "kcal": 57.0,
+      "protein": 0.74,
+      "carbs": 14.49,
+      "fat": 0.33
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "09050",
+    "sourceName": "Blueberries, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "watermelon",
+    "name": "西瓜（去皮）",
+    "group": "水果",
+    "aliases": [
+      "西瓜"
+    ],
+    "per100": {
+      "kcal": 30.0,
+      "protein": 0.61,
+      "carbs": 7.55,
+      "fat": 0.15
+    },
+    "portions": {
+      "份": 200.0
+    },
+    "defaultGrams": 200.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "09326",
+    "sourceName": "Watermelon, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "pineapple",
+    "name": "菠萝（可食部分）",
+    "group": "水果",
+    "aliases": [
+      "菠萝",
+      "凤梨"
+    ],
+    "per100": {
+      "kcal": 50.0,
+      "protein": 0.54,
+      "carbs": 13.12,
+      "fat": 0.12
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "09266",
+    "sourceName": "Pineapple, raw, all varieties",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "lychee",
+    "name": "荔枝（去皮去核）",
+    "group": "水果",
+    "aliases": [
+      "荔枝"
+    ],
+    "per100": {
+      "kcal": 66.0,
+      "protein": 0.83,
+      "carbs": 16.53,
+      "fat": 0.44
+    },
+    "portions": {
+      "份": 100.0
+    },
+    "defaultGrams": 100.0,
+    "defaultUnit": "份",
+    "reference": "USDA SR28",
+    "sourceId": "09164",
+    "sourceName": "Litchis, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "dates",
+    "name": "椰枣（可食部分）",
+    "group": "水果",
+    "aliases": [
+      "椰枣"
+    ],
+    "per100": {
+      "kcal": 277.0,
+      "protein": 1.81,
+      "carbs": 74.97,
+      "fat": 0.15
+    },
+    "portions": {
+      "个": 24.0,
+      "份": 24.0
+    },
+    "defaultGrams": 24.0,
+    "defaultUnit": "个",
+    "reference": "USDA SR28",
+    "sourceId": "09421",
+    "sourceName": "Dates, medjool",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "almond",
+    "name": "巴旦木（可食部分）",
+    "group": "坚果",
+    "aliases": [
+      "巴旦木",
+      "扁桃仁"
+    ],
+    "per100": {
+      "kcal": 579.0,
+      "protein": 21.15,
+      "carbs": 21.55,
+      "fat": 49.93
+    },
+    "portions": {
+      "把": 20.0,
+      "份": 20.0
+    },
+    "defaultGrams": 20.0,
+    "defaultUnit": "把",
+    "reference": "USDA SR28",
+    "sourceId": "12061",
+    "sourceName": "Nuts, almonds",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "walnut",
+    "name": "核桃仁",
+    "group": "坚果",
+    "aliases": [
+      "核桃仁",
+      "核桃"
+    ],
+    "per100": {
+      "kcal": 654.0,
+      "protein": 15.23,
+      "carbs": 13.71,
+      "fat": 65.21
+    },
+    "portions": {
+      "把": 20.0,
+      "份": 20.0
+    },
+    "defaultGrams": 20.0,
+    "defaultUnit": "把",
+    "reference": "USDA SR28",
+    "sourceId": "12155",
+    "sourceName": "Nuts, walnuts, english",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "cashew",
+    "name": "腰果（原味）",
+    "group": "坚果",
+    "aliases": [
+      "腰果"
+    ],
+    "per100": {
+      "kcal": 553.0,
+      "protein": 18.22,
+      "carbs": 30.19,
+      "fat": 43.85
+    },
+    "portions": {
+      "把": 20.0,
+      "份": 20.0
+    },
+    "defaultGrams": 20.0,
+    "defaultUnit": "把",
+    "reference": "USDA SR28",
+    "sourceId": "12087",
+    "sourceName": "Nuts, cashew nuts, raw",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "mixed-nuts",
+    "name": "混合坚果（无盐参考）",
+    "group": "坚果",
+    "aliases": [
+      "混合坚果"
+    ],
+    "per100": {
+      "kcal": 607.0,
+      "protein": 19.5,
+      "carbs": 22.42,
+      "fat": 53.5
+    },
+    "portions": {
+      "把": 20.0,
+      "份": 20.0
+    },
+    "defaultGrams": 20.0,
+    "defaultUnit": "把",
+    "reference": "USDA SR28",
+    "sourceId": "12135",
+    "sourceName": "Nuts, mixed nuts, dry roasted, with peanuts, without salt added",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "peanuts",
+    "name": "花生仁（无盐烤制）",
+    "group": "坚果",
+    "aliases": [
+      "花生仁",
+      "花生"
+    ],
+    "per100": {
+      "kcal": 587.0,
+      "protein": 24.35,
+      "carbs": 21.26,
+      "fat": 49.66
+    },
+    "portions": {
+      "把": 20.0,
+      "份": 20.0
+    },
+    "defaultGrams": 20.0,
+    "defaultUnit": "把",
+    "reference": "USDA SR28",
+    "sourceId": "16390",
+    "sourceName": "Peanuts, all types, dry-roasted, without salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "peanut-butter",
+    "name": "花生酱（参考）",
+    "group": "坚果",
+    "aliases": [
+      "花生酱"
+    ],
+    "per100": {
+      "kcal": 598.0,
+      "protein": 22.21,
+      "carbs": 22.31,
+      "fat": 51.36
+    },
+    "portions": {
+      "勺": 15.0,
+      "份": 15.0
+    },
+    "defaultGrams": 15.0,
+    "defaultUnit": "勺",
+    "reference": "USDA SR28",
+    "sourceId": "16098",
+    "sourceName": "Peanut butter, smooth style, with salt",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "oil",
+    "name": "食用油（大豆油参考）",
+    "group": "调味",
+    "aliases": [
+      "食用油",
+      "大豆油",
+      "油"
+    ],
+    "per100": {
+      "kcal": 884.0,
+      "protein": 0.0,
+      "carbs": 0.0,
+      "fat": 100.0
+    },
+    "portions": {
+      "勺": 10.0,
+      "份": 10.0
+    },
+    "defaultGrams": 10.0,
+    "defaultUnit": "勺",
+    "reference": "USDA SR28",
+    "sourceId": "04044",
+    "sourceName": "Oil, soybean, salad or cooking",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "sugar",
+    "name": "白砂糖",
+    "group": "调味",
+    "aliases": [
+      "白糖",
+      "白砂糖",
+      "糖"
+    ],
+    "per100": {
+      "kcal": 387.0,
+      "protein": 0.0,
+      "carbs": 99.98,
+      "fat": 0.0
+    },
+    "portions": {
+      "勺": 5.0,
+      "份": 5.0
+    },
+    "defaultGrams": 5.0,
+    "defaultUnit": "勺",
+    "reference": "USDA SR28",
+    "sourceId": "19335",
+    "sourceName": "Sugars, granulated",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "soy-sauce",
+    "name": "酱油（参考）",
+    "group": "调味",
+    "aliases": [
+      "酱油",
+      "生抽"
+    ],
+    "per100": {
+      "kcal": 53.0,
+      "protein": 8.14,
+      "carbs": 4.93,
+      "fat": 0.57
+    },
+    "portions": {
+      "勺": 10.0,
+      "份": 10.0
+    },
+    "defaultGrams": 10.0,
+    "defaultUnit": "勺",
+    "reference": "USDA SR28",
+    "sourceId": "16123",
+    "sourceName": "Soy sauce made from soy and wheat (shoyu)",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "water",
+    "name": "饮用水",
+    "group": "饮品",
+    "aliases": [
+      "水",
+      "饮用水",
+      "白开水"
+    ],
+    "per100": {
+      "kcal": 0.0,
+      "protein": 0.0,
+      "carbs": 0.0,
+      "fat": 0.0
+    },
+    "portions": {
+      "杯": 250,
+      "份": 250.0,
+      "盒": 250
+    },
+    "defaultGrams": 250.0,
+    "defaultUnit": "杯",
+    "reference": "USDA SR28",
+    "sourceId": "14411",
+    "sourceName": "Beverages, water, tap, drinking",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "coffee",
+    "name": "黑咖啡（无糖无奶）",
+    "group": "饮品",
+    "aliases": [
+      "黑咖啡",
+      "美式咖啡"
+    ],
+    "per100": {
+      "kcal": 1.0,
+      "protein": 0.12,
+      "carbs": 0.0,
+      "fat": 0.02
+    },
+    "portions": {
+      "杯": 250,
+      "份": 250.0,
+      "盒": 250
+    },
+    "defaultGrams": 250.0,
+    "defaultUnit": "杯",
+    "reference": "USDA SR28",
+    "sourceId": "14209",
+    "sourceName": "Beverages, coffee, brewed, prepared with tap water",
+    "note": "每100克可食部分。生熟状态见名称；杯、碗、个等份量为参考估计，请按实际修改。",
+    "kind": "ingredient"
+  },
+  {
+    "id": "egg-fried-rice",
+    "name": "蛋炒饭（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "蛋炒饭",
+      "炒饭"
+    ],
+    "per100": {
+      "kcal": 153.48,
+      "protein": 4.36,
+      "carbs": 21.46,
+      "fat": 5.26
+    },
+    "portions": {
+      "碗": 250,
+      "份": 250
+    },
+    "defaultGrams": 250,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "egg-fried-rice",
+    "sourceName": "蛋炒饭",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "rice",
+        "grams": 200
+      },
+      {
+        "foodId": "raw-egg",
+        "grams": 50
+      },
+      {
+        "foodId": "peas",
+        "grams": 30
+      },
+      {
+        "foodId": "oil",
+        "grams": 10
+      }
+    ],
+    "yieldGrams": 290
+  },
+  {
+    "id": "tomato-egg",
+    "name": "番茄炒蛋（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "番茄炒蛋",
+      "西红柿炒鸡蛋",
+      "西红柿炒蛋"
+    ],
+    "per100": {
+      "kcal": 95.5,
+      "protein": 5.11,
+      "carbs": 3.04,
+      "fat": 7.11
+    },
+    "portions": {
+      "份": 150
+    },
+    "defaultGrams": 150,
+    "defaultUnit": "份",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "tomato-egg",
+    "sourceName": "番茄炒蛋",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "tomato",
+        "grams": 200
+      },
+      {
+        "foodId": "raw-egg",
+        "grams": 100
+      },
+      {
+        "foodId": "oil",
+        "grams": 10
+      }
+    ],
+    "yieldGrams": 280
+  },
+  {
+    "id": "pepper-pork",
+    "name": "青椒肉丝（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "青椒肉丝"
+    ],
+    "per100": {
+      "kcal": 120.79,
+      "protein": 12.23,
+      "carbs": 2.66,
+      "fat": 6.72
+    },
+    "portions": {
+      "份": 150
+    },
+    "defaultGrams": 150,
+    "defaultUnit": "份",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "pepper-pork",
+    "sourceName": "青椒肉丝",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "raw-pork",
+        "grams": 150
+      },
+      {
+        "foodId": "green-pepper",
+        "grams": 150
+      },
+      {
+        "foodId": "oil",
+        "grams": 10
+      },
+      {
+        "foodId": "soy-sauce",
+        "grams": 10
+      }
+    ],
+    "yieldGrams": 280
+  },
+  {
+    "id": "kung-pao",
+    "name": "宫保鸡丁（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "宫保鸡丁"
+    ],
+    "per100": {
+      "kcal": 192.87,
+      "protein": 16.56,
+      "carbs": 6.25,
+      "fat": 11.6
+    },
+    "portions": {
+      "份": 150
+    },
+    "defaultGrams": 150,
+    "defaultUnit": "份",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "kung-pao",
+    "sourceName": "宫保鸡丁",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "raw-chicken",
+        "grams": 180
+      },
+      {
+        "foodId": "peanuts",
+        "grams": 30
+      },
+      {
+        "foodId": "cucumber",
+        "grams": 100
+      },
+      {
+        "foodId": "oil",
+        "grams": 15
+      },
+      {
+        "foodId": "sugar",
+        "grams": 8
+      },
+      {
+        "foodId": "soy-sauce",
+        "grams": 15
+      }
+    ],
+    "yieldGrams": 300
+  },
+  {
+    "id": "mapo-tofu",
+    "name": "麻婆豆腐（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "麻婆豆腐"
+    ],
+    "per100": {
+      "kcal": 158.9,
+      "protein": 15.31,
+      "carbs": 2.14,
+      "fat": 11.03
+    },
+    "portions": {
+      "份": 150
+    },
+    "defaultGrams": 150,
+    "defaultUnit": "份",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "mapo-tofu",
+    "sourceName": "麻婆豆腐",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "tofu",
+        "grams": 250
+      },
+      {
+        "foodId": "raw-pork",
+        "grams": 50
+      },
+      {
+        "foodId": "oil",
+        "grams": 15
+      },
+      {
+        "foodId": "soy-sauce",
+        "grams": 15
+      },
+      {
+        "foodId": "water",
+        "grams": 50
+      }
+    ],
+    "yieldGrams": 360
+  },
+  {
+    "id": "chicken-rice",
+    "name": "鸡肉饭（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "鸡肉饭",
+      "鸡胸肉饭"
+    ],
+    "per100": {
+      "kcal": 125.51,
+      "protein": 9.26,
+      "carbs": 16.34,
+      "fat": 2.28
+    },
+    "portions": {
+      "份": 300
+    },
+    "defaultGrams": 300,
+    "defaultUnit": "份",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "chicken-rice",
+    "sourceName": "鸡肉饭",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "rice",
+        "grams": 200
+      },
+      {
+        "foodId": "chicken",
+        "grams": 100
+      },
+      {
+        "foodId": "broccoli",
+        "grams": 80
+      },
+      {
+        "foodId": "oil",
+        "grams": 5
+      }
+    ],
+    "yieldGrams": 385
+  },
+  {
+    "id": "beef-noodles",
+    "name": "牛肉面（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "牛肉面"
+    ],
+    "per100": {
+      "kcal": 89.53,
+      "protein": 6.21,
+      "carbs": 9.57,
+      "fat": 2.82
+    },
+    "portions": {
+      "碗": 500,
+      "份": 500
+    },
+    "defaultGrams": 500,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "beef-noodles",
+    "sourceName": "牛肉面",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "egg-noodles",
+        "grams": 200
+      },
+      {
+        "foodId": "beef",
+        "grams": 80
+      },
+      {
+        "foodId": "bok-choy",
+        "grams": 50
+      },
+      {
+        "foodId": "oil",
+        "grams": 5
+      },
+      {
+        "foodId": "water",
+        "grams": 200
+      }
+    ],
+    "yieldGrams": 535
+  },
+  {
+    "id": "tomato-egg-noodles",
+    "name": "西红柿鸡蛋面（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "西红柿鸡蛋面",
+      "番茄鸡蛋面"
+    ],
+    "per100": {
+      "kcal": 85.35,
+      "protein": 3.38,
+      "carbs": 11.37,
+      "fat": 2.94
+    },
+    "portions": {
+      "碗": 450,
+      "份": 450
+    },
+    "defaultGrams": 450,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "tomato-egg-noodles",
+    "sourceName": "西红柿鸡蛋面",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "egg-noodles",
+        "grams": 200
+      },
+      {
+        "foodId": "tomato",
+        "grams": 100
+      },
+      {
+        "foodId": "raw-egg",
+        "grams": 50
+      },
+      {
+        "foodId": "oil",
+        "grams": 5
+      },
+      {
+        "foodId": "water",
+        "grams": 150
+      }
+    ],
+    "yieldGrams": 480
+  },
+  {
+    "id": "stir-broccoli",
+    "name": "清炒西兰花（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "清炒西兰花",
+      "炒西兰花"
+    ],
+    "per100": {
+      "kcal": 75.43,
+      "protein": 2.27,
+      "carbs": 6.84,
+      "fat": 5.15
+    },
+    "portions": {
+      "份": 150
+    },
+    "defaultGrams": 150,
+    "defaultUnit": "份",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "stir-broccoli",
+    "sourceName": "清炒西兰花",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "broccoli",
+        "grams": 200
+      },
+      {
+        "foodId": "oil",
+        "grams": 10
+      }
+    ],
+    "yieldGrams": 210
+  },
+  {
+    "id": "stir-greens",
+    "name": "清炒小白菜（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "清炒小白菜",
+      "炒青菜",
+      "清炒青菜"
+    ],
+    "per100": {
+      "kcal": 53.52,
+      "protein": 1.49,
+      "carbs": 1.7,
+      "fat": 4.91
+    },
+    "portions": {
+      "份": 150
+    },
+    "defaultGrams": 150,
+    "defaultUnit": "份",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "stir-greens",
+    "sourceName": "清炒小白菜",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "bok-choy",
+        "grams": 200
+      },
+      {
+        "foodId": "oil",
+        "grams": 10
+      }
+    ],
+    "yieldGrams": 210
+  },
+  {
+    "id": "stir-spinach",
+    "name": "清炒菠菜（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "清炒菠菜",
+      "炒菠菜"
+    ],
+    "per100": {
+      "kcal": 64.0,
+      "protein": 2.83,
+      "carbs": 3.57,
+      "fat": 5.01
+    },
+    "portions": {
+      "份": 150
+    },
+    "defaultGrams": 150,
+    "defaultUnit": "份",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "stir-spinach",
+    "sourceName": "清炒菠菜",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "spinach",
+        "grams": 200
+      },
+      {
+        "foodId": "oil",
+        "grams": 10
+      }
+    ],
+    "yieldGrams": 210
+  },
+  {
+    "id": "potato-strips",
+    "name": "酸辣土豆丝（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "酸辣土豆丝",
+      "炒土豆丝"
+    ],
+    "per100": {
+      "kcal": 107.36,
+      "protein": 1.51,
+      "carbs": 16.75,
+      "fat": 4.11
+    },
+    "portions": {
+      "份": 150
+    },
+    "defaultGrams": 150,
+    "defaultUnit": "份",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "potato-strips",
+    "sourceName": "酸辣土豆丝",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "potato",
+        "grams": 200
+      },
+      {
+        "foodId": "green-pepper",
+        "grams": 40
+      },
+      {
+        "foodId": "oil",
+        "grams": 10
+      }
+    ],
+    "yieldGrams": 250
+  },
+  {
+    "id": "fried-eggplant",
+    "name": "炒茄子（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "炒茄子"
+    ],
+    "per100": {
+      "kcal": 109.61,
+      "protein": 1.08,
+      "carbs": 7.81,
+      "fat": 8.92
+    },
+    "portions": {
+      "份": 150
+    },
+    "defaultGrams": 150,
+    "defaultUnit": "份",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "fried-eggplant",
+    "sourceName": "炒茄子",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "eggplant",
+        "grams": 200
+      },
+      {
+        "foodId": "oil",
+        "grams": 20
+      },
+      {
+        "foodId": "soy-sauce",
+        "grams": 10
+      }
+    ],
+    "yieldGrams": 230
+  },
+  {
+    "id": "dumplings",
+    "name": "猪肉白菜饺子（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "饺子",
+      "水饺",
+      "猪肉白菜饺子"
+    ],
+    "per100": {
+      "kcal": 148.74,
+      "protein": 8.75,
+      "carbs": 20.72,
+      "fat": 3.11
+    },
+    "portions": {
+      "个": 25,
+      "份": 25
+    },
+    "defaultGrams": 25,
+    "defaultUnit": "个",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "dumplings",
+    "sourceName": "猪肉白菜饺子",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "flour",
+        "grams": 100
+      },
+      {
+        "foodId": "raw-pork",
+        "grams": 100
+      },
+      {
+        "foodId": "napa",
+        "grams": 100
+      },
+      {
+        "foodId": "oil",
+        "grams": 5
+      },
+      {
+        "foodId": "water",
+        "grams": 100
+      }
+    ],
+    "yieldGrams": 380
+  },
+  {
+    "id": "wonton",
+    "name": "猪肉馄饨（含汤）（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "馄饨",
+      "云吞"
+    ],
+    "per100": {
+      "kcal": 83.22,
+      "protein": 5.6,
+      "carbs": 11.98,
+      "fat": 1.17
+    },
+    "portions": {
+      "碗": 300,
+      "份": 300
+    },
+    "defaultGrams": 300,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "wonton",
+    "sourceName": "猪肉馄饨（含汤）",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "flour",
+        "grams": 70
+      },
+      {
+        "foodId": "raw-pork",
+        "grams": 80
+      },
+      {
+        "foodId": "water",
+        "grams": 300
+      },
+      {
+        "foodId": "soy-sauce",
+        "grams": 10
+      }
+    ],
+    "yieldGrams": 450
+  },
+  {
+    "id": "steamed-bun",
+    "name": "馒头（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "馒头",
+      "白馒头"
+    ],
+    "per100": {
+      "kcal": 232.34,
+      "protein": 6.46,
+      "carbs": 48.94,
+      "fat": 0.61
+    },
+    "portions": {
+      "个": 80,
+      "份": 80
+    },
+    "defaultGrams": 80,
+    "defaultUnit": "个",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "steamed-bun",
+    "sourceName": "馒头",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "flour",
+        "grams": 100
+      },
+      {
+        "foodId": "water",
+        "grams": 60
+      },
+      {
+        "foodId": "sugar",
+        "grams": 2
+      }
+    ],
+    "yieldGrams": 160
+  },
+  {
+    "id": "pork-bun",
+    "name": "猪肉包子（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "肉包子",
+      "猪肉包子",
+      "包子"
+    ],
+    "per100": {
+      "kcal": 189.14,
+      "protein": 10.08,
+      "carbs": 27.68,
+      "fat": 3.78
+    },
+    "portions": {
+      "个": 100,
+      "份": 100
+    },
+    "defaultGrams": 100,
+    "defaultUnit": "个",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "pork-bun",
+    "sourceName": "猪肉包子",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "flour",
+        "grams": 100
+      },
+      {
+        "foodId": "raw-pork",
+        "grams": 80
+      },
+      {
+        "foodId": "napa",
+        "grams": 50
+      },
+      {
+        "foodId": "oil",
+        "grams": 5
+      },
+      {
+        "foodId": "water",
+        "grams": 70
+      }
+    ],
+    "yieldGrams": 280
+  },
+  {
+    "id": "rice-congee",
+    "name": "白米粥（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "白米粥",
+      "白粥",
+      "大米粥"
+    ],
+    "per100": {
+      "kcal": 36.0,
+      "protein": 0.66,
+      "carbs": 7.93,
+      "fat": 0.06
+    },
+    "portions": {
+      "碗": 250,
+      "份": 250
+    },
+    "defaultGrams": 250,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "rice-congee",
+    "sourceName": "白米粥",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "rice-dry",
+        "grams": 40
+      },
+      {
+        "foodId": "water",
+        "grams": 360
+      }
+    ],
+    "yieldGrams": 400
+  },
+  {
+    "id": "millet-congee",
+    "name": "小米粥（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "小米粥"
+    ],
+    "per100": {
+      "kcal": 37.8,
+      "protein": 1.1,
+      "carbs": 7.29,
+      "fat": 0.42
+    },
+    "portions": {
+      "碗": 250,
+      "份": 250
+    },
+    "defaultGrams": 250,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "millet-congee",
+    "sourceName": "小米粥",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "millet-dry",
+        "grams": 40
+      },
+      {
+        "foodId": "water",
+        "grams": 360
+      }
+    ],
+    "yieldGrams": 400
+  },
+  {
+    "id": "oats-milk",
+    "name": "牛奶燕麦粥（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "牛奶燕麦粥",
+      "牛奶燕麦"
+    ],
+    "per100": {
+      "kcal": 104.86,
+      "protein": 4.53,
+      "carbs": 13.48,
+      "fat": 3.7
+    },
+    "portions": {
+      "碗": 250,
+      "份": 250
+    },
+    "defaultGrams": 250,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "oats-milk",
+    "sourceName": "牛奶燕麦粥",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "oats-dry",
+        "grams": 40
+      },
+      {
+        "foodId": "milk",
+        "grams": 250
+      }
+    ],
+    "yieldGrams": 290
+  },
+  {
+    "id": "chicken-salad",
+    "name": "鸡胸肉沙拉（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "鸡胸肉沙拉"
+    ],
+    "per100": {
+      "kcal": 87.87,
+      "protein": 10.07,
+      "carbs": 2.18,
+      "fat": 4.32
+    },
+    "portions": {
+      "份": 300
+    },
+    "defaultGrams": 300,
+    "defaultUnit": "份",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "chicken-salad",
+    "sourceName": "鸡胸肉沙拉",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "chicken",
+        "grams": 100
+      },
+      {
+        "foodId": "lettuce",
+        "grams": 100
+      },
+      {
+        "foodId": "tomato",
+        "grams": 100
+      },
+      {
+        "foodId": "oil",
+        "grams": 10
+      }
+    ],
+    "yieldGrams": 310
+  },
+  {
+    "id": "egg-sandwich",
+    "name": "鸡蛋三明治（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "鸡蛋三明治"
+    ],
+    "per100": {
+      "kcal": 184.69,
+      "protein": 9.13,
+      "carbs": 23.68,
+      "fat": 5.64
+    },
+    "portions": {
+      "个": 130,
+      "份": 130
+    },
+    "defaultGrams": 130,
+    "defaultUnit": "个",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "egg-sandwich",
+    "sourceName": "鸡蛋三明治",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "white-bread",
+        "grams": 60
+      },
+      {
+        "foodId": "egg",
+        "grams": 50
+      },
+      {
+        "foodId": "lettuce",
+        "grams": 20
+      }
+    ],
+    "yieldGrams": 130
+  },
+  {
+    "id": "banana-milk",
+    "name": "香蕉牛奶（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "香蕉牛奶"
+    ],
+    "per100": {
+      "kcal": 69.0,
+      "protein": 2.56,
+      "carbs": 9.95,
+      "fat": 2.42
+    },
+    "portions": {
+      "杯": 250,
+      "份": 250
+    },
+    "defaultGrams": 250,
+    "defaultUnit": "杯",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "banana-milk",
+    "sourceName": "香蕉牛奶",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "banana",
+        "grams": 100
+      },
+      {
+        "foodId": "milk",
+        "grams": 250
+      }
+    ],
+    "yieldGrams": 350
+  },
+  {
+    "id": "tofu-soup",
+    "name": "豆腐青菜汤（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "豆腐青菜汤",
+      "青菜豆腐汤"
+    ],
+    "per100": {
+      "kcal": 22.12,
+      "protein": 1.94,
+      "carbs": 0.66,
+      "fat": 1.52
+    },
+    "portions": {
+      "碗": 250,
+      "份": 250
+    },
+    "defaultGrams": 250,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "tofu-soup",
+    "sourceName": "豆腐青菜汤",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "soft-tofu",
+        "grams": 100
+      },
+      {
+        "foodId": "bok-choy",
+        "grams": 100
+      },
+      {
+        "foodId": "water",
+        "grams": 250
+      },
+      {
+        "foodId": "oil",
+        "grams": 3
+      }
+    ],
+    "yieldGrams": 450
+  },
+  {
+    "id": "shrimp-rice",
+    "name": "虾仁炒饭（参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "虾仁炒饭"
+    ],
+    "per100": {
+      "kcal": 150.08,
+      "protein": 8.58,
+      "carbs": 17.62,
+      "fat": 4.61
+    },
+    "portions": {
+      "碗": 250,
+      "份": 250
+    },
+    "defaultGrams": 250,
+    "defaultUnit": "碗",
+    "reference": "USDA SR28 食材组合估算",
+    "sourceId": "shrimp-rice",
+    "sourceName": "虾仁炒饭",
+    "note": "参考配方，并非餐馆实测。油量、食材比例和出品重量会改变营养，请确认或编辑；不含未列出的调料。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "rice",
+        "grams": 200
+      },
+      {
+        "foodId": "shrimp",
+        "grams": 80
+      },
+      {
+        "foodId": "raw-egg",
+        "grams": 50
+      },
+      {
+        "foodId": "peas",
+        "grams": 30
+      },
+      {
+        "foodId": "oil",
+        "grams": 10
+      }
+    ],
+    "yieldGrams": 360
+  }
+]

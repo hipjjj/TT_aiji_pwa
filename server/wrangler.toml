@@ -1,0 +1,20 @@
+name = "tt-aiji-pwa-xiaobao-ai"
+main = "worker.mjs"
+compatibility_date = "2026-10-12"
+
+[vars]
+ALLOWED_ORIGINS = "https://hipjjj.github.io"
+NUTRITION_MODEL = "gpt-4.1-mini"
+DAILY_AI_LIMIT = "30"
+PER_MINUTE_AI_LIMIT = "5"
+
+[[durable_objects.bindings]]
+name = "AI_QUOTA"
+class_name = "NutritionQuota"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["NutritionQuota"]
+
+# Configure NUTRITION_API_KEY and ACCESS_CODE using `wrangler secret put`.
+# Secrets must never be added here or to the static frontend.

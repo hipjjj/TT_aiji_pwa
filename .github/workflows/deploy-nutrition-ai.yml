@@ -1,0 +1,83 @@
+name: Deploy Xiaobao AI backend
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: xiaobao-ai-backend
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      NUTRITION_API_KEY: ${{ secrets.NUTRITION_API_KEY }}
+      ACCESS_CODE: ${{ secrets.NUTRITION_ACCESS_CODE }}
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Check configuration names without printing values
+        run: |
+          node --input-type=module - <<'JS'
+          for (const name of ['CLOUDFLARE_API_TOKEN','CLOUDFLARE_ACCOUNT_ID','NUTRITION_API_KEY','ACCESS_CODE']) {
+            if (!process.env[name]) throw new Error(`Required repository secret is missing: ${name}`);
+          }
+          if (process.env.ACCESS_CODE.length < 16) throw new Error('NUTRITION_ACCESS_CODE must contain at least 16 characters');
+          JS
+      - run: npm ci
+      - run: npm test
+      - name: Deploy Worker and quota storage
+        id: worker
+        run: |
+          set -o pipefail
+          npm run worker:deploy | tee "$RUNNER_TEMP/xiaobao-deploy.log"
+          node --input-type=module - <<'JS'
+          import {readFileSync,appendFileSync} from 'node:fs';
+          const output=readFileSync(`${process.env.RUNNER_TEMP}/xiaobao-deploy.log`,'utf8');
+          const url=output.match(/https:\/\/tt-aiji-pwa-xiaobao-ai\.[a-z0-9-]+\.workers\.dev/i)?.[0];
+          if (!url) throw new Error('Worker URL was not returned by deployment');
+          appendFileSync(process.env.GITHUB_OUTPUT,`url=${url}\n`);
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,`小包 AI 服务地址：${url}\n\n请在营养屋的 AI 设置中填写此地址及你自行设置的访问口令。\n`);
+          JS
+      - name: Set backend secrets without logging them
+        run: |
+          node --input-type=module - <<'JS'
+          import {spawn} from 'node:child_process';
+          const child=spawn('npx',['wrangler','secret','bulk','--config','server/wrangler.toml'],{stdio:['pipe','inherit','inherit']});
+          child.stdin.end(JSON.stringify({NUTRITION_API_KEY:process.env.NUTRITION_API_KEY,ACCESS_CODE:process.env.ACCESS_CODE}));
+          child.on('error',()=>process.exit(1));
+          child.on('exit',code=>process.exit(code??1));
+          JS
+      - name: Verify deployed service and one real text analysis
+        env:
+          SERVICE_URL: ${{ steps.worker.outputs.url }}
+        run: |
+          node --input-type=module - <<'JS'
+          import {validateAIAnalysis} from './src/nutrition/model.mjs';
+          const origin='https://hipjjj.github.io';
+          let ready=false;
+          for (let attempt=0;attempt<6;attempt++) {
+            const response=await fetch(`${process.env.SERVICE_URL}/health`,{headers:{Origin:origin},signal:AbortSignal.timeout(15000)});
+            ready=response.ok && (await response.json()).ready===true;
+            if (ready) break;
+            await new Promise(resolve=>setTimeout(resolve,3000));
+          }
+          if (!ready) throw new Error('Deployed backend did not become ready');
+          const response=await fetch(`${process.env.SERVICE_URL}/analyze`,{
+            method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
+            body:JSON.stringify({text:'熟米饭150克，水煮鸡蛋1个',photo:null}),signal:AbortSignal.timeout(45000)
+          });
+          if (!response.ok) throw new Error(`Live AI verification failed with HTTP ${response.status}; check Worker configuration and OpenAI billing`);
+          const result=validateAIAnalysis(await response.json());
+          if (!result.foods.length) throw new Error('Live AI verification returned no food');
+          console.log('PASS: deployed health, authentication, quota storage, and real OpenAI text analysis');
+          JS
