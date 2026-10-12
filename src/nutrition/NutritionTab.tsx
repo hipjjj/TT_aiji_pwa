@@ -13,7 +13,7 @@ const groups=['全部',...new Set(library.map(food=>food.group))];
 const sourceText={dictionary:copy.local,ai:copy.ai,manual:'手动填写'};
 const format=(value:number)=>Number.isFinite(value)?value.toLocaleString('zh-CN',{maximumFractionDigits:1}):'—';
 const emptyTargets=()=>Object.fromEntries(keys.map(key=>[key,{min:'',max:''}])) as Record<NutrientKey,{min:string;max:string}>;
-function Modal({open,onClose,title,children,className=''}:{open:boolean;onClose:()=>void;title:string;children:React.ReactNode;className?:string}){
+export function Modal({open,onClose,title,children,className='',eyebrow=copy.eyebrow}:{open:boolean;onClose:()=>void;title:string;children:React.ReactNode;className?:string;eyebrow?:string}){
   const ref=useRef<HTMLDialogElement>(null);
   useEffect(()=>{
     const dialog=ref.current;
@@ -38,7 +38,7 @@ function Modal({open,onClose,title,children,className=''}:{open:boolean;onClose:
     };
   },[open]);
   useEffect(()=>()=>{ref.current?.close();},[]);
-  return <dialog ref={ref} className={`entry-dialog nutrition-dialog ${className}`} aria-label={title} onCancel={onClose} onClose={onClose}><div className="entry-heading"><div><span className="park-label">{copy.eyebrow}</span><h2>{title}</h2></div><button type="button" className="close" autoFocus aria-label={`关闭${title}`} onClick={onClose}>×</button></div><div className="nutrition-dialog-body">{children}</div></dialog>;
+  return <dialog ref={ref} className={`entry-dialog nutrition-dialog ${className}`} aria-label={title} onCancel={event=>{event.preventDefault();onClose();}} onClose={onClose}><div className="entry-heading"><div><span className="park-label">{eyebrow}</span><h2>{title}</h2></div><button type="button" className="close" autoFocus aria-label={`关闭${title}`} onClick={onClose}>×</button></div><div className="nutrition-dialog-body">{children}</div></dialog>;
 }
 export default function NutritionTab({onDataChange}:{onDataChange:()=>Promise<void>}){
   const [meals,setMeals]=useState<Meal[]>([]),[profile,setProfile]=useState<NutritionProfile|null>(null),[date,setDate]=useState(localDate()),[ready,setReady]=useState(false),[view,setView]=useState<'day'|'week'>('day'),[metric,setMetric]=useState<NutrientKey>('kcal');

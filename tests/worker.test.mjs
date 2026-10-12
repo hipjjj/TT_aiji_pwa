@@ -34,3 +34,11 @@ test('durable quota serializes concurrent requests and resets day/minute counter
  const quota=new NutritionQuota(state());const original=Date.now;let time=Date.parse('2026-10-12T12:00:00Z');Date.now=()=>time;
  try{const make=()=>new Request('https://quota/check',{method:'POST',body:JSON.stringify({daily:3,minute:2})});const first=await Promise.all(Array.from({length:10},async()=>await (await quota.fetch(make())).json()));assert.equal(first.filter(row=>row.allowed).length,2);time+=60000;assert.equal((await (await quota.fetch(make())).json()).allowed,true);assert.equal((await (await quota.fetch(make())).json()).reason,'day');time+=86400000;assert.equal((await (await quota.fetch(make())).json()).allowed,true);}finally{Date.now=original;}
 });
+test('AI recipe endpoint validates input before quota, uses structured recipe schema and filters forbidden ingredients',async()=>{
+ const {defaultPreferences}=await import('../src/fridge/model.mjs');let calls=0;
+ const body={mode:'dish',dish:'番茄炒蛋',inventory:[{name:'番茄',quantity:'2',unit:'个',note:'private'}],preferences:{...defaultPreferences,allergies:'鸡蛋'}};
+ const make=value=>new Request('https://worker.test/recipes',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':'fixture-access-code'},body:JSON.stringify(value)});
+ assert.equal((await handle(make({...body,preferences:{...body.preferences,servings:0}}),env(),{fetchImpl:async()=>{calls++;}})).status,400);assert.equal(calls,0);
+ const response=await handle(make(body),env(),{fetchImpl:async(_,options)=>{calls++;const posted=JSON.parse(options.body);assert.equal(posted.text.format.name,'fridge_recipes');assert.equal(posted.store,false);assert(!posted.input[0].content[0].text.includes('private'));return Response.json({status:'completed',output:[{content:[{type:'output_text',text:JSON.stringify({recipes:[{name:'番茄炒蛋',servings:2,minutes:10,ingredients:[{name:'鸡蛋',amount:2,unit:'个',gramsPerUnit:50,per100:null}],steps:['煮熟'],note:'参考'}],note:'参考'})}]}]});}});
+ assert.equal(response.status,200);assert.deepEqual((await response.json()).recipes,[]);assert.equal(calls,1);
+});

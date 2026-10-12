@@ -17,7 +17,7 @@
 
 可在自己的终端生成随机口令：`node -e "console.log(require('node:crypto').randomBytes(24).toString('hex'))"`。将结果安全保存，不提交到 Git。
 
-在 Actions 中手动运行 **Deploy Xiaobao AI backend**。工作流会运行测试，部署 `tt-aiji-pwa-xiaobao-ai` 与持久额度存储，再通过标准输入设置 Worker Secret。最后检查健康状态并调用一次真实文字分析（会产生少量 API 费用及占用一次额度），验证 OpenAI 接通。它不会因为前端每次推送就自动部署，也不会输出密钥。
+在 Actions 中手动运行 **Deploy Xiaobao AI backend**。工作流会运行测试，部署 `tt-aiji-pwa-xiaobao-ai` 与持久额度存储，再通过标准输入设置 Worker Secret。最后检查健康状态并分别调用一次真实文字分析和食谱分析（会产生少量 API 费用及占用两次额度），验证 OpenAI 接通。它不会因为前端每次推送就自动部署，也不会输出密钥。
 
 确认工作流成功后，从工作流摘要或 Cloudflare Workers 管理页取得实际 HTTPS 根地址。打开“营养屋 → 小包的食物库与估算说明 → 连接AI服务”，填写该地址和你设置的访问口令。这里不填写 OpenAI API 密钥。地址例如 `https://实际服务名.实际子域.workers.dev`，不要填写 `/analyze` 路径。
 
@@ -48,3 +48,13 @@ npx wrangler secret put ACCESS_CODE --config server/wrangler.toml
 ## 验证状态
 
 单元测试覆盖认证、Origin、请求限额、持久额度并发控制、结构化响应校验和禁止传递身体资料。前端通过模拟 API 验证照片/文字分析、上传同意、确认与保存；没有真实凭据时不能据此声称 OpenAI 调用已验证。配置完成后应以真实饮食照片验证 `/health`、接口响应、份量确认与一次保存。
+
+## 嘟嘟糕的食谱 AI
+
+复用同一个 Worker、OpenAI 密钥与会话访问口令，不需要另外一组秘密。已有后端需重新运行 **Deploy Xiaobao AI backend**，发布包含 `/recipes` 的版本。前端单独推送不会更新后端。
+
+`POST /recipes` 使用相同 Origin 和 `X-Access-Code`。正文包含 `mode:"inventory"|"dish"`、`dish`、最多100项 `{name,quantity,unit}` 库存及冰箱偏好（人数、时间、忌口/过敏、饮食偏好、是否显示营养、常备调料）。只发送尚未过期的库存；不发送存放位置、日期、食材备注、身体资料或账单。用户需先同意，再主动点击“嘟嘟糕问AI”。
+
+返回 `{recipes,note,model,source:"ai"}`；每道菜有名称、人数、预计分钟、食材用量及单位、步骤和假设说明。未知食材的营养数据可为 null，不能凭空补齐。前后端都校验边界，并按已填写的忌口及时间再次过滤；此匹配不能保证加工食品无过敏原或无交叉接触。
+
+食谱分析最多6000输出token，和小包分析共用默认每日30次／每分钟5次额度。部署后的验证会分别调用一次真实饮食文字分析和一次真实食谱分析，产生少量 API 费用。日常查询本地食谱不消耗 API 额度。

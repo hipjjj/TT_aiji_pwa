@@ -1,0 +1,786 @@
+.fridge-house {
+  margin-top: 25px;
+}
+.fridge-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 0 3px 20px;
+}
+.fridge-heading h2 {
+  font-size: 23px;
+  line-height: 1.45;
+  margin: 9px 0 0;
+}
+.fridge-heading .park-label {
+  font-size: 9px;
+}
+.fridge-heading .nutrition-soft-button {
+  background: #e8efe2;
+  border-color: #d4dfcc;
+  color: #718469;
+}
+.fridge-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  background: #fffcf3;
+  border: 1px solid #fff;
+  border-radius: 24px;
+  padding: 19px 14px;
+  margin-bottom: 21px;
+}
+.fridge-overview > div {
+  text-align: center;
+}
+.fridge-overview > div + div {
+  border-left: 1px dashed #dbe0cd;
+}
+.fridge-overview span {
+  font-size: 10px;
+  line-height: 1.7;
+  color: #7e8c7c;
+  display: block;
+}
+.fridge-overview b {
+  font-size: 29px;
+  color: #61775b;
+  display: block;
+  margin-top: 10px;
+}
+.fridge-overview small {
+  font-size: 9px;
+  font-weight: 400;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+.fridge-view {
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  border: 1px solid #dfe3d4;
+  background: #fffaf0;
+  border-radius: 16px;
+  margin-bottom: 22px;
+}
+.fridge-view button {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: #839081;
+  border-radius: 11px;
+  padding: 12px 4px;
+  font-size: 12px;
+}
+.fridge-view button[aria-pressed="true"] {
+  background: #dfead9;
+  color: #536d4e;
+  font-weight: 700;
+}
+.fridge-add {
+  background: #a6bc94;
+  box-shadow: 0 4px 0 #8ca47a;
+  color: #fffef3;
+  margin: 0 0 22px;
+}
+.fridge-urgent {
+  background: #fff0d4;
+  border: 1px solid #ecd8ad;
+  border-radius: 18px;
+  padding: 17px 18px;
+  margin-bottom: 18px;
+  line-height: 1.9;
+  color: #8b7750;
+}
+.fridge-urgent strong {
+  font-size: 12px;
+}
+.fridge-urgent p {
+  font-size: 11px;
+  margin: 8px 0;
+}
+.fridge-urgent small {
+  font-size: 10px;
+  color: #9b8a6d;
+}
+.fridge-search input {
+  margin: 0 0 13px;
+  font-size: 13px;
+  background: #fffcf4;
+  border-radius: 15px;
+}
+.fridge-zones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 19px;
+}
+.fridge-zones button {
+  border: 1px solid #dce3d6;
+  background: #fffaf1;
+  color: #7e8c7a;
+  font-size: 11px;
+  padding: 10px 13px;
+  border-radius: 12px;
+}
+.fridge-zones button[aria-pressed="true"] {
+  background: #e0ead9;
+  border-color: #bacbb1;
+  color: #59724e;
+}
+.fridge-zones small {
+  font-size: 9px;
+  margin-left: 3px;
+}
+.fridge-stock-grid,
+.fridge-recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+.fridge-stock {
+  padding: 19px;
+  background: #fffcf5;
+  border: 1px solid #fff;
+  border-radius: 23px;
+  min-width: 0;
+}
+.fridge-stock-top,
+.fridge-recipe-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+}
+.fridge-ingredient-icon {
+  display: grid;
+  place-items: center;
+  background: #ecf0df;
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  font-size: 24px;
+}
+.expiry-chip,
+.recipe-status {
+  font-size: 9px;
+  line-height: 1.7;
+  padding: 4px 7px;
+  border-radius: 8px;
+  background: #edf0e7;
+  color: #89937a;
+}
+.expiry-soon {
+  background: #f9ebd5;
+  color: #a58553;
+}
+.stock-expired {
+  background: #fbf0e6;
+}
+.stock-expired .expiry-chip {
+  background: #f3dcd0;
+  color: #aa7664;
+}
+.fridge-stock h3,
+.fridge-recipe-card h3 {
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 13px 0 7px;
+  overflow-wrap: anywhere;
+}
+.stock-amount {
+  font-size: 17px;
+  color: #6f845f;
+  margin: 0 0 10px;
+  overflow-wrap: anywhere;
+}
+.stock-place {
+  font-size: 10px;
+  color: #8f9789;
+  line-height: 1.8;
+}
+.stock-note {
+  font-size: 10px;
+  color: #9a8d79;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.fridge-stock-actions {
+  display: flex;
+  gap: 12px;
+  border-top: 1px dashed #e5e4d7;
+  padding-top: 11px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+.fridge-stock-actions button,
+.shopping-row-actions button,
+.fridge-text-button {
+  background: transparent;
+  border: 0;
+  padding: 5px 0;
+  color: #7a8e72;
+  font-size: 11px;
+  min-height: 32px;
+}
+.fridge-empty-icon {
+  font-size: 42px;
+}
+.fridge-recipe-intro {
+  padding: 24px;
+  background: #edf1e2;
+  border: 1px solid #fff;
+  border-radius: 24px;
+  margin-bottom: 22px;
+}
+.fridge-recipe-intro h3 {
+  font-size: 21px;
+  margin: 11px 0;
+}
+.fridge-recipe-intro p {
+  color: #7e8c74;
+  font-size: 11px;
+  line-height: 1.9;
+  margin: 0;
+}
+.fridge-dish-search {
+  font-size: 13px;
+}
+.fridge-dish-search input {
+  font-size: 13px;
+}
+.fridge-house .analysis-actions > button:first-child {
+  background: #e7efdc;
+  border-color: #cad9bd;
+  color: #667f56;
+}
+.fridge-consent {
+  margin-top: 16px;
+}
+.fridge-recipe-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 12px 0;
+}
+.fridge-recipe-options label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 400;
+  margin: 0;
+  color: #718168;
+}
+.fridge-house input[type="checkbox"],
+.fridge-dialog input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: #91ac7e;
+  flex-shrink: 0;
+}
+.fridge-allergy-note {
+  font-size: 10px;
+  line-height: 1.9;
+  color: #947953;
+  background: #fff1d9;
+  padding: 11px 13px;
+  border-radius: 12px;
+}
+.fridge-recipe-card {
+  min-width: 0;
+  padding: 19px;
+  background: #fffcf5;
+  border: 1px solid #fff;
+  border-radius: 23px;
+  display: flex;
+  flex-direction: column;
+}
+.recipe-emoji {
+  font-size: 31px;
+}
+.recipe-ready {
+  background: #e1eed9;
+  color: #6b8658;
+}
+.recipe-meta {
+  font-size: 10px;
+  line-height: 1.9;
+  color: #8b9681;
+  margin: 0 0 10px;
+}
+.recipe-stock-hint {
+  font-size: 11px;
+  line-height: 1.9;
+  color: #918269;
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+.fridge-recipe-card > button {
+  border: 1px solid #d7dfc9;
+  border-radius: 12px;
+  background: #edf1e3;
+  color: #70805f;
+  padding: 11px 10px;
+  font-size: 11px;
+  margin-top: auto;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+}
+.fridge-macros {
+  background: #f2f1e4;
+  padding: 12px;
+  border-radius: 12px;
+  margin: 0 0 15px;
+}
+.fridge-macros span {
+  font-size: 9px;
+  color: #939079;
+  display: block;
+}
+.fridge-macros b {
+  font-size: 18px;
+  color: #77816b;
+  display: block;
+  margin-top: 6px;
+}
+.fridge-macros p,
+.fridge-macros small {
+  font-size: 9px;
+  line-height: 1.9;
+  color: #959881;
+  margin: 5px 0 0;
+  overflow-wrap: anywhere;
+}
+.fridge-shopping-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.fridge-shopping-heading h3 {
+  font-size: 18px;
+  margin: 0 0 8px;
+}
+.fridge-shopping-heading p {
+  font-size: 11px;
+  color: #8c9782;
+  margin: 0;
+}
+.fridge-shopping-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fffcf5;
+  border: 1px solid #fff;
+  border-radius: 19px;
+  padding: 18px;
+  margin-bottom: 12px;
+  min-width: 0;
+}
+.fridge-shopping-row > label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-weight: 400;
+  margin: 0;
+  min-width: 0;
+}
+.fridge-shopping-row input {
+  margin-top: 2px !important;
+}
+.fridge-shopping-row strong {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.fridge-shopping-row p {
+  font-size: 10px;
+  color: #8f977f;
+  line-height: 1.8;
+  margin: 7px 0;
+}
+.fridge-shopping-row small {
+  font-size: 10px;
+  color: #a1977e;
+  line-height: 1.8;
+  display: block;
+  overflow-wrap: anywhere;
+}
+.shopping-row-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.shopping-stocked {
+  opacity: 0.7;
+}
+.shopping-stocked strong {
+  text-decoration: line-through;
+}
+.fridge-dialog > .entry-heading {
+  background: #fbfcf1;
+}
+.fridge-dialog .park-label {
+  color: #8ba076;
+}
+.fridge-dialog .primary {
+  background: #a6bc94;
+  color: #fffef3;
+  box-shadow: 0 4px 0 #8ca47a;
+}
+.fridge-quantity {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(75px, 0.5fr);
+  gap: 13px;
+  margin-bottom: 20px;
+}
+.fridge-quantity label {
+  min-width: 0;
+}
+.fridge-pantry {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  border: 1px dashed #d3ddc4;
+  background: #f0f4e7;
+  padding: 20px;
+  border-radius: 17px;
+  margin: 22px 0;
+}
+.fridge-pantry legend {
+  font-size: 12px;
+  color: #7d8d6c;
+  padding: 0 7px;
+}
+.fridge-pantry label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+}
+.fridge-recipe-detail h3 {
+  font-size: 15px;
+  color: #6f805d;
+  margin: 23px 0 13px;
+}
+.recipe-ingredients {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 23px;
+}
+.recipe-ingredients li {
+  padding: 12px 0;
+  border-bottom: 1px dashed #e5e5d7;
+}
+.recipe-ingredients li > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.recipe-ingredients b {
+  font-size: 13px;
+}
+.recipe-ingredients span {
+  font-size: 12px;
+  color: #8a947b;
+}
+.recipe-ingredients small {
+  display: block;
+  font-size: 10px;
+  color: #8d9f7d;
+  margin-top: 7px;
+  line-height: 1.7;
+}
+.recipe-ingredients .ingredient-missing {
+  color: #b78b63;
+}
+.recipe-ingredients .ingredient-check {
+  color: #a68d55;
+}
+.recipe-steps {
+  padding-left: 22px;
+  color: #75866a;
+  font-size: 13px;
+  line-height: 2;
+}
+.recipe-steps li {
+  padding-left: 5px;
+  margin-bottom: 13px;
+}
+.fridge-cook-button {
+  display: block;
+  width: 100%;
+  margin-top: 19px;
+  padding: 15px;
+  background: #edf1e3;
+  border-color: #d6dfc9;
+  color: #768964;
+}
+.fridge-confirm-item {
+  min-width: 0;
+  border: 1px solid #dce3cf;
+  background: #f4f6eb;
+  border-radius: 17px;
+  padding: 16px;
+  margin: 20px 0;
+}
+.fridge-confirm-item legend {
+  font-size: 13px;
+  color: #718264;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 0 7px;
+}
+.fridge-confirm-item .fridge-quantity {
+  margin-bottom: 15px;
+}
+.fridge-confirm-item label {
+  font-size: 11px;
+}
+.fridge-house button:disabled {
+  cursor: default;
+}
+.fridge-dialog .meal-form-top {
+  margin-bottom: 18px;
+}
+@media (max-width: 600px) {
+  .fridge-heading h2 {
+    font-size: 19px;
+  }
+  .fridge-heading .nutrition-soft-button {
+    font-size: 10px;
+    padding: 9px;
+  }
+  .fridge-overview {
+    padding: 17px 8px;
+    gap: 5px;
+  }
+  .fridge-overview span {
+    font-size: 9px;
+  }
+  .fridge-overview b {
+    font-size: 26px;
+  }
+  .fridge-overview small {
+    font-size: 8px;
+    margin-left: 2px;
+  }
+  .fridge-stock-grid,
+  .fridge-recipe-grid {
+    gap: 10px;
+  }
+  .fridge-stock,
+  .fridge-recipe-card {
+    padding: 14px;
+    border-radius: 19px;
+  }
+  .fridge-ingredient-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 21px;
+  }
+  .expiry-chip,
+  .recipe-status {
+    font-size: 8px;
+    padding: 3px 5px;
+  }
+  .fridge-stock h3,
+  .fridge-recipe-card h3 {
+    font-size: 14px;
+  }
+  .stock-amount {
+    font-size: 15px;
+  }
+  .stock-place {
+    font-size: 9px;
+  }
+  .fridge-stock-actions {
+    gap: 9px;
+  }
+  .fridge-stock-actions button {
+    font-size: 10px;
+  }
+  .recipe-meta {
+    font-size: 9px;
+  }
+  .recipe-stock-hint {
+    font-size: 10px;
+  }
+  .fridge-zones {
+    gap: 6px;
+  }
+  .fridge-zones button {
+    font-size: 10px;
+    padding: 9px 10px;
+  }
+  .recipe-filters button {
+    font-size: 9px;
+    padding: 9px;
+  }
+  .fridge-macros {
+    padding: 10px;
+  }
+  .fridge-macros p {
+    font-size: 8px;
+  }
+  .fridge-shopping-heading h3 {
+    font-size: 16px;
+  }
+  .fridge-shopping-row {
+    padding: 15px;
+    gap: 8px;
+  }
+  .fridge-shopping-row > label {
+    gap: 9px;
+  }
+  .shopping-row-actions {
+    flex-direction: column;
+    gap: 0;
+  }
+  .shopping-row-actions button {
+    font-size: 10px;
+  }
+  .fridge-quantity {
+    gap: 10px;
+  }
+  .fridge-dialog .entry-heading h2 {
+    font-size: 19px;
+  }
+  .fridge-confirm-item {
+    padding: 13px;
+  }
+  .fridge-recipe-intro {
+    padding: 20px;
+  }
+  .fridge-recipe-intro h3 {
+    font-size: 20px;
+  }
+}
+@media (max-width: 360px) {
+  .fridge-heading {
+    align-items: flex-start;
+  }
+  .fridge-heading h2 {
+    font-size: 17px;
+  }
+  .fridge-heading .park-label {
+    font-size: 8px;
+  }
+  .fridge-stock,
+  .fridge-recipe-card {
+    padding: 12px;
+  }
+  .fridge-stock-actions {
+    gap: 7px;
+  }
+  .fridge-overview span {
+    font-size: 8px;
+  }
+  .fridge-stock-top,
+  .fridge-recipe-top {
+    align-items: flex-start;
+  }
+  .recipe-status {
+    max-width: 60px;
+  }
+  .fridge-ingredient-icon {
+    width: 29px;
+    height: 29px;
+    font-size: 18px;
+  }
+  .expiry-chip {
+    font-size: 7px;
+  }
+  .fridge-recipe-card > button {
+    padding: 10px 8px;
+    font-size: 10px;
+  }
+  .recipe-emoji {
+    font-size: 26px;
+  }
+}
+.fridge-hero {
+  background: #eaf0e1;
+}
+.fridge-hero:after {
+  background: linear-gradient(
+    90deg,
+    #f0f5e7 0%,
+    #f0f5e7 32%,
+    #f0f5e7c9 43%,
+    transparent 70%
+  );
+}
+.fridge-hero .park-label {
+  color: #8c9c77;
+}
+.bottom-nav button {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.bottom-nav button span {
+  white-space: nowrap;
+}
+.bottom-nav button.active:has(svg rect) {
+  background: #e4eddc;
+  color: #728b60;
+}
+@media (max-width: 520px) {
+  .fridge-hero:after {
+    background: linear-gradient(
+      180deg,
+      #f0f5e7e8 0%,
+      #f0f5e78a 30%,
+      transparent 55%
+    );
+  }
+  .fridge-hero img {
+    object-position: 60% 68%;
+  }
+  .fridge-hero h1.hero-intro {
+    font-size: clamp(16px, 4.6vw, 20px);
+  }
+  .bottom-nav button {
+    font-size: 10px;
+  }
+  .bottom-nav {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+/* These shared button/hero classes also appear later in the base stylesheet. */
+.fridge-house .new-expense.fridge-add {
+  background: #a6bc94;
+  box-shadow: 0 4px 0 #8ca47a;
+  color: #fffef3;
+}
+.hero.fridge-hero {
+  background: #eaf0e1;
+}
+.hero.fridge-hero:after {
+  background: linear-gradient(
+    90deg,
+    #f0f5e7 0%,
+    #f0f5e7 32%,
+    #f0f5e7c9 43%,
+    transparent 70%
+  );
+}
+@media (max-width: 520px) {
+  .hero.fridge-hero:after {
+    background: linear-gradient(
+      180deg,
+      #f0f5e7e8 0%,
+      #f0f5e78a 30%,
+      transparent 55%
+    );
+  }
+}
