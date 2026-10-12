@@ -1,4 +1,7 @@
-export const categories = ['餐饮', '交通', '购物', '住房', '娱乐', '医疗', '其他'];
+export const categories = ['餐饮', '食品日用', '生活缴费', '交通', '购物', '娱乐', '医疗', '旅行', '人情', '其他'];
+export function normalizeCategory(category) {
+  return category === '住房' ? '生活缴费' : category;
+}
 export function parseAmount(value) {
   if (!/^\d+(\.\d{1,2})?$/.test(value)) throw new Error('请输入最多两位小数的有效金额');
   const [whole, fraction = ''] = value.split('.');
@@ -13,8 +16,8 @@ export function validateBackup(data) {
   if (!data || data.version !== 1 || !Array.isArray(data.expenses) || data.expenses.length > 100000) throw new Error('备份格式无效');
   const ids = new Set();
   return data.expenses.map(item => {
-    if (!item || typeof item.id !== 'string' || !item.id || ids.has(item.id) || !Number.isSafeInteger(item.cents) || item.cents <= 0 || item.cents > 100000000 || !categories.includes(item.category) || !validDate(item.date) || typeof item.note !== 'string' || item.note.length > 200) throw new Error('备份中包含无效或重复的账单');
+    if (!item || typeof item.id !== 'string' || !item.id || ids.has(item.id) || !Number.isSafeInteger(item.cents) || item.cents <= 0 || item.cents > 100000000 || !categories.includes(normalizeCategory(item.category)) || !validDate(item.date) || typeof item.note !== 'string' || item.note.length > 200) throw new Error('备份中包含无效或重复的账单');
     ids.add(item.id);
-    return {id:item.id,cents:item.cents,category:item.category,date:item.date,note:item.note};
+    return {id:item.id,cents:item.cents,category:normalizeCategory(item.category),date:item.date,note:item.note};
   });
 }

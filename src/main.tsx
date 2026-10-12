@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import Dexie, { type Table } from 'dexie';
-import { categories, parseAmount, validDate, validateBackup } from './model.mjs';
+import { categories, normalizeCategory, parseAmount, validDate, validateBackup } from './model.mjs';
 import parkArt from './assets/penguin-park.webp';
 import './style.css';
 
@@ -9,9 +9,12 @@ type Expense = { id:string; cents:number; category:string; date:string; note:str
 type Tab = 'bills' | 'stats' | 'backup';
 const db = new Dexie('riri-expenses') as Dexie & {expenses:Table<Expense,string>};
 db.version(1).stores({expenses:'id,date,category'});
+db.version(2).stores({expenses:'id,date,category'}).upgrade(tx =>
+  tx.table('expenses').where('category').equals('住房').modify({category:normalizeCategory('住房')})
+);
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const money = (cents:number) => (cents/100).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
-const symbols:Record<string,string> = {餐饮:'🍱',交通:'🚋',购物:'🛍️',住房:'🏡',娱乐:'🎠',医疗:'🩹',其他:'🎟️'};
+const symbols:Record<string,string> = {餐饮:'🍱',食品日用:'🧺',生活缴费:'💡',交通:'🚋',购物:'🛍️',娱乐:'🎠',医疗:'🩹',旅行:'🧳',人情:'🎁',其他:'🎟️'};
 function Icon({kind}:{kind:Tab}){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{kind==='bills'?<><path d="M4 4h16v5a3 3 0 0 0 0 6v5H4v-5a3 3 0 0 0 0-6Z"/><path d="m12 8 1.2 2.4 2.6.4-1.9 1.8.5 2.7-2.4-1.3-2.4 1.3.5-2.7-1.9-1.8 2.6-.4Z"/></>:kind==='stats'?<><path d="M5 20V12M12 20V4M19 20V9" strokeWidth="4"/></>:<><path d="M7 18H6a4 4 0 0 1-1-8 7 7 0 0 1 13-1 4.5 4.5 0 0 1 0 9h-1"/><path d="M12 21V12m-3 3 3-3 3 3"/></>}</svg>;}
 function App(){
   const [items,setItems]=useState<Expense[]>([]), [month,setMonth]=useState(today().slice(0,7)),[tab,setTab]=useState<Tab>('bills');
