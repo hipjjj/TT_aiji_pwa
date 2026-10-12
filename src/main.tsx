@@ -1,17 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import Dexie, { type Table } from 'dexie';
-import { categories, normalizeCategory, parseAmount, validDate, validateBackup } from './model.mjs';
+import { categories, normalizeCategory, parseAmount, validDate, validateBackup, validateBudgetBackup } from './model.mjs';
 import parkArt from './assets/penguin-park.webp';
 import './style.css';
 
 type Expense = { id:string; cents:number; category:string; date:string; note:string };
+type Budget = {month:string; cents:number};
 type Tab = 'bills' | 'stats' | 'backup';
-const db = new Dexie('riri-expenses') as Dexie & {expenses:Table<Expense,string>};
+const db = new Dexie('riri-expenses') as Dexie & {expenses:Table<Expense,string>;budgets:Table<Budget,string>};
 db.version(1).stores({expenses:'id,date,category'});
 db.version(2).stores({expenses:'id,date,category'}).upgrade(tx =>
   tx.table('expenses').where('category').equals('住房').modify({category:normalizeCategory('住房')})
 );
+db.version(3).stores({expenses:'id,date,category',budgets:'month'});
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const money = (cents:number) => (cents/100).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
 const symbols:Record<string,string> = {餐饮:'🍱',食品日用:'🧺',生活缴费:'💡',交通:'🚋',购物:'🛍️',娱乐:'🎠',医疗:'🩹',旅行:'🧳',人情:'🎁',其他:'🎟️'};
@@ -46,31 +48,39 @@ function ExpensePie({data,total,onSelect}:{data:{category:string;sum:number}[];t
 function Icon({kind}:{kind:Tab}){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{kind==='bills'?<><path d="M4 4h16v5a3 3 0 0 0 0 6v5H4v-5a3 3 0 0 0 0-6Z"/><path d="m12 8 1.2 2.4 2.6.4-1.9 1.8.5 2.7-2.4-1.3-2.4 1.3.5-2.7-1.9-1.8 2.6-.4Z"/></>:kind==='stats'?<><path d="M5 20V12M12 20V4M19 20V9" strokeWidth="4"/></>:<><path d="M7 18H6a4 4 0 0 1-1-8 7 7 0 0 1 13-1 4.5 4.5 0 0 1 0 9h-1"/><path d="M12 21V12m-3 3 3-3 3 3"/></>}</svg>;}
 function App(){
   const [items,setItems]=useState<Expense[]>([]), [month,setMonth]=useState(today().slice(0,7)),[tab,setTab]=useState<Tab>('bills');
+  const [budgets,setBudgets]=useState<Budget[]>([]),[budgetOpen,setBudgetOpen]=useState(false),[budgetAmount,setBudgetAmount]=useState(''),[budgetMonth,setBudgetMonth]=useState('');
+  const budgetDialog=useRef<HTMLDialogElement>(null),budgetInput=useRef<HTMLInputElement>(null);
   const [selectedCategory,setSelectedCategory]=useState<string|null>(null);
   const statsHeading=useRef<HTMLHeadingElement>(null);
   useEffect(()=>{statsHeading.current?.focus();},[selectedCategory]);
   const [amount,setAmount]=useState(''),[category,setCategory]=useState('餐饮'),[date,setDate]=useState(today()),[note,setNote]=useState('');
   const [editing,setEditing]=useState<string|null>(null),[message,setMessage]=useState(''),[ready,setReady]=useState(false),[busy,setBusy]=useState(false),[online,setOnline]=useState(navigator.onLine),[formOpen,setFormOpen]=useState(false);
   const file = useRef<HTMLInputElement>(null), amountInput=useRef<HTMLInputElement>(null), dialog=useRef<HTMLDialogElement>(null);
-  const refresh=async()=>setItems(await db.expenses.orderBy('date').reverse().toArray());
+  const refresh=async()=>{const [expenses,savedBudgets]=await Promise.all([db.expenses.orderBy('date').reverse().toArray(),db.budgets.toArray()]);setItems(expenses);setBudgets(savedBudgets);};
   useEffect(()=>{refresh().then(()=>setReady(true)).catch(()=>setMessage('无法访问本地存储，请检查浏览器的隐私设置。')); const update=()=>setOnline(navigator.onLine);window.addEventListener('online',update);window.addEventListener('offline',update);return()=>{window.removeEventListener('online',update);window.removeEventListener('offline',update);};},[]);
   useEffect(()=>{if(formOpen){dialog.current?.showModal();amountInput.current?.focus();}else dialog.current?.close();},[formOpen]);
   useEffect(()=>{if(!message)return;const timer=setTimeout(()=>setMessage(''),6000);return()=>clearTimeout(timer);},[message]);
+  useEffect(()=>{if(budgetOpen){budgetDialog.current?.showModal();budgetInput.current?.focus();}else budgetDialog.current?.close();},[budgetOpen]);
   const reset=()=>{setEditing(null);setAmount('');setNote('');setCategory('餐饮');setDate(today());};
   const openNew=()=>{reset();setFormOpen(true);};
   const save=async(e:React.FormEvent)=>{e.preventDefault();setBusy(true);try{if(!validDate(date))throw new Error('请选择有效日期');await db.expenses.put({id:editing??crypto.randomUUID(),cents:parseAmount(amount),category,date,note:note.trim()});await refresh();setMonth(date.slice(0,7));if(!editing)setTab('bills');setFormOpen(false);setMessage(editing?'账单已更新':'记好啦！小企鹅帮你收好这张小票了');reset();}catch(e){setMessage(e instanceof Error?e.message:'保存失败，请重试');}finally{setBusy(false);}};
   const edit=(item:Expense)=>{setEditing(item.id);setAmount((item.cents/100).toFixed(2));setCategory(item.category);setDate(item.date);setNote(item.note);setFormOpen(true);};
   const remove=async(item:Expense)=>{if(!confirm(`删除这笔 ¥${money(item.cents)} 的${item.category}开销？`))return;try{await db.expenses.delete(item.id);await refresh();if(editing===item.id){reset();setFormOpen(false);}setMessage('这张小票已删除');}catch{setMessage('删除失败，请重试');}};
-  const exportData=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify({version:1,expenses:items},null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`天天爱记备份-${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);setMessage('备份已导出，请妥善保存');};
-  const importData=async(e:React.ChangeEvent<HTMLInputElement>)=>{const selected=e.target.files?.[0];if(!selected)return;setBusy(true);try{if(selected.size>20*1024*1024)throw new Error('备份文件不能超过 20 MB');const entries=validateBackup(JSON.parse(await selected.text())) as Expense[];if(!confirm(`导入 ${entries.length} 笔账单？相同编号会更新，其他账单会保留。`))return;await db.transaction('rw',db.expenses,()=>db.expenses.bulkPut(entries));await refresh();setMessage(`已导入 ${entries.length} 笔账单`);}catch(e){setMessage(e instanceof Error?e.message:'导入失败');}finally{e.target.value='';setBusy(false);}};
+  const openBudget=()=>{setBudgetMonth(month);const saved=budgets.find(item=>item.month===month);setBudgetAmount(saved?(saved.cents/100).toFixed(2):'');setMessage('');setBudgetOpen(true);};
+  const saveBudget=async(e:React.FormEvent)=>{e.preventDefault();setBusy(true);try{await db.budgets.put({month:budgetMonth,cents:parseAmount(budgetAmount,true)});await refresh();setBudgetOpen(false);setMessage('本月预算已保存');}catch(e){setMessage(e instanceof Error?e.message:'预算保存失败，请重试');}finally{setBusy(false);}};
+  const clearBudget=async()=>{setBusy(true);try{await db.budgets.delete(budgetMonth);await refresh();setBudgetOpen(false);setMessage('本月预算已取消');}catch{setMessage('取消预算失败，请重试');}finally{setBusy(false);}};
+  const exportData=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify({version:1,expenses:items,budgets},null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`天天爱记备份-${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);setMessage('备份已导出，请妥善保存');};
+  const importData=async(e:React.ChangeEvent<HTMLInputElement>)=>{const selected=e.target.files?.[0];if(!selected)return;setBusy(true);try{if(selected.size>20*1024*1024)throw new Error('备份文件不能超过 20 MB');const data=JSON.parse(await selected.text());const entries=validateBackup(data) as Expense[];const savedBudgets=validateBudgetBackup(data) as Budget[];if(!confirm(`导入 ${entries.length} 笔账单${savedBudgets.length?`和 ${savedBudgets.length} 个月预算`:""}？相同编号账单及相同月份预算会更新，其他记录会保留。`))return;await db.transaction('rw',db.expenses,db.budgets,async()=>{await db.expenses.bulkPut(entries);await db.budgets.bulkPut(savedBudgets);});await refresh();setMessage(`已导入 ${entries.length} 笔账单${savedBudgets.length?`和 ${savedBudgets.length} 个月预算`:""}`);}catch(e){setMessage(e instanceof Error?e.message:'导入失败');}finally{e.target.value='';setBusy(false);}};
   const current=items.filter(i=>i.date.startsWith(month));const total=current.reduce((sum,i)=>sum+i.cents,0);
   const breakdown=categories.map(c=>({category:c,sum:current.filter(i=>i.category===c).reduce((s,i)=>s+i.cents,0)})).filter(i=>i.sum>0).sort((a,b)=>b.sum-a.sum);
   const selectedItems=current.filter(item=>item.category===selectedCategory);
   const selectedTotal=selectedItems.reduce((sum,item)=>sum+item.cents,0);
+  const budget=budgets.find(item=>item.month===month);
+  const remaining=budget?budget.cents-total:0;
   return <><main>
     <header className="topbar"><a className="brand" href="./"><span className="brand-mark" aria-hidden="true"><img src={`${import.meta.env.BASE_URL}penguin-icon.svg`} alt=""/></span> 天天爱记</a><span className="status"><i/>{online?'离线也能记':'离线模式'}</span></header>
     <section className="hero" aria-label="企鹅游乐园"><img src={parkArt} alt="戴着小票帽的毛绒企鹅，抱着粉色游乐券坐在旋转木马旁"/><div className="hero-copy"><span className="park-label">PENGUIN PLAYGROUND</span><h1>生活的小快乐，<br/>每天都值得记。</h1><p>欢迎来到你的企鹅游乐园 <span aria-hidden="true">✧</span></p></div><span className="hero-star" aria-hidden="true">✦</span></section>
-    {tab!=='backup'&&<section className="ticket" aria-label="月度开销"><div className="ticket-top"><h2>本月开销</h2><label className="month-picker"><span className="sr-only">查看月份</span><input aria-label="查看月份" type="month" value={month} onChange={e=>setMonth(e.target.value)}/></label></div><div className="total"><span>¥</span>{money(total)}</div><div className="ticket-bottom"><p>这个月记了 <b>{current.length}</b> 笔 <span>· 人民币</span></p><span className="ticket-stamp" aria-hidden="true">HAPPY<br/>LITTLE DAYS</span></div><span className="ticket-star" aria-hidden="true">✧</span></section>}
+    {tab!=='backup'&&<section className="ticket" aria-label="月度开销"><div className="ticket-top"><div className="ticket-title"><h2>本月开销</h2><button className="budget-settings" onClick={openBudget} disabled={!ready||busy||!month}>{budget?'修改预算':'设置预算'}</button></div><label className="month-picker"><span className="sr-only">查看月份</span><input aria-label="查看月份" type="month" value={month} onChange={e=>setMonth(e.target.value)}/></label></div><div className="spending-and-budget"><div className="total"><span>¥</span>{money(total)}</div><div className={`budget-balance ${budget&&remaining<0?'over-budget':''}`} aria-live="polite">{budget?<><span>{remaining<0?'已超支':remaining===0?'预算已用完':'还能花'}</span><b>¥{money(Math.abs(remaining))}</b><small>月预算 ¥{money(budget.cents)}</small></>:<><span>给开销定个小目标</span><button onClick={openBudget} disabled={!ready||busy||!month}>＋ 设置本月预算</button></>}</div></div><div className="ticket-bottom"><p>这个月记了 <b>{current.length}</b> 笔 <span>· 人民币</span></p><span className="ticket-stamp" aria-hidden="true">HAPPY<br/>LITTLE DAYS</span></div><span className="ticket-star" aria-hidden="true">✧</span></section>}
     {tab==='bills'&&<><button className="new-expense" onClick={openNew} disabled={!ready||busy}><span>＋</span> 记一笔 <span className="button-star" aria-hidden="true">★</span></button><section className="records"><div className="section-head"><h2>最近账单 <span aria-hidden="true">✧</span></h2><span>{month.replace('-',' 年 ')} 月</span></div>{!ready?<p className="empty">小企鹅正在打开账本…</p>:!current.length?<div className="empty"><span className="empty-ticket" aria-hidden="true">🎟️</span><h3>第一张小票，留给今天</h3><p>记下一杯咖啡，或今天的午餐。</p><button onClick={openNew}>＋ 记下第一笔</button></div>:current.map(item=><ExpenseRecord key={item.id} item={item} onEdit={edit} onRemove={remove}/>)}</section></>}
     {tab==='stats'&&<section className="stats-panel">
       {selectedCategory ? <>
@@ -88,13 +98,14 @@ function App(){
         </>}
       </>}
     </section>}
-    {tab==='backup'&&<section className="backup-panel"><span className="backup-illustration" aria-hidden="true">☁️</span><span className="park-label">KEEP YOUR LITTLE MEMORIES</span><h2>给小票一个安全的家</h2><p>你的 <b>{items.length}</b> 笔账单保存在这台设备的浏览器里。<br/>导出一份备份，把生活的小记录好好收起来。</p><button className="backup-primary" disabled={!ready||busy} onClick={exportData}>↓ 导出备份</button><button className="backup-secondary" disabled={!ready||busy} onClick={()=>file.current?.click()}>↑ 导入备份</button><div className="backup-note"><strong>小企鹅提醒你</strong><p>无需登录，离线可用。清理浏览器数据会删除账单，请定期备份。导入时相同编号会更新，其他账单会保留。备份文件包含账单明文，请妥善保管。</p></div></section>}
+    {tab==='backup'&&<section className="backup-panel"><span className="backup-illustration" aria-hidden="true">☁️</span><span className="park-label">KEEP YOUR LITTLE MEMORIES</span><h2>给小票一个安全的家</h2><p>你的 <b>{items.length}</b> 笔账单保存在这台设备的浏览器里。<br/>导出一份备份，把账单和每月预算一起收好。</p><button className="backup-primary" disabled={!ready||busy} onClick={exportData}>↓ 导出备份</button><button className="backup-secondary" disabled={!ready||busy} onClick={()=>file.current?.click()}>↑ 导入备份</button><div className="backup-note"><strong>小企鹅提醒你</strong><p>无需登录，离线可用。清理浏览器数据会删除账单，请定期备份。导入时相同编号会更新，其他账单会保留；预算按月份合并。旧账单备份不会清除现有预算。备份文件包含账单明文，请妥善保管。</p></div></section>}
     <input hidden type="file" accept="application/json,.json" ref={file} onChange={importData}/>
     <footer>✦ 小小记录，暖暖生活 ✦<p>浏览器菜单 → 安装应用 / 添加到主屏幕</p></footer>
   </main>
   <nav className="bottom-nav" aria-label="主导航">{([['bills','账单'],['stats','统计'],['backup','备份']] as const).map(([id,name])=><button key={id} className={tab===id?'active':''} aria-current={tab===id?'page':undefined} onClick={()=>{setTab(id);setSelectedCategory(null);setMessage('');}}><Icon kind={id}/><span>{name}</span></button>)}</nav>
   <dialog ref={dialog} className="entry-dialog" aria-labelledby="entry-title" onCancel={()=>setFormOpen(false)} onClose={()=>setFormOpen(false)}><div className="entry-heading"><div><span className="park-label">ONE MORE LITTLE MEMORY</span><h2 id="entry-title">{editing?'编辑这张小票':'记一笔小快乐'}</h2></div><button className="close" aria-label="关闭记账" disabled={busy} onClick={()=>setFormOpen(false)}>×</button></div><form onSubmit={save}><label>金额 <span>人民币</span><div className="amount-field"><span>¥</span><input ref={amountInput} aria-label="金额" inputMode="decimal" placeholder="0.00" value={amount} onChange={e=>setAmount(e.target.value)} required/></div></label><fieldset><legend>花在哪里？</legend><div className="categories">{categories.map(c=><button type="button" key={c} aria-pressed={category===c} className={category===c?'selected':''} onClick={()=>setCategory(c)}>{symbols[c]} {c}</button>)}</div></fieldset><div className="form-fields"><label>日期<input type="date" value={date} onChange={e=>setDate(e.target.value)} required/></label><label>备注 <span>选填</span><input placeholder="这笔钱花在哪里？" value={note} onChange={e=>setNote(e.target.value)} maxLength={200}/></label></div><button className="primary" disabled={!ready||busy}>{busy?'正在保存…':editing?'保存修改':'＋ 记好了'}</button><p className="form-hint">每一笔小票，企鹅都会认真收好 ♡</p></form>{formOpen&&<p className="form-message" role="status">{message}</p>}</dialog>
-  {!formOpen&&<div className={`toast ${message?'visible':''}`} role="status">{message}</div>}
+  <dialog ref={budgetDialog} className="entry-dialog budget-dialog" aria-labelledby="budget-title" onCancel={()=>setBudgetOpen(false)} onClose={()=>setBudgetOpen(false)}><div className="entry-heading"><div><span className="park-label">A LITTLE PLAN FOR THE MONTH</span><h2 id="budget-title">设置每月预算</h2></div><button className="close" aria-label="关闭预算设置" disabled={busy} onClick={()=>setBudgetOpen(false)}>×</button></div><p className="budget-month">{budgetMonth.replace('-',' 年 ')} 月 · 仅设置这个月</p><form onSubmit={saveBudget}><label>预算金额 <span>人民币</span><div className="amount-field"><span>¥</span><input ref={budgetInput} aria-label="预算金额" inputMode="decimal" placeholder="例如 3000.00" value={budgetAmount} onChange={e=>setBudgetAmount(e.target.value)} required/></div></label><p className="budget-tip">小企鹅会用本月已记录的开销，算出还能花多少。每个月可以设置不同的预算，零预算也可以。</p><button className="primary" disabled={!ready||busy}>{busy?'正在保存…':'保存预算'}</button>{budgets.some(item=>item.month===budgetMonth)&&<button type="button" className="clear-budget" disabled={busy} onClick={clearBudget}>取消本月预算</button>}</form>{budgetOpen&&<p className="form-message" role="status">{message}</p>}</dialog>
+  {!formOpen&&!budgetOpen&&<div className={`toast ${message?'visible':''}`} role="status">{message}</div>}
   </>;
 }
 createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);
