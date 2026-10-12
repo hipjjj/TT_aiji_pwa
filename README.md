@@ -1,4 +1,4 @@
-# 日日记 · TT_aiji_pwa
+# 天天爱记 · TT_aiji_pwa
 
 使用 React、TypeScript、Vite、Dexie 构建的个人开销 PWA。人民币金额以整数分保存，账单保存在当前浏览器的 IndexedDB 中，无需账号和后端。
 
