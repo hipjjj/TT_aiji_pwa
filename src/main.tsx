@@ -22,12 +22,26 @@ function ExpenseRecord({item,onEdit,onRemove}:{item:Expense;onEdit:(item:Expense
 }
 function ExpensePie({data,total,onSelect}:{data:{category:string;sum:number}[];total:number;onSelect:(category:string)=>void}){
   let angle = -Math.PI / 2;
-  const point = (radians:number) => `${120+105*Math.cos(radians)} ${120+105*Math.sin(radians)}`;
-  return <figure className="expense-pie"><svg viewBox="0 0 240 240" role="group" aria-label="分类支出占比饼图">{data.map(item=>{
-    const start=angle;const sweep=item.sum/total*Math.PI*2;angle+=sweep;
-    const path=data.length===1 ? 'M 120 15 A 105 105 0 1 1 120 225 A 105 105 0 1 1 120 15 Z' : `M 120 120 L ${point(start)} A 105 105 0 ${sweep>Math.PI?1:0} 1 ${point(angle)} Z`;
-    return <path key={item.category} d={path} fill={chartColors[categories.indexOf(item.category)]} stroke="#fffcf7" strokeWidth="2" role="button" tabIndex={0} aria-label={`${item.category}，${share(item.sum,total)}，查看明细`} onClick={()=>onSelect(item.category)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect(item.category);}}}><title>{item.category} · ¥{money(item.sum)} · {share(item.sum,total)}</title></path>;
-  })}</svg><figcaption>点一下色块，看看每一张小票</figcaption></figure>;
+  const center = {x:180,y:140};
+  const point = (radians:number,radius=84) => ({x:center.x+radius*Math.cos(radians),y:center.y+radius*Math.sin(radians)});
+  const slices=data.map(item=>{
+    const start=angle,sweep=item.sum/total*Math.PI*2;angle+=sweep;
+    const from=point(start),to=point(angle),mid=start+sweep/2;
+    const path=data.length===1 ? 'M 180 56 A 84 84 0 1 1 180 224 A 84 84 0 1 1 180 56 Z' : `M 180 140 L ${from.x} ${from.y} A 84 84 0 ${sweep>Math.PI?1:0} 1 ${to.x} ${to.y} Z`;
+    return {...item,path,mid,right:Math.cos(mid)>=0,labelY:point(mid,98).y};
+  });
+  for(const right of [false,true]){
+    const side=slices.filter(item=>item.right===right).sort((a,b)=>a.labelY-b.labelY);
+    side.forEach((item,index)=>{item.labelY=Math.max(26,item.labelY,index?side[index-1].labelY+24:26);});
+    for(let index=side.length-1;index>=0;index--)side[index].labelY=Math.min(side[index].labelY,index===side.length-1?254:side[index+1].labelY-24);
+  }
+  return <figure className="expense-pie"><svg viewBox="0 0 360 280" role="group" aria-label="分类支出占比饼图">{slices.map(item=><path key={item.category} d={item.path} fill={chartColors[categories.indexOf(item.category)]} stroke="#fffcf7" strokeWidth="2" role="button" tabIndex={0} aria-label={`${item.category}，${share(item.sum,total)}，查看明细`} onClick={()=>onSelect(item.category)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect(item.category);}}}><title>{item.category} · ¥{money(item.sum)} · {share(item.sum,total)}</title></path>)}
+    <g className="pie-labels" aria-hidden="true">{slices.map(item=>{
+      if(slices.length===1)return <text key={item.category} x="180" y="145" textAnchor="middle" className="pie-label-single">{item.category}</text>;
+      const edge=point(item.mid),elbow=point(item.mid,94),labelX=item.right?280:80,lineX=item.right?274:86;
+      return <g key={item.category}><polyline points={`${edge.x},${edge.y} ${elbow.x},${elbow.y} ${lineX},${item.labelY}`} fill="none" stroke={chartColors[categories.indexOf(item.category)]} strokeWidth="1.4"/><circle cx={lineX} cy={item.labelY} r="2" fill={chartColors[categories.indexOf(item.category)]}/><text x={labelX} y={item.labelY} dominantBaseline="middle" textAnchor={item.right?'start':'end'}>{item.category}</text></g>;
+    })}</g>
+  </svg><figcaption>点一下色块，看看每一张小票</figcaption></figure>;
 }
 function Icon({kind}:{kind:Tab}){return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{kind==='bills'?<><path d="M4 4h16v5a3 3 0 0 0 0 6v5H4v-5a3 3 0 0 0 0-6Z"/><path d="m12 8 1.2 2.4 2.6.4-1.9 1.8.5 2.7-2.4-1.3-2.4 1.3.5-2.7-1.9-1.8 2.6-.4Z"/></>:kind==='stats'?<><path d="M5 20V12M12 20V4M19 20V9" strokeWidth="4"/></>:<><path d="M7 18H6a4 4 0 0 1-1-8 7 7 0 0 1 13-1 4.5 4.5 0 0 1 0 9h-1"/><path d="M12 21V12m-3 3 3-3 3 3"/></>}</svg>;}
 function App(){
