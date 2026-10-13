@@ -64,6 +64,7 @@ jobs:
           node --input-type=module - <<'JS'
           import {validateAIAnalysis} from './src/nutrition/model.mjs';
           import {defaultPreferences,validateAIRecipeResult} from './src/fridge/model.mjs';
+          import {validateStoryResult} from './src/travel/model.mjs';
           const origin='https://hipjjj.github.io';
           let ready=false;
           for (let attempt=0;attempt<6;attempt++) {
@@ -88,4 +89,11 @@ jobs:
           if (!recipes.ok) throw new Error(`Live recipe verification failed with HTTP ${recipes.status}`);
           if (!validateAIRecipeResult(await recipes.json()).recipes.length) throw new Error('Live recipe verification returned no recipes');
           console.log('PASS: real OpenAI recipe recommendation');
+          const story=await fetch(`${process.env.SERVICE_URL}/travel-story`,{
+            method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
+            body:JSON.stringify({title:'杭州的小旅行',startDate:'2026-10-01',endDate:'2026-10-03',stops:[{city:'杭州市',spots:['西湖']}],note:'在西湖边散步。'}),signal:AbortSignal.timeout(45000)
+          });
+          if (!story.ok) throw new Error(`Live travel story verification failed with HTTP ${story.status}`);
+          validateStoryResult(await story.json());
+          console.log('PASS: real OpenAI travel story draft');
           JS

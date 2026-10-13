@@ -17,7 +17,7 @@
 
 可在自己的终端生成随机口令：`node -e "console.log(require('node:crypto').randomBytes(24).toString('hex'))"`。将结果安全保存，不提交到 Git。
 
-在 Actions 中手动运行 **Deploy Xiaobao AI backend**。工作流会运行测试，部署 `tt-aiji-pwa-xiaobao-ai` 与持久额度存储，再通过标准输入设置 Worker Secret。最后检查健康状态并分别调用一次真实文字分析和食谱分析（会产生少量 API 费用及占用两次额度），验证 OpenAI 接通。它不会因为前端每次推送就自动部署，也不会输出密钥。
+在 Actions 中手动运行 **Deploy Xiaobao AI backend**。工作流会运行测试，部署 `tt-aiji-pwa-xiaobao-ai` 与持久额度存储，再通过标准输入设置 Worker Secret。最后检查健康状态并分别调用一次真实文字分析、食谱分析和游记生成（会产生少量 API 费用及占用三次额度），验证 OpenAI 接通。它不会因为前端每次推送就自动部署，也不会输出密钥。
 
 确认工作流成功后，从工作流摘要或 Cloudflare Workers 管理页取得实际 HTTPS 根地址。打开“个人 → AI连接设置”，填写该地址和你设置的访问口令。这里不填写 OpenAI API 密钥。地址例如 `https://实际服务名.实际子域.workers.dev`，不要填写 `/analyze` 路径。
 
@@ -57,4 +57,12 @@ npx wrangler secret put ACCESS_CODE --config server/wrangler.toml
 
 返回 `{recipes,note,model,source:"ai"}`；每道菜有名称、人数、预计分钟、食材用量及单位、步骤和假设说明。未知食材的营养数据可为 null，不能凭空补齐。前后端都校验边界，并按已填写的忌口及时间再次过滤；此匹配不能保证加工食品无过敏原或无交叉接触。
 
-食谱分析最多6000输出token，和小包分析共用默认每日30次／每分钟5次额度。部署后的验证会分别调用一次真实饮食文字分析和一次真实食谱分析，产生少量 API 费用。日常查询本地食谱不消耗 API 额度。
+食谱分析最多6000输出token，和小包分析共用默认每日30次／每分钟5次额度。部署后的验证会分别调用一次真实饮食文字分析、食谱分析和旅行游记生成，产生少量 API 费用。日常查询本地食谱不消耗 API 额度。
+
+## 黏黏包的故事游记
+
+同一个 Worker 新增 `POST /travel-story`，使用相同 Origin、访问口令与持久额度，不需要另一组凭据。现有后端需重新部署才能支持此接口；前端发布不会自动更新后端。
+
+正文只包含 `{title,startDate,endDate,stops:[{city,spots:string[]}],note}`，不包含照片、身体资料、财务或冰箱信息。后端限制日期/内容长度并通过严格JSONschema返回 `{story,model,source:"ai"}`，使用 `store:false`、最多4000输出token。模型被要求忠于记录，不编造天气、同行人、交通住宿等；用户须审阅并确认草稿后保存。此约束不能替代人工核对。
+
+旅行AI和营养/食谱共用每日30次、每分钟5次额度。没有配置时，界面提示并保留行程输入，本地模板整理仍可用。

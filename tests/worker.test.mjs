@@ -42,3 +42,9 @@ test('AI recipe endpoint validates input before quota, uses structured recipe sc
  const response=await handle(make(body),env(),{fetchImpl:async(_,options)=>{calls++;const posted=JSON.parse(options.body);assert.equal(posted.text.format.name,'fridge_recipes');assert.equal(posted.store,false);assert(!posted.input[0].content[0].text.includes('private'));return Response.json({status:'completed',output:[{content:[{type:'output_text',text:JSON.stringify({recipes:[{name:'番茄炒蛋',servings:2,minutes:10,ingredients:[{name:'鸡蛋',amount:2,unit:'个',gramsPerUnit:50,per100:null}],steps:['煮熟'],note:'参考'}],note:'参考'})}]}]});}});
  assert.equal(response.status,200);assert.deepEqual((await response.json()).recipes,[]);assert.equal(calls,1);
 });
+test('travel story endpoint uses text-only sanitized input and rejects invalid dates before provider calls',async()=>{
+ let calls=0,posted;const make=body=>new Request('https://worker.test/travel-story',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':'fixture-access-code'},body:JSON.stringify(body)});
+ const body={title:'杭州之旅',startDate:'2026-10-01',endDate:'2026-10-03',stops:[{city:'杭州市',spots:['西湖']}],note:'散步',photos:['private-photo'],expenses:'private-ledger'};
+ const response=await handle(make(body),env(),{fetchImpl:async(_,options)=>{calls++;posted=JSON.parse(options.body);return Response.json({status:'completed',output:[{content:[{type:'output_text',text:JSON.stringify({story:'黏黏包收好了杭州和西湖的散步记录。'})}]}]});}});assert.equal(response.status,200);assert.equal(posted.text.format.name,'travel_story');assert.equal(posted.store,false);assert.equal(posted.input[0].content.length,1);assert(!JSON.stringify(posted).includes('private'));assert.match(posted.instructions,/不要编造/);assert.equal(calls,1);
+ assert.equal((await handle(make({...body,endDate:'2026-09-01'}),env(),{fetchImpl:async()=>{calls++;}})).status,400);assert.equal(calls,1);
+});

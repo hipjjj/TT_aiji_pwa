@@ -1,0 +1,186 @@
+{
+  "repo": "zhChuXiao/ChinaGeoJson",
+  "commit": "7aa2c5fabc6a892015625898c3482874b233f9de",
+  "files": [
+    {
+      "path": "province/上海市.json",
+      "sha256": "c7529c9db46b0afba1aeafc87427e58266b4e131fb74bffe06fbacf6feb997fd",
+      "bytes": 83279
+    },
+    {
+      "path": "province/云南省.json",
+      "sha256": "6124593ea63df6e9a918497824ea01bffb19552caa82fb3613d2979d31ae31f8",
+      "bytes": 122595
+    },
+    {
+      "path": "province/内蒙古自治区.json",
+      "sha256": "9a4a3b95d903b064c8e815b78d4f80f391b4bdafd3b52dabd854755457385660",
+      "bytes": 79281
+    },
+    {
+      "path": "province/北京市.json",
+      "sha256": "8db223b4e0605b8e7c5a21111885ada5a3decf98185c42b002e4d833f31ad736",
+      "bytes": 101116
+    },
+    {
+      "path": "province/台湾省.json",
+      "sha256": "6e51f6ff522bf250a85cd8d040320abb31e3a37eb4210b3db872a0c0ce64002e",
+      "bytes": 4216
+    },
+    {
+      "path": "province/吉林省.json",
+      "sha256": "72261a56d64a6ab6836004a1741ec8a0428694577dbd0aced6d37c40ef1facac",
+      "bytes": 147298
+    },
+    {
+      "path": "province/四川省.json",
+      "sha256": "a07cdafe069d6248d2cbdefa4f1cdbdaee0094282a6823617278522bedc55098",
+      "bytes": 164813
+    },
+    {
+      "path": "province/天津市.json",
+      "sha256": "9626c700abca708da272e03879ad98db4f1385fad11b8877481b13a0c2ef86db",
+      "bytes": 70970
+    },
+    {
+      "path": "province/宁夏回族自治区.json",
+      "sha256": "6b076c8f70e723acf2a1ad33f742a0c9a5fc350e109c285133381bbfcce6b706",
+      "bytes": 49532
+    },
+    {
+      "path": "province/安徽省.json",
+      "sha256": "7ca3290e0458f34086df4d61fa9804e2c624d55dfe5f8f6a841844b5dcd43207",
+      "bytes": 127323
+    },
+    {
+      "path": "province/山东省.json",
+      "sha256": "b082d44958d513bca6062a077f3fcdef3c3c0506b6e787e07229cfe41cab5fbe",
+      "bytes": 167871
+    },
+    {
+      "path": "province/山西省.json",
+      "sha256": "af9d195c8de9230718b2d1add45209cd02b46409ed61a735595263182ef0f59d",
+      "bytes": 60905
+    },
+    {
+      "path": "province/广东省.json",
+      "sha256": "67ba423f5b30f288f8bbef631514e5e9a601d8b791b58a966c46cc34013218fa",
+      "bytes": 192960
+    },
+    {
+      "path": "province/广西壮族自治区.json",
+      "sha256": "f1ba9c7d6cd34dc468e09ca0454d258416d4dd0db646736cf37ca67be3e65aa1",
+      "bytes": 167979
+    },
+    {
+      "path": "province/新疆维吾尔自治区.json",
+      "sha256": "b2eae26e32c60b681b9e6351f59006eee8d082124fd2dab650a45f920b8ccca7",
+      "bytes": 119225
+    },
+    {
+      "path": "province/江苏省.json",
+      "sha256": "20f14df1bf684160a0837037573609b08fc6ae3b1523e9eaa6db213cb15a80fa",
+      "bytes": 97544
+    },
+    {
+      "path": "province/江西省.json",
+      "sha256": "707d96517f21b1a0778bdcde4c6da7a27a15675700bdab41cf784ef540c75bc3",
+      "bytes": 121693
+    },
+    {
+      "path": "province/河北省.json",
+      "sha256": "ff01b6203016a203b77da2e4d2553196e2de06a0899b7ba6db992ff492c14689",
+      "bytes": 73453
+    },
+    {
+      "path": "province/河南省.json",
+      "sha256": "68a5fd28c74a2a3dafb3c8d1563240b50326909baa4e5ed4d587f5bf1e5f9a45",
+      "bytes": 153773
+    },
+    {
+      "path": "province/浙江省.json",
+      "sha256": "3d7659e4dcc04ebe7c93564baddfac2ef015067164113ff69c71f42cab68ffdb",
+      "bytes": 120400
+    },
+    {
+      "path": "province/海南省.json",
+      "sha256": "76fa43f20019821c87cae25d28893d508900764403f09c41b4d2c76bd6523900",
+      "bytes": 34122
+    },
+    {
+      "path": "province/湖北省.json",
+      "sha256": "5d184feb1c548b78ac3db3c0147ec6e2bff66ca81b9ddbcccb7666bd329d2b9e",
+      "bytes": 155791
+    },
+    {
+      "path": "province/湖南省.json",
+      "sha256": "7bf0017502325405e6e47917bf1949f17d97fd37257e8990f2eb552062f37f5a",
+      "bytes": 175675
+    },
+    {
+      "path": "province/澳门特别行政区.json",
+      "sha256": "0fddffcb05ab2814fed602600e39cdaf777c605c1fb5e2188d7d92022254f52a",
+      "bytes": 13422
+    },
+    {
+      "path": "province/甘肃省.json",
+      "sha256": "1b2661136a6e3e21667c4d5e2312ad2a39f262440fe788403d671aefa183a423",
+      "bytes": 105621
+    },
+    {
+      "path": "province/福建省.json",
+      "sha256": "05a1991040c84da2a6768aacdc60b67394e736b0a6b4ab4645a44295f30552f6",
+      "bytes": 114242
+    },
+    {
+      "path": "province/西藏自治区.json",
+      "sha256": "b46ea534c4d025a6c9f9df72af6bac8e82f56600edd38942cdd7850a5924cd9c",
+      "bytes": 134515
+    },
+    {
+      "path": "province/贵州省.json",
+      "sha256": "01682b408750bbc0bdcff49c77be53814d63eb031734d61e93ae24618e908370",
+      "bytes": 130184
+    },
+    {
+      "path": "province/辽宁省.json",
+      "sha256": "26dd493472600bcb263311cda20436d4f9211f1f558951e61abd274486b9edac",
+      "bytes": 161468
+    },
+    {
+      "path": "province/重庆市.json",
+      "sha256": "ed4e4a1726f7a8d9bd18be2fe68cbb018e8b55968d0a1eb0183b4605428502a0",
+      "bytes": 162144
+    },
+    {
+      "path": "province/陕西省.json",
+      "sha256": "be2040c2d3862bced050052fec5534bb8f0831aa49ccfce43a10a191ca696e07",
+      "bytes": 71734
+    },
+    {
+      "path": "province/青海省.json",
+      "sha256": "2636b269e4d62cfd9dcff9db65aa0d0d418632e0bc3da628b7f1d34ea8a351c2",
+      "bytes": 97940
+    },
+    {
+      "path": "province/香港特别行政区.json",
+      "sha256": "f8347f9c8c34712a97ff95f7c052b77f3772ad128e9d3408b8a6746dc0deaf29",
+      "bytes": 132724
+    },
+    {
+      "path": "province/黑龙江省.json",
+      "sha256": "a551516ef955d121dc3a8f82937a69d68e334bef0d79e48fe36e4b18405e7962",
+      "bytes": 146796
+    },
+    {
+      "path": "china.json",
+      "sha256": "94e8a84feb6507bbee505bfb8a8cc34db2fc4aa6ea75a0f6ffcec0c980a38784",
+      "bytes": 162745
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "df8936918b4bd265e3823db2e385c3ad2d449f889c1f62821d7a2c4534266f61",
+      "bytes": 1064
+    }
+  ]
+}

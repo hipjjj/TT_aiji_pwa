@@ -42,7 +42,7 @@ export default function AISettings() {
         parsed.pathname !== "/"
       )
         throw new Error(
-          "请输入 AI 后端的 HTTPS 根地址，不要填写 /analyze 或 /recipes",
+          "请输入 AI 后端的 HTTPS 根地址，不要填写 /analyze、/recipes 或 /travel-story",
         );
       const access = code.trim();
       if (access.length < 16 || access.length > 200)
@@ -52,7 +52,7 @@ export default function AISettings() {
       setURL(parsed.origin);
       setCode(access);
       setSavedURL(parsed.origin);
-      setMessage("彪彪收好连接信息啦！小包和嘟嘟糕都会使用这份设置。");
+      setMessage("彪彪收好连接信息啦！企鹅朋友都会使用这份设置。");
     } catch (error) {
       setError(error instanceof Error ? error.message : "保存失败，请重试");
     } finally {
@@ -81,7 +81,7 @@ export default function AISettings() {
       <span className="park-label">Biao Biao’s Connections</span>
       <h2>AI连接设置</h2>
       <p className="personal-note">
-        小包的营养分析和嘟嘟糕的食谱推荐，共用这里的连接信息。
+        小包的营养分析、嘟嘟糕的食谱和黏黏包的游记，共用这里的连接信息。
       </p>
       <span className="personal-connection-state">
         {!ready
