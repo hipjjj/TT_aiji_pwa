@@ -46,7 +46,7 @@ jobs:
           const url=output.match(/https:\/\/tt-aiji-pwa-xiaobao-ai\.[a-z0-9-]+\.workers\.dev/i)?.[0];
           if (!url) throw new Error('Worker URL was not returned by deployment');
           appendFileSync(process.env.GITHUB_OUTPUT,`url=${url}\n`);
-          appendFileSync(process.env.GITHUB_STEP_SUMMARY,`小包 AI 服务地址：${url}\n\n请在营养屋的 AI 设置中填写此地址及你自行设置的访问口令。\n`);
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,`小包 AI 服务地址：${url}\n\n请在个人页的 AI 设置中填写此地址及你自行设置的访问口令。\n`);
           JS
       - name: Set backend secrets without logging them
         run: |
@@ -57,7 +57,7 @@ jobs:
           child.on('error',()=>process.exit(1));
           child.on('exit',code=>process.exit(code??1));
           JS
-      - name: Verify deployed service with real nutrition and recipe analysis
+      - name: Verify deployed nutrition, recipe, travel and chat services
         env:
           SERVICE_URL: ${{ steps.worker.outputs.url }}
         run: |
@@ -65,6 +65,7 @@ jobs:
           import {validateAIAnalysis} from './src/nutrition/model.mjs';
           import {defaultPreferences,validateAIRecipeResult} from './src/fridge/model.mjs';
           import {validateStoryResult} from './src/travel/model.mjs';
+          import {validateChatResult} from './src/chat/model.mjs';
           const origin='https://hipjjj.github.io';
           let ready=false;
           for (let attempt=0;attempt<6;attempt++) {
@@ -96,4 +97,11 @@ jobs:
           if (!story.ok) throw new Error(`Live travel story verification failed with HTTP ${story.status}`);
           validateStoryResult(await story.json());
           console.log('PASS: real OpenAI travel story draft');
+          const chat=await fetch(`${process.env.SERVICE_URL}/chat`,{
+            method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
+            body:JSON.stringify({mode:'鲍比',messages:[{speaker:'用户',text:'鲍比，今天想和你坐一会儿。'}],memories:[],growth:0,today:new Date().toISOString().slice(0,10)}),signal:AbortSignal.timeout(45000)
+          });
+          if (!chat.ok) throw new Error(`Live chat verification failed with HTTP ${chat.status}`);
+          validateChatResult(await chat.json(),'鲍比');
+          console.log('PASS: real OpenAI penguin chat');
           JS

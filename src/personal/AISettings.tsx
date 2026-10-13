@@ -42,7 +42,7 @@ export default function AISettings() {
         parsed.pathname !== "/"
       )
         throw new Error(
-          "请输入 AI 后端的 HTTPS 根地址，不要填写 /analyze、/recipes 或 /travel-story",
+          "请输入 AI 后端的 HTTPS 根地址，不要填写 /analyze、/recipes 、/travel-story 或 /chat",
         );
       const access = code.trim();
       if (access.length < 16 || access.length > 200)
@@ -81,7 +81,7 @@ export default function AISettings() {
       <span className="park-label">Biao Biao’s Connections</span>
       <h2>AI连接设置</h2>
       <p className="personal-note">
-        小包的营养分析、嘟嘟糕的食谱和黏黏包的游记，共用这里的连接信息。
+        企鹅小家的聊天、小包的营养分析、嘟嘟糕的食谱和黏黏包的游记，共用这里的 OpenAI 连接信息。
       </p>
       <span className="personal-connection-state">
         {!ready

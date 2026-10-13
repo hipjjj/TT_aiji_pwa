@@ -1,0 +1,89 @@
+import { db } from "../db";
+import { grow, validateProposal } from "./model.mjs";
+import type { ChatMessage, Proposal, ChatGrowth } from "./types";
+export async function resolveProposal(
+  messageId: string,
+  proposalId: string,
+  accept: boolean,
+  edited: Proposal,
+) {
+  await db.transaction(
+    "rw",
+    [
+      db.chatMessages,
+      db.chatMemories,
+      db.chatGrowth,
+      db.expenses,
+      db.inventory,
+      db.shopping,
+    ],
+    async () => {
+      const message = await db.chatMessages.get(messageId);
+      const original = message?.proposals.find((p) => p.id === proposalId);
+      if (!message || !original || original.status !== "pending")
+        throw Error("这张卡片已经处理过了");
+      if (accept) {
+        const p = validateProposal(edited) as Proposal;
+        if (p.kind !== original.kind) throw Error("操作类型不能修改");
+        const now = Date.now(),
+          id = "chat-" + proposalId;
+        if (p.kind === "记忆") {
+          await db.chatMemories.add({
+            id,
+            kind: p.memoryKind as "偏好",
+            text: p.text,
+            updatedAt: now,
+          });
+        }
+        if (p.kind === "成长") {
+          const state = grow(await db.chatGrowth.get("main"), now);
+          state.events = [...state.events, { at: now, text: p.text }];
+          await db.chatGrowth.put(state as ChatGrowth);
+        }
+        if (p.kind === "账单")
+          await db.expenses.add({
+            id,
+            cents: p.cents,
+            category: p.category,
+            date: p.date,
+            note: p.text,
+          });
+        if (p.kind === "食材")
+          await db.inventory.add({
+            id,
+            name: p.name,
+            quantity: p.quantity,
+            unit: p.unit,
+            location: p.location as "冷藏",
+            expiry: null,
+            note: p.text,
+            updatedAt: now,
+          });
+        if (p.kind === "购物")
+          await db.shopping.add({
+            id,
+            name: p.name,
+            quantity: p.quantity,
+            unit: p.unit,
+            note: p.text,
+            recipeName: "",
+            checked: false,
+            stocked: false,
+            updatedAt: now,
+          });
+      }
+      await db.chatMessages.put({
+        ...message,
+        proposals: message.proposals.map((p) =>
+          p.id === proposalId
+            ? {
+                ...(accept ? edited : p),
+                id: p.id,
+                status: accept ? "accepted" : "dismissed",
+              }
+            : p,
+        ),
+      } as ChatMessage);
+    },
+  );
+}

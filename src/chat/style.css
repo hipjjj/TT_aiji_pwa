@@ -1,0 +1,330 @@
+.chat-launcher {
+  position: fixed;
+  right: max(18px, calc((100vw - 960px) / 2));
+  bottom: calc(88px + env(safe-area-inset-bottom));
+  z-index: 15;
+  border: 1px solid #dac6b4;
+  border-radius: 25px;
+  background: #fff6e7;
+  color: #674b43;
+  padding: 12px 18px;
+  box-shadow: 0 5px 20px #79574223;
+  font-weight: 700;
+}
+body:has(dialog[open]) .chat-launcher {
+  display: none;
+}
+.chat-room {
+  width: min(760px, calc(100vw - 20px)) !important;
+  height: calc(var(--nutrition-viewport-height, 100dvh) - 24px);
+  max-height: calc(var(--nutrition-viewport-height, 100dvh) - 24px) !important;
+}
+.chat-room .nutrition-dialog-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: 10px;
+}
+.chat-top,
+.chat-modes {
+  display: flex;
+  gap: 7px;
+  flex-shrink: 0;
+  margin-bottom: 10px;
+}
+.chat-top {
+  justify-content: space-between;
+}
+.chat-room button,
+.chat-memory button {
+  border: 1px solid #decdbd;
+  background: #fff7e9;
+  border-radius: 13px;
+  padding: 8px 12px;
+  color: #665046;
+  cursor: pointer;
+}
+.chat-room button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.chat-modes {
+  overflow-x: auto;
+}
+.chat-modes button {
+  white-space: nowrap;
+  font-size: 13px;
+}
+.chat-modes [aria-pressed="true"] {
+  background: #dce9df;
+  border-color: #a7c3b0;
+}
+.chat-messages,
+.chat-history {
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+  overscroll-behavior: contain;
+  padding: 12px 0;
+  scroll-behavior: smooth;
+}
+.chat-welcome {
+  text-align: center;
+  padding: 24px 5px;
+  color: #8c7566;
+}
+.chat-family {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+}
+.chat-family img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #fff;
+}
+.chat-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 0 0 18px;
+}
+.chat-message > img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.chat-message > div {
+  max-width: 85%;
+  min-width: 0;
+}
+.chat-message strong {
+  font-size: 12px;
+  color: #8c7566;
+}
+.chat-bubble {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 5px 0 0;
+  padding: 12px 15px;
+  border-radius: 4px 18px 18px;
+  background: #fffdf8;
+  border: 1px solid #eaded1;
+  line-height: 1.65;
+}
+.chat-message.user {
+  justify-content: flex-end;
+}
+.user .chat-bubble {
+  background: #e2ece3;
+  border-radius: 18px 4px 18px 18px;
+}
+.user strong {
+  display: block;
+  text-align: right;
+}
+.chat-composer {
+  flex-shrink: 0;
+  border-top: 1px dashed #d6c9b9;
+  padding-top: 10px;
+}
+.chat-consent {
+  display: flex;
+  gap: 7px;
+  align-items: flex-start;
+  font-size: 11px !important;
+  line-height: 1.5;
+  color: #8c7566;
+  margin-bottom: 8px;
+}
+.chat-consent input {
+  width: 16px !important;
+  flex-shrink: 0;
+}
+.chat-composer > div {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+.chat-composer textarea {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+  height: 64px;
+  resize: none;
+  border-radius: 16px;
+}
+.chat-room input,
+.chat-room select,
+.chat-room textarea,
+.chat-memory textarea {
+  font: inherit;
+  font-size: 16px;
+  border: 1px solid #dfcebd;
+  background: #fffdfa;
+  border-radius: 9px;
+  padding: 8px;
+  box-sizing: border-box;
+  max-width: 100%;
+  color: #665046;
+}
+.chat-card {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 15px;
+  background: #f7eddb;
+  border: 1px dashed #d4b99b;
+}
+.chat-card fieldset {
+  border: 0;
+  padding: 0;
+  margin: 8px 0 0;
+}
+.chat-card label {
+  display: block;
+  font-size: 12px;
+  margin: 7px 0;
+}
+.chat-card label > * {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+}
+.chat-card textarea {
+  min-height: 65px;
+}
+.chat-card-row {
+  display: flex;
+  gap: 10px;
+}
+.chat-card-row label {
+  flex: 1;
+  min-width: 0;
+}
+.chat-card button {
+  margin: 6px 6px 0 0;
+}
+.chat-card.done {
+  font-size: 12px;
+}
+.chat-error {
+  background: #f8e9e3;
+  padding: 8px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  font-size: 13px;
+  max-height: 25%;
+  overflow: auto;
+}
+.chat-error p {
+  margin: 3px;
+}
+.chat-thinking {
+  color: #90735e;
+  font-size: 13px;
+}
+.chat-history article {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+}
+.chat-history article > button:first-child {
+  flex: 1;
+  text-align: left;
+}
+.chat-history small {
+  display: block;
+}
+.chat-memory article {
+  border-top: 1px dashed #decebc;
+  padding: 10px 0;
+}
+.chat-memory textarea {
+  width: 100%;
+  min-height: 80px;
+}
+.chat-memory form label {
+  display: block;
+  margin-top: 10px;
+}
+.chat-memory button {
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+.chat-memory details {
+  margin-top: 15px;
+}
+.chat-memory p {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 400px) {
+  .chat-room .nutrition-dialog-body {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .chat-family img {
+    width: 52px;
+    height: 52px;
+  }
+  .chat-modes button {
+    padding: 7px 9px;
+  }
+  .chat-message > div {
+    max-width: calc(100% - 51px);
+  }
+  .chat-message.user > div {
+    max-width: 90%;
+  }
+}
+
+.chat-composer > div > button {
+  flex: 0 0 auto;
+  min-width: 56px;
+  white-space: nowrap;
+}
+.chat-memory form select {
+  font-size: 16px;
+  padding: 8px;
+  border: 1px solid #decdbd;
+  border-radius: 9px;
+  background: #fffdfa;
+}
+
+.chat-avatar {
+  display: block;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-size: auto 300%;
+  background-position: 26% 62%;
+  background-repeat: no-repeat;
+  background-color: #efe3d5;
+}
+.chat-avatar[data-penguin="小包"] {
+  background-position: 21% 50%;
+}
+.chat-avatar[data-penguin="嘟嘟糕"] {
+  background-position: 39% 55%;
+}
+.chat-family .chat-avatar {
+  width: 64px;
+  height: 64px;
+  border: 3px solid #fff;
+}
+@media (max-width: 400px) {
+  .chat-family .chat-avatar {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+.chat-avatar[data-penguin="黏黏包"] {
+  background-position: 40% 63%;
+}
