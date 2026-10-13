@@ -22,3 +22,5 @@
 .finance-view button{flex:1;border:0;border-radius:11px;background:transparent;color:#7c8b96;padding:12px 10px;font-size:13px;font-weight:650}
 .finance-view button[aria-pressed=true]{background:#e3eef5;color:#4c7793;box-shadow:0 2px 0 #d3e2ec}
 @media(max-width:520px){.finance-view{margin:20px 0 23px}.finance-view button{font-size:12px;padding:12px 8px}}
+
+.ledger-heading{margin:25px 3px 18px}.ledger-heading h2{font-size:24px;line-height:1.45;margin:9px 0 0}.ledger-heading+.ticket{margin-top:0}
