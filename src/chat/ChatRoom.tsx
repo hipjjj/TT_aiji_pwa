@@ -1,7 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { db } from "../db";
 import { Modal } from "../nutrition/NutritionTab";
-import { penguins, validateChatRequest, validateChatResult } from "./model.mjs";
+import {
+  penguins,
+  validateChatRequest,
+  validateChatResult,
+  honestOperationReply,
+} from "./model.mjs";
 import { resolveProposal } from "./store";
 import type { ChatThread, ChatMessage, ChatMode, Proposal } from "./types";
 import { categories } from "../model.mjs";
@@ -24,10 +29,12 @@ function Card({
   proposal,
   messageId,
   onChange,
+  onViewExpense,
 }: {
   proposal: Proposal;
   messageId: string;
   onChange: () => Promise<void>;
+  onViewExpense: (date: string) => void;
 }) {
   const [p, setP] = useState(proposal),
     [error, setError] = useState(""),
@@ -51,6 +58,18 @@ function Card({
       <div className="chat-card done">
         {proposal.kind} ·{" "}
         {proposal.status === "accepted" ? "已确认保存" : "已取消"}
+        {proposal.status === "accepted" && proposal.kind === "账单" && (
+          <>
+            <p>
+              {proposal.date} · {proposal.category} · ¥
+              {(proposal.cents / 100).toFixed(2)}
+              {proposal.text ? ` · ${proposal.text}` : ""}
+            </p>
+            <button onClick={() => onViewExpense(proposal.date)}>
+              查看账单
+            </button>
+          </>
+        )}
       </div>
     );
   return (
@@ -175,11 +194,13 @@ export default function ChatRoom({
   onClose,
   onManageAI,
   onRecordsChanged,
+  onViewExpense,
 }: {
   initialMode: ChatMode;
   onClose: () => void;
   onManageAI: () => void;
   onRecordsChanged: () => Promise<void>;
+  onViewExpense: (date: string) => void;
 }) {
   const [threads, setThreads] = useState<ChatThread[]>([]),
     [thread, setThread] = useState<ChatThread | null>(null),
@@ -442,6 +463,9 @@ export default function ChatRoom({
           </button>
         ))}
       </div>
+      <p className="chat-operation-hint">
+        记账等操作以卡片为准，点击“确认保存”后才会写入；企鹅对白不会自动保存。
+      </p>
       {history ? (
         <section className="chat-history">
           <h3>小家的聊天记录</h3>
@@ -530,13 +554,18 @@ export default function ChatRoom({
                 )}
                 <div>
                   <strong>{m.speaker === "用户" ? "你" : m.speaker}</strong>
-                  <p className="chat-bubble">{m.text}</p>
+                  <p className="chat-bubble">
+                    {m.speaker === "用户"
+                      ? m.text
+                      : honestOperationReply(m.text, m.proposals)}
+                  </p>
                   {m.proposals.map((p) => (
                     <Card
                       key={p.id}
                       proposal={p}
                       messageId={m.id}
                       onChange={changed}
+                      onViewExpense={onViewExpense}
                     />
                   ))}
                 </div>

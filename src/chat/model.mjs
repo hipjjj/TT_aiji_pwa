@@ -77,6 +77,16 @@ export function validateProposal(p) {
     cents,
   };
 }
+// Persistence is a local transaction, never an effect of generated dialogue.
+export function honestOperationReply(text, proposals = []) {
+  const claims =
+    /(?:记好[了啦]|记下[了啦]|记上[了啦]|记完[了啦]|(?:已经|已|帮你|替你|给你|为你)[^。！？\n]{0,16}(?:记账|记下|记录好|记录了|保存|添加好|添加了|收好|存好|记住)|(?:保存|入账|记账)成功)/;
+  if (!claims.test(text)) return text;
+  if (proposals.some((p) => p.status === "accepted")) return text;
+  if (proposals.length)
+    return "我把待确认的内容准备好了，还没有保存。请核对下面的卡片，点“确认保存”后才会写进记录。";
+  return "我还没有执行保存操作，这条回复也没有生成确认卡片。请再发一次完整的记录要求，我会先准备卡片给你确认。";
+}
 export function validateChatResult(x, mode = "群聊", lastText = "") {
   const replies = arr(x?.replies, 4).map((r) => {
     if (
@@ -104,7 +114,16 @@ export function validateChatResult(x, mode = "群聊", lastText = "") {
   const proposals = arr(x.proposals || [], 3).map(validateProposal);
   if (proposals.filter((p) => p.kind === "成长").length > 1)
     throw Error("成长提议重复");
-  return { replies, proposals };
+  const safeReplies = replies.map((r) => ({
+    ...r,
+    text: honestOperationReply(r.text, proposals),
+  }));
+  const seen = new Set();
+  for (const r of safeReplies) {
+    if (seen.has(r.text)) r.text = `（${r.speaker}凑过来）${r.text}`;
+    seen.add(r.text);
+  }
+  return { replies: safeReplies, proposals };
 }
 export function grow(current, now = Date.now()) {
   const old = current || { id: "main", value: 0, events: [], updatedAt: 0 };

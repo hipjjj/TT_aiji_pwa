@@ -99,9 +99,10 @@ jobs:
           console.log('PASS: real OpenAI travel story draft');
           const chat=await fetch(`${process.env.SERVICE_URL}/chat`,{
             method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
-            body:JSON.stringify({mode:'鲍比',messages:[{speaker:'用户',text:'鲍比，今天想和你坐一会儿。'}],memories:[],growth:0,today:new Date().toISOString().slice(0,10)}),signal:AbortSignal.timeout(45000)
+            body:JSON.stringify({mode:'鲍比',messages:[{speaker:'用户',text:'鲍比，帮我记账：今天午饭花了35元，分类餐饮。'}],memories:[],growth:0,today:new Date().toISOString().slice(0,10)}),signal:AbortSignal.timeout(45000)
           });
           if (!chat.ok) throw new Error(`Live chat verification failed with HTTP ${chat.status}`);
-          validateChatResult(await chat.json(),'鲍比');
-          console.log('PASS: real OpenAI penguin chat');
+          const chatResult=validateChatResult(await chat.json(),'鲍比');
+          if (!chatResult.proposals.some(p=>p.kind==='账单'&&p.cents===3500&&p.category==='餐饮'&&p.date===new Date().toISOString().slice(0,10))) throw new Error('Live chat failed to generate an expense confirmation card');
+          console.log('PASS: real OpenAI expense confirmation card; no user expense was saved');
           JS

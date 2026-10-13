@@ -328,3 +328,4 @@ body:has(dialog[open]) .chat-launcher {
 .chat-avatar[data-penguin="黏黏包"] {
   background-position: 40% 63%;
 }
+.chat-operation-hint{flex-shrink:0;margin:0 0 8px;font-size:11px;line-height:1.5;color:#8c7566;background:#f7eddb;border-radius:10px;padding:7px 9px}.chat-card.done p{font-size:12px;margin:7px 0;overflow-wrap:anywhere}

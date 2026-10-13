@@ -224,3 +224,48 @@ test("worker chat uses one structured request, fixed personalities and text only
     502,
   );
 });
+
+test("generated dialogue cannot claim a local save without a confirmed card", () => {
+  const missing = validateChatResult(
+    {
+      replies: [
+        { speaker: "鲍比", text: "记好了！午饭35元，我已经帮你记账了。" },
+      ],
+      proposals: [],
+    },
+    "鲍比",
+  );
+  assert.match(missing.replies[0].text, /没有执行保存/);
+  assert.match(missing.replies[0].text, /没有生成确认卡片/);
+  const pending = validateChatResult(
+    {
+      replies: [{ speaker: "鲍比", text: "已经保存到钱柜啦！" }],
+      proposals: [p],
+    },
+    "鲍比",
+  );
+  assert.match(pending.replies[0].text, /还没有保存/);
+  assert.equal(pending.proposals[0].cents, 3500);
+  const normal = validateChatResult(
+    {
+      replies: [
+        { speaker: "鲍比", text: "啊？怎么又是我？我给你留了个位置。" },
+      ],
+      proposals: [],
+    },
+    "鲍比",
+  );
+  assert.match(normal.replies[0].text, /留了个位置/);
+});
+
+test("corrected group save claims remain distinct across repeated validation", () => {
+  const result = validateChatResult({
+    replies: [
+      { speaker: "鲍比", text: "记好了！" },
+      { speaker: "小包", text: "已经帮你保存了！" },
+    ],
+    proposals: [p],
+  });
+  assert.notEqual(result.replies[0].text, result.replies[1].text);
+  assert.deepEqual(validateChatResult(result), result);
+});
