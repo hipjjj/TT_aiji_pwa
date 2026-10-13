@@ -329,3 +329,24 @@ test("meal proposals validate portions and all four nutrients, preserve backup, 
     }),
   );
 });
+
+test("draft backups support prefixed long thread IDs and reject duplicate drafts", () => {
+  const threadId = "t".repeat(100),
+    draft = {
+      id: "thread:" + threadId,
+      mode: "鲍比",
+      text: "明天继续聊",
+      updatedAt: 1,
+    };
+  const chat = {
+    threads: [{ id: threadId, mode: "鲍比", title: "旧对话", updatedAt: 1 }],
+    messages: [],
+    memories: [],
+    growth: null,
+    drafts: [draft],
+  };
+  assert.equal(validateChatBackup({ chat }).drafts[0].id.length, 107);
+  assert.throws(() =>
+    validateChatBackup({ chat: { ...chat, drafts: [draft, draft] } }),
+  );
+});

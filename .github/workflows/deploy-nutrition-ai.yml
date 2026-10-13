@@ -92,11 +92,11 @@ jobs:
           console.log('PASS: real OpenAI recipe recommendation');
           const story=await fetch(`${process.env.SERVICE_URL}/travel-story`,{
             method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
-            body:JSON.stringify({title:'杭州的小旅行',startDate:'2026-10-01',endDate:'2026-10-03',stops:[{city:'杭州市',spots:['西湖']}],note:'在西湖边散步。'}),signal:AbortSignal.timeout(45000)
+            body:JSON.stringify({title:'东京的小旅行',startDate:'2026-10-01',endDate:'2026-10-03',stops:[{city:'日本·东京',spots:['浅草寺']}],note:'在街边看到了喜欢的小店。'}),signal:AbortSignal.timeout(45000)
           });
           if (!story.ok) throw new Error(`Live travel story verification failed with HTTP ${story.status}`);
           validateStoryResult(await story.json());
-          console.log('PASS: real OpenAI travel story draft');
+          console.log('PASS: real OpenAI overseas travel story draft');
           const chat=await fetch(`${process.env.SERVICE_URL}/chat`,{
             method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
             body:JSON.stringify({mode:'鲍比',messages:[{speaker:'用户',text:'鲍比，请生成三张待确认卡片：1今天午饭35元餐饮账单；2今天午餐饮食，熟米饭150克和水煮鸡蛋50克，请估算四项营养；3冰箱添加冷藏牛奶1盒。'}],memories:[],growth:0,today:new Date().toISOString().slice(0,10)}),signal:AbortSignal.timeout(45000)

@@ -1,3 +1,11 @@
+import { validateExpense } from "../model.mjs";
+import {
+  validateInventoryItem,
+  validateShoppingItem,
+} from "../fridge/model.mjs";
+import { findFood, validateMeal } from "../nutrition/model.mjs";
+import type { Expense, Meal, FoodDefinition } from "../nutrition/types";
+import type { InventoryItem, ShoppingItem } from "../fridge/types";
 import { db } from "../db";
 import { grow, validateProposal } from "./model.mjs";
 import type { ChatMessage, Proposal, ChatGrowth } from "./types";
@@ -42,52 +50,72 @@ export async function resolveProposal(
           await db.chatGrowth.put(state as ChatGrowth);
         }
         if (p.kind === "账单")
-          await db.expenses.add({
-            id,
-            cents: p.cents,
-            category: p.category,
-            date: p.date,
-            note: p.text,
-          });
+          await db.expenses.add(
+            validateExpense({
+              id,
+              cents: p.cents,
+              category: p.category,
+              date: p.date,
+              note: p.text,
+            }) as Expense,
+          );
         if (p.kind === "食材")
-          await db.inventory.add({
-            id,
-            name: p.name,
-            quantity: p.quantity,
-            unit: p.unit,
-            location: p.location as "冷藏",
-            expiry: null,
-            note: p.text,
-            updatedAt: now,
-          });
+          await db.inventory.add(
+            validateInventoryItem({
+              id,
+              name: p.name,
+              quantity: p.quantity,
+              unit: p.unit,
+              location: p.location as "冷藏",
+              expiry: null,
+              note: p.text,
+              updatedAt: now,
+            }) as InventoryItem,
+          );
         if (p.kind === "饮食")
-          await db.meals.add({
-            id,
-            date: p.date,
-            mealType: p.mealType as import("../nutrition/types").MealType,
-            items: (p.foods || []).map((food) => ({
-              ...food,
-              id: crypto.randomUUID(),
-              source: "ai" as const,
-              sourceLabel: "AI估算 · 企鹅小家",
-            })),
-            note: p.text,
-            photo: null,
-            expenseId: null,
-            updatedAt: now,
-          });
+          await db.meals.add(
+            validateMeal({
+              id,
+              date: p.date,
+              mealType: p.mealType as import("../nutrition/types").MealType,
+              items: (p.foods || []).map((food) => {
+                const known = findFood(food.name) as FoodDefinition | undefined;
+                return {
+                  ...food,
+                  id: crypto.randomUUID(),
+                  ...(known ? { foodId: known.id } : {}),
+                  source: food.assumption.endsWith("；营养数值由用户调整。")
+                    ? ("manual" as const)
+                    : ("ai" as const),
+                  sourceLabel: food.assumption.endsWith(
+                    "；营养数值由用户调整。",
+                  )
+                    ? "用户调整 · 企鹅小家"
+                    : known
+                      ? `AI识别 + ${known.reference} · ${known.sourceId}`
+                      : "AI估算 · 企鹅小家",
+                };
+              }),
+              note: p.text,
+              photo: null,
+              expenseId: null,
+              updatedAt: now,
+            }) as Meal,
+          );
         if (p.kind === "购物")
-          await db.shopping.add({
-            id,
-            name: p.name,
-            quantity: p.quantity,
-            unit: p.unit,
-            note: p.text,
-            recipeName: "",
-            checked: false,
-            stocked: false,
-            updatedAt: now,
-          });
+          await db.shopping.add(
+            validateShoppingItem({
+              id,
+              name: p.name,
+              quantity: p.quantity,
+              unit: p.unit,
+              note: p.text,
+              recipeName: "",
+              checked: false,
+              stocked: false,
+              updatedAt: now,
+            }) as ShoppingItem,
+          );
       }
       await db.chatMessages.put({
         ...message,

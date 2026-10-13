@@ -1,3 +1,4 @@
+import {recordLimits} from './recordLimits.mjs';
 export const categories = ['餐饮', '食品日用', '生活缴费', '交通', '购物', '娱乐', '医疗', '旅行', '人情', '其他'];
 export function normalizeCategory(category) {
   return category === '住房' ? '生活缴费' : category;
@@ -12,13 +13,15 @@ export function parseAmount(value, allowZero = false) {
 export function validDate(value) {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value)) && new Date(value).toISOString().slice(0,10) === value;
 }
+export function validateExpense(item){
+ if (!item || typeof item.id !== 'string' || !item.id || !Number.isSafeInteger(item.cents) || item.cents <= 0 || item.cents > 100000000 || !categories.includes(normalizeCategory(item.category)) || !validDate(item.date) || typeof item.note !== 'string' || item.note.length > recordLimits.note) throw new Error('账单内容无效');
+ return {id:item.id,cents:item.cents,category:normalizeCategory(item.category),date:item.date,note:item.note};
+}
 export function validateBackup(data) {
   if (!data || data.version !== 1 || !Array.isArray(data.expenses) || data.expenses.length > 100000) throw new Error('备份格式无效');
   const ids = new Set();
   return data.expenses.map(item => {
-    if (!item || typeof item.id !== 'string' || !item.id || ids.has(item.id) || !Number.isSafeInteger(item.cents) || item.cents <= 0 || item.cents > 100000000 || !categories.includes(normalizeCategory(item.category)) || !validDate(item.date) || typeof item.note !== 'string' || item.note.length > 200) throw new Error('备份中包含无效或重复的账单');
-    ids.add(item.id);
-    return {id:item.id,cents:item.cents,category:normalizeCategory(item.category),date:item.date,note:item.note};
+    const saved=validateExpense(item);if(ids.has(saved.id))throw new Error('备份中包含重复的账单');ids.add(saved.id);return saved;
   });
 }
 

@@ -1,3 +1,4 @@
+import type { OverseasTrip } from "./travel/overseas-types";
 import type {
   ChatThread,
   ChatMessage,
@@ -32,6 +33,15 @@ export const db = new Dexie("riri-expenses") as Dexie & {
   inventory: Table<InventoryItem, string>;
   shopping: Table<ShoppingItem, string>;
   fridgePreferences: Table<FridgePreferences, string>;
+  overseasTrips: Table<OverseasTrip, string>;
+  appMeta: Table<
+    { id: string; value: string | number; updatedAt: number },
+    string
+  >;
+  chatDrafts: Table<
+    { id: string; text: string; mode: string; updatedAt: number },
+    string
+  >;
   trips: Table<Trip, string>;
   visitedCities: Table<VisitedCity, string>;
   travelSpots: Table<UserScenic, string>;
@@ -115,3 +125,9 @@ db.version(8)
             if (spot.grade === "4A") spot.grade = "其他";
       });
   });
+
+db.version(9).stores({
+  overseasTrips: "id,startDate,endDate",
+  appMeta: "id",
+  chatDrafts: "id,updatedAt",
+});

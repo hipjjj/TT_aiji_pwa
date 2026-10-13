@@ -1,3 +1,5 @@
+import { recordLimits } from "../recordLimits.mjs";
+import { restoreChat, rememberSelection, draftKey } from "./session";
 import React, { useEffect, useRef, useState } from "react";
 import { db } from "../db";
 import { Modal } from "../nutrition/NutritionTab";
@@ -10,7 +12,7 @@ import {
 import { resolveProposal } from "./store";
 import type { ChatThread, ChatMessage, ChatMode, Proposal } from "./types";
 import { categories } from "../model.mjs";
-import { sumNutrition } from "../nutrition/model.mjs";
+import { sumNutrition, standardizeAIFoods } from "../nutrition/model.mjs";
 import bobby from "../assets/penguin-park.webp";
 import bao from "../assets/xiaobao-nutrition.webp";
 import dudu from "../assets/dudu-fridge.webp";
@@ -134,7 +136,7 @@ function Card({
         <label>
           {["记忆", "成长"].includes(p.kind) ? "内容／依据" : "备注"}
           <textarea
-            maxLength={500}
+            maxLength={recordLimits.note}
             value={p.text}
             onChange={(e) => field("text", e.target.value)}
           />
@@ -207,7 +209,7 @@ function Card({
                   食物名称
                   <input
                     value={food.name}
-                    maxLength={100}
+                    maxLength={recordLimits.name}
                     onChange={(e) =>
                       setP({
                         ...p,
@@ -266,6 +268,11 @@ function Card({
                                       ...f.per100,
                                       [k]: Number(e.target.value),
                                     },
+                                    assumption:
+                                      f.assumption
+                                        .replace(/；营养数值由用户调整。$/, "")
+                                        .slice(0, 950) +
+                                      "；营养数值由用户调整。",
                                   }
                                 : f,
                             ),
@@ -290,7 +297,7 @@ function Card({
             <label>
               名称
               <input
-                maxLength={100}
+                maxLength={recordLimits.name}
                 value={p.name}
                 onChange={(e) => field("name", e.target.value)}
               />
@@ -299,7 +306,7 @@ function Card({
               <label>
                 数量
                 <input
-                  maxLength={30}
+                  maxLength={recordLimits.quantity}
                   value={p.quantity}
                   onChange={(e) => field("quantity", e.target.value)}
                 />
@@ -307,7 +314,7 @@ function Card({
               <label>
                 单位
                 <input
-                  maxLength={20}
+                  maxLength={recordLimits.unit}
                   value={p.unit}
                   onChange={(e) => field("unit", e.target.value)}
                 />
@@ -358,6 +365,7 @@ export default function ChatRoom({
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [history, setHistory] = useState(false),
+    [unsent, setUnsent] = useState<{ mode: ChatMode; text: string }[]>([]),
     [ready, setReady] = useState(false);
   const request = useRef<AbortController | null>(null),
     alive = useRef(true),
@@ -370,14 +378,69 @@ export default function ChatRoom({
         (a, b) => a.createdAt - b.createdAt,
       ),
     );
+  const draftRef = useRef<{
+      id: string;
+      text: string;
+      mode: ChatMode;
+      updatedAt: number;
+    } | null>(null),
+    draftTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flushDraft = async () => {
+    if (draftTimer.current) clearTimeout(draftTimer.current);
+    const d = draftRef.current;
+    if (d) {
+      if (d.text) await db.chatDrafts.put(d);
+      else await db.chatDrafts.delete(d.id);
+      await db.appMeta.put({
+        id: "chat-session",
+        value: JSON.stringify({
+          mode: d.mode,
+          threadId: d.id.startsWith("thread:") ? d.id.slice(7) : null,
+        }),
+        updatedAt: Date.now(),
+      });
+    }
+  };
+  const changeText = (value: string) => {
+    setText(value);
+    draftRef.current = {
+      id: draftKey(thread, mode),
+      text: value,
+      mode,
+      updatedAt: Date.now(),
+    };
+    if (draftTimer.current) clearTimeout(draftTimer.current);
+    draftTimer.current = setTimeout(() => {
+      void flushDraft().catch(() =>
+        setError("草稿保存失败，文字仍在输入框，请检查本地空间"),
+      );
+    }, 250);
+  };
   useEffect(() => {
     alive.current = true;
-    loadThreads()
-      .then(() => setReady(true))
+    restoreChat(initialMode)
+      .then((state) => {
+        if (!alive.current) return;
+        setThreads(state.threads);
+        setThread(state.thread);
+        setMode(state.mode);
+        setText(state.text);
+        setMessages(state.messages);
+        draftRef.current = {
+          id: draftKey(state.thread, state.mode),
+          text: state.text,
+          mode: state.mode,
+          updatedAt: Date.now(),
+        };
+        if (state.messages.at(-1)?.speaker === "用户")
+          setError("上次聊天还没有收到回应，可重试这条消息。");
+        setReady(true);
+      })
       .catch(() => setError("暂时无法读取聊天记录"));
     return () => {
       alive.current = false;
       request.current?.abort();
+      void flushDraft().catch(() => {});
     };
   }, []);
   useEffect(() => {
@@ -385,27 +448,95 @@ export default function ChatRoom({
   }, [messages, busy]);
   const close = () => {
     request.current?.abort();
+    void flushDraft().catch(() => {});
     onClose();
   };
   const choose = async (t: ChatThread) => {
+    setReady(false);
     setError("");
-    setText("");
-    setThread(t);
-    setMode(t.mode);
-    setHistory(false);
     try {
+      await flushDraft();
+      const draft = await db.chatDrafts.get(draftKey(t, t.mode));
+      setThread(t);
+      setMode(t.mode);
+      setText(draft?.text || "");
+      draftRef.current = {
+        id: draftKey(t, t.mode),
+        text: draft?.text || "",
+        mode: t.mode,
+        updatedAt: Date.now(),
+      };
+      setHistory(false);
       await loadMessages(t.id);
+      await rememberSelection(t, t.mode);
     } catch {
       setError("无法打开这段聊天");
+    } finally {
+      setReady(true);
     }
   };
-  const fresh = (m: ChatMode) => {
-    setMode(m);
-    setThread(null);
-    setMessages([]);
-    setText("");
+  const fresh = async (m: ChatMode) => {
+    setReady(false);
     setError("");
-    setHistory(false);
+    try {
+      await flushDraft();
+      const pending = await db.chatDrafts.get(draftKey(null, m));
+      if (
+        pending?.text &&
+        !confirm("开始新聊天会清空这份未发送的新对话草稿，确认继续？")
+      )
+        return;
+      await db.chatDrafts.delete(draftKey(null, m));
+      setMode(m);
+      setThread(null);
+      setMessages([]);
+      setText("");
+      draftRef.current = {
+        id: draftKey(null, m),
+        text: "",
+        mode: m,
+        updatedAt: Date.now(),
+      };
+      setHistory(false);
+      await rememberSelection(null, m);
+    } catch {
+      setError("新聊天暂时打不开");
+    } finally {
+      setReady(true);
+    }
+  };
+  const switchMode = async (m: ChatMode, preferDraft = false) => {
+    setReady(false);
+    try {
+      const t = (
+        await db.chatThreads.orderBy("updatedAt").reverse().toArray()
+      ).find((t) => t.mode === m);
+      const draft = await db.chatDrafts.get(draftKey(null, m));
+      if (
+        t &&
+        !(draft?.text && (preferDraft || draft.updatedAt >= t.updatedAt))
+      )
+        await choose(t);
+      else {
+        await flushDraft();
+        const draft = await db.chatDrafts.get(draftKey(null, m));
+        setMode(m);
+        setThread(null);
+        setMessages([]);
+        setText(draft?.text || "");
+        draftRef.current = {
+          id: draftKey(null, m),
+          text: draft?.text || "",
+          mode: m,
+          updatedAt: Date.now(),
+        };
+        await rememberSelection(null, m);
+        setError("");
+        setHistory(false);
+      }
+    } finally {
+      setReady(true);
+    }
   };
   const send = async (retry = false) => {
     if (busy || !ready) return;
@@ -443,6 +574,7 @@ export default function ChatRoom({
         };
         await db.chatThreads.add(active);
         setThread(active);
+        await rememberSelection(active, active.mode);
       }
       const id = active.id;
       let context = messages;
@@ -465,7 +597,15 @@ export default function ChatRoom({
         );
         context = [...messages, m];
         setMessages(context);
+        await db.chatDrafts.delete(draftKey(thread, mode));
         setText("");
+        draftRef.current = {
+          id: draftKey(active, active.mode),
+          text: "",
+          mode: active.mode,
+          updatedAt: Date.now(),
+        };
+        await rememberSelection(active, active.mode);
       }
       const [allMemories, growth] = await Promise.all([
         db.chatMemories.toArray(),
@@ -508,6 +648,7 @@ export default function ChatRoom({
         growth: growth?.value || 0,
         today: today(),
       });
+      if (!alive.current) return;
       const controller = new AbortController();
       request.current = controller;
       const timer = setTimeout(() => controller.abort(), 45000);
@@ -525,6 +666,9 @@ export default function ChatRoom({
         const data = await response.json();
         if (!response.ok) throw Error(data.error || "企鹅暂时没有接上话");
         result = validateChatResult(data, active.mode, input);
+        result.proposals = result.proposals.map((p) =>
+          p.kind === "饮食" ? { ...p, foods: standardizeAIFoods(p.foods) } : p,
+        );
       } finally {
         clearTimeout(timer);
         request.current = null;
@@ -589,21 +733,24 @@ export default function ChatRoom({
       className="chat-room"
     >
       <div className="chat-top">
-        <button disabled={busy} onClick={() => setHistory(!history)}>
+        <button disabled={busy || !ready} onClick={() => setHistory(!history)}>
           聊天记录
         </button>
-        <button disabled={busy} onClick={() => fresh(mode)}>
+        <button disabled={busy || !ready} onClick={() => void fresh(mode)}>
           ＋ 新聊天
         </button>
       </div>
       <div className="chat-modes" aria-label="聊天模式">
         {(["群聊", ...penguins] as ChatMode[]).map((m) => (
           <button
-            disabled={busy}
+            disabled={busy || !ready}
             key={m}
             aria-pressed={mode === m}
             onClick={() => {
-              if (m !== mode) fresh(m);
+              if (m !== mode)
+                void switchMode(m).catch(() =>
+                  setError("切换企鹅失败，请重试"),
+                );
             }}
           >
             {m === "群聊" ? "企鹅家族" : m}
@@ -616,10 +763,23 @@ export default function ChatRoom({
       {history ? (
         <section className="chat-history">
           <h3>小家的聊天记录</h3>
+          {unsent.map((d) => (
+            <article key={d.mode}>
+              <button
+                onClick={() =>
+                  void switchMode(d.mode, true).catch(() =>
+                    setError("草稿暂时打不开"),
+                  )
+                }
+              >
+                {d.mode} · 未发送草稿<small>{d.text.slice(0, 40)}</small>
+              </button>
+            </article>
+          ))}
           {!threads.length && <p>还没有聊天，来坐一会儿吧。</p>}
           {threads.map((t) => (
             <article key={t.id}>
-              <button onClick={() => void choose(t)}>
+              <button disabled={busy || !ready} onClick={() => void choose(t)}>
                 {t.mode} · {t.title}
                 <small>{new Date(t.updatedAt).toLocaleDateString()}</small>
               </button>
@@ -635,16 +795,20 @@ export default function ChatRoom({
                   try {
                     await db.transaction(
                       "rw",
-                      [db.chatThreads, db.chatMessages],
+                      [db.chatThreads, db.chatMessages, db.chatDrafts],
                       async () => {
                         await db.chatMessages
                           .where("threadId")
                           .equals(t.id)
                           .delete();
                         await db.chatThreads.delete(t.id);
+                        await db.chatDrafts.delete("thread:" + t.id);
                       },
                     );
-                    if (thread?.id === t.id) fresh(mode);
+                    if (thread?.id === t.id) {
+                      draftRef.current = null;
+                      await switchMode(mode, true);
+                    }
                     await loadThreads();
                   } catch {
                     setError("删除聊天失败");
@@ -743,8 +907,8 @@ export default function ChatRoom({
                 }
                 maxLength={2000}
                 value={text}
-                disabled={busy}
-                onChange={(e) => setText(e.target.value)}
+                disabled={busy || !ready}
+                onChange={(e) => changeText(e.target.value)}
               />
               <button disabled={busy || !ready || !text.trim()}>发送</button>
             </div>

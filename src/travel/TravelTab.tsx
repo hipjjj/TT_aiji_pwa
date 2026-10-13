@@ -1,3 +1,5 @@
+import OverseasTravel from "./OverseasTravel";
+import type { OverseasTrip } from "./overseas-types";
 import React, { useEffect, useRef, useState } from "react";
 import { db } from "../db";
 import { Modal } from "../nutrition/NutritionTab";
@@ -34,6 +36,10 @@ const library = scenicData as Scenic[];
 const failure = (error: unknown) =>
   error instanceof Error ? error.message : "暂时没有保存成功，请重试";
 export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
+  const [overseas, setOverseas] = useState<OverseasTrip[]>([]),
+    [journalFilter, setJournalFilter] = useState<
+      "all" | "domestic" | "overseas"
+    >("all");
   const [trips, setTrips] = useState<Trip[]>([]),
     [manual, setManual] = useState<VisitedCity[]>([]),
     [custom, setCustom] = useState<UserScenic[]>([]),
@@ -41,7 +47,7 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
     [error, setError] = useState("");
-  const [view, setView] = useState<"map" | "journal">("map"),
+  const [view, setView] = useState<"map" | "journal" | "overseas">("map"),
     [provinceId, setProvinceId] = useState<string | null>(null),
     [cityId, setCityId] = useState<string | null>(null),
     [grade, setGrade] = useState<"5A" | "其他">("5A"),
@@ -80,13 +86,15 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
   const file = useRef<HTMLInputElement>(null),
     controller = useRef<AbortController | null>(null);
   const reload = async () => {
-    const [saved, marks, added, settings] = await Promise.all([
+    const [saved, marks, added, settings, abroad] = await Promise.all([
       db.trips.orderBy("startDate").reverse().toArray(),
       db.visitedCities.toArray(),
       db.travelSpots.toArray(),
       db.settings.get("ai"),
+      db.overseasTrips.orderBy("startDate").reverse().toArray(),
     ]);
     setTrips(saved);
+    setOverseas(abroad);
     setManual(marks);
     setCustom(added);
     setAPIURL(
@@ -481,6 +489,100 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
       setBusy(false);
     }
   };
+  const journeys = [
+    ...(journalFilter === "overseas"
+      ? []
+      : trips.map((trip) => ({ scope: "domestic", trip }))),
+    ...(journalFilter === "domestic"
+      ? []
+      : overseas.map((trip) => ({ scope: "overseas", trip }))),
+  ].sort(
+    (a, b) =>
+      b.trip.startDate.localeCompare(a.trip.startDate) ||
+      a.trip.id.localeCompare(b.trip.id),
+  );
+  const domesticCard = (trip: Trip) => (
+    <article className="travel-trip-card" key={trip.id}>
+      {trip.photos[0] && (
+        <button
+          className="travel-cover-button"
+          onClick={() => setPreview(trip.photos[0])}
+        >
+          <img
+            className="travel-cover"
+            src={trip.photos[0].dataURL}
+            loading="lazy"
+            alt={trip.photos[0].caption || `${trip.title}的旅行照片`}
+          />
+        </button>
+      )}
+      <div className="travel-trip-body">
+        <span className="park-label">A Page of Our Journey</span>
+        <h3>{trip.title}</h3>
+        <p className="travel-trip-date">
+          {trip.startDate} — {trip.endDate}
+          {trip.endDate > localDate() ? " · 尚未计入点亮" : ""}
+        </p>
+        <p className="travel-route">
+          {trip.stops.map((stop) => cityById(stop.cityId)?.name).join(" → ")}
+        </p>
+        <p className="travel-spots-text">
+          {trip.stops
+            .flatMap((stop) => stop.spots.map((spot) => spot.name))
+            .join("、") || "还没补充具体景点"}
+        </p>
+        {trip.note && <p className="travel-trip-note">{trip.note}</p>}
+        {trip.story && (
+          <details className="travel-story">
+            <summary>
+              翻开黏黏包的游记{" "}
+              <span>
+                {trip.storySource === "ai"
+                  ? "AI草稿 · 已确认"
+                  : trip.storySource === "template"
+                    ? "本地整理"
+                    : "手动书写"}
+              </span>
+            </summary>
+            <p>{trip.story}</p>
+          </details>
+        )}
+        {trip.photos.length > 0 && (
+          <details className="travel-trip-photos">
+            <summary>看看 {trip.photos.length} 张旅行照片</summary>
+            <div className="travel-photo-grid">
+              {trip.photos.map((photo) => (
+                <button key={photo.id} onClick={() => setPreview(photo)}>
+                  <img
+                    src={photo.dataURL}
+                    loading="lazy"
+                    alt={photo.caption || "旅行照片"}
+                  />
+                  {photo.caption && <span>{photo.caption}</span>}
+                </button>
+              ))}
+            </div>
+          </details>
+        )}
+        <div className="travel-trip-actions">
+          <button
+            disabled={busy}
+            onClick={() => openTrip(trip)}
+            aria-label={`编辑旅行${trip.title}`}
+          >
+            编辑旅行
+          </button>
+          <button
+            disabled={busy}
+            onClick={() => void deleteTrip(trip)}
+            aria-label={`删除旅行${trip.title}`}
+          >
+            删除
+          </button>
+        </div>
+      </div>
+    </article>
+  );
   const modalProps = { eyebrow: copy.eyebrow, className: "travel-dialog" };
   return (
     <section className="travel-house">
@@ -506,9 +608,9 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
           </b>
         </div>
         <div>
-          <span>收好的旅程</span>
+          <span>全部收好的旅程</span>
           <b>
-            {trips.length}
+            {trips.length + overseas.length}
             <small>段</small>
           </b>
         </div>
@@ -530,6 +632,13 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
         >
           我的旅行记录
         </button>
+        <button
+          className="travel-settings-link"
+          aria-pressed={view === "overseas"}
+          onClick={() => setView("overseas")}
+        >
+          海外小脚印
+        </button>
         <button className="travel-settings-link" onClick={onManageAI}>
           AI设置
         </button>
@@ -543,106 +652,66 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
           onCity={openCity}
           visited={visited}
         />
+      ) : view === "overseas" ? (
+        <OverseasTravel
+          trips={overseas}
+          onChanged={reload}
+          onManageAI={onManageAI}
+        />
       ) : (
         <section className="travel-journal">
           <div className="section-head">
             <h3>把回忆慢慢翻开</h3>
-            <span>{trips.length} 段旅程</span>
+            <span>{journeys.length} 段旅程</span>
           </div>
-          {!trips.length ? (
+          <div className="travel-grade-filters" aria-label="筛选旅行记录">
+            {(
+              [
+                ["all", "全部"],
+                ["domestic", "国内"],
+                ["overseas", "海外"],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                aria-pressed={journalFilter === id}
+                onClick={() => setJournalFilter(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {!journeys.length ? (
             <div className="empty">
               <span aria-hidden="true">🧳</span>
               <h3>旅行册还留着空白页</h3>
               <p>去过的城市、走过的景点，都可以记在这里。</p>
+              <button onClick={() => setView("overseas")}>记录海外旅行</button>
             </div>
           ) : (
-            trips.map((trip) => (
-              <article className="travel-trip-card" key={trip.id}>
-                {trip.photos[0] && (
+            <OverseasTravel
+              trips={overseas}
+              onChanged={reload}
+              onManageAI={onManageAI}
+            >
+              {({ renderCard, open }) => (
+                <>
                   <button
-                    className="travel-cover-button"
-                    onClick={() => setPreview(trip.photos[0])}
+                    className="travel-settings-link"
+                    onClick={() => open()}
                   >
-                    <img
-                      className="travel-cover"
-                      src={trip.photos[0].dataURL}
-                      loading="lazy"
-                      alt={trip.photos[0].caption || `${trip.title}的旅行照片`}
-                    />
+                    ＋ 记录海外旅行
                   </button>
-                )}
-                <div className="travel-trip-body">
-                  <span className="park-label">A Page of Our Journey</span>
-                  <h3>{trip.title}</h3>
-                  <p className="travel-trip-date">
-                    {trip.startDate} — {trip.endDate}
-                    {trip.endDate > localDate() ? " · 尚未计入点亮" : ""}
-                  </p>
-                  <p className="travel-route">
-                    {trip.stops
-                      .map((stop) => cityById(stop.cityId)?.name)
-                      .join(" → ")}
-                  </p>
-                  <p className="travel-spots-text">
-                    {trip.stops
-                      .flatMap((stop) => stop.spots.map((spot) => spot.name))
-                      .join("、") || "还没补充具体景点"}
-                  </p>
-                  {trip.note && <p className="travel-trip-note">{trip.note}</p>}
-                  {trip.story && (
-                    <details className="travel-story">
-                      <summary>
-                        翻开黏黏包的游记{" "}
-                        <span>
-                          {trip.storySource === "ai"
-                            ? "AI草稿 · 已确认"
-                            : trip.storySource === "template"
-                              ? "本地整理"
-                              : "手动书写"}
-                        </span>
-                      </summary>
-                      <p>{trip.story}</p>
-                    </details>
-                  )}
-                  {trip.photos.length > 0 && (
-                    <details className="travel-trip-photos">
-                      <summary>看看 {trip.photos.length} 张旅行照片</summary>
-                      <div className="travel-photo-grid">
-                        {trip.photos.map((photo) => (
-                          <button
-                            key={photo.id}
-                            onClick={() => setPreview(photo)}
-                          >
-                            <img
-                              src={photo.dataURL}
-                              loading="lazy"
-                              alt={photo.caption || "旅行照片"}
-                            />
-                            {photo.caption && <span>{photo.caption}</span>}
-                          </button>
-                        ))}
-                      </div>
-                    </details>
-                  )}
-                  <div className="travel-trip-actions">
-                    <button
-                      disabled={busy}
-                      onClick={() => openTrip(trip)}
-                      aria-label={`编辑旅行${trip.title}`}
-                    >
-                      编辑旅行
-                    </button>
-                    <button
-                      disabled={busy}
-                      onClick={() => void deleteTrip(trip)}
-                      aria-label={`删除旅行${trip.title}`}
-                    >
-                      删除
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))
+                  {journeys.map((row) => (
+                    <React.Fragment key={row.scope + row.trip.id}>
+                      {row.scope === "domestic"
+                        ? domesticCard(row.trip as Trip)
+                        : renderCard(row.trip as OverseasTrip)}
+                    </React.Fragment>
+                  ))}
+                </>
+              )}
+            </OverseasTravel>
           )}
         </section>
       )}

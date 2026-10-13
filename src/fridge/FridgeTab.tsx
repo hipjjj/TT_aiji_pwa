@@ -1,3 +1,4 @@
+import {recordLimits} from '../recordLimits.mjs';
 import React, { useEffect, useRef, useState } from "react";
 import { db } from "../db";
 import { parseAmount, validDate } from "../model.mjs";
@@ -925,7 +926,7 @@ export default function FridgeTab({
                   aria-label="想吃的菜"
                   disabled={asking}
                   placeholder="输入菜名，或留空按库存推荐"
-                  maxLength={100}
+                  maxLength={recordLimits.name}
                   value={query}
                   onChange={(event) => {
                     setQuery(event.target.value);
@@ -1189,7 +1190,7 @@ export default function FridgeTab({
             食材名称
             <input
               aria-label="食材名称"
-              maxLength={60}
+              maxLength={recordLimits.name}
               value={stockDraft.name}
               onChange={(event) =>
                 setStockDraft({ ...stockDraft, name: event.target.value })
@@ -1239,7 +1240,7 @@ export default function FridgeTab({
             备注（可选）
             <input
               aria-label="食材备注"
-              maxLength={200}
+              maxLength={recordLimits.note}
               value={stockDraft.note}
               onChange={(event) =>
                 setStockDraft({ ...stockDraft, note: event.target.value })
@@ -1466,7 +1467,7 @@ export default function FridgeTab({
             要买什么
             <input
               aria-label="购物食材名称"
-              maxLength={60}
+              maxLength={recordLimits.name}
               value={shopDraft.name}
               onChange={(event) =>
                 setShopDraft({ ...shopDraft, name: event.target.value })
@@ -1484,7 +1485,7 @@ export default function FridgeTab({
             备注
             <input
               aria-label="购物备注"
-              maxLength={200}
+              maxLength={recordLimits.note}
               value={shopDraft.note}
               onChange={(event) =>
                 setShopDraft({ ...shopDraft, note: event.target.value })

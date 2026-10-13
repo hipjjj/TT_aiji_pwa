@@ -1,3 +1,4 @@
+import {recordLimits} from '../recordLimits.mjs';
 import rawFoods from './foods.json' with { type:'json' };
 import { validDate } from '../model.mjs';
 export const foodLibrary = rawFoods;
@@ -116,7 +117,7 @@ export function validatePhoto(photo) {
   return photo;
 }
 export function validateMeal(input) {
-  if(!input||typeof input.id!=='string'||!input.id||input.id.length>100||!validDate(input.date)||!mealTypes.includes(input.mealType)||!Array.isArray(input.items)||input.items.length<1||input.items.length>20||typeof input.note!=='string'||input.note.length>500)throw new Error('饮食记录格式无效');
+  if(!input||typeof input.id!=='string'||!input.id||input.id.length>100||!validDate(input.date)||!mealTypes.includes(input.mealType)||!Array.isArray(input.items)||input.items.length<1||input.items.length>20||typeof input.note!=='string'||input.note.length>recordLimits.note)throw new Error('饮食记录格式无效');
   const ids=new Set();const items=input.items.map(item=>{const validated=validatePortion(item);if(ids.has(validated.id))throw new Error('饮食记录含重复食物编号');ids.add(validated.id);return validated;});
   if(input.expenseId!==null&&input.expenseId!==undefined&&(typeof input.expenseId!=='string'||!input.expenseId||input.expenseId.length>100))throw new Error('饮食记录关联的账单编号无效');
   return {id:input.id,date:input.date,mealType:input.mealType,items,note:input.note,photo:validatePhoto(input.photo),expenseId:input.expenseId||null,updatedAt:number(input.updatedAt,0,Number.MAX_SAFE_INTEGER,'饮食更新时间')};
@@ -145,4 +146,8 @@ export function validateAIAnalysis(result) {
     if(!food||typeof food.name!=='string'||!food.name.trim()||food.name.length>100||typeof food.assumption!=='string'||food.assumption.length>1000||!['high','medium','low'].includes(food.confidence))throw new Error('AI返回的食物信息无效');
     return {name:food.name,grams:number(food.grams,.01,10000,'AI估计份量'),per100:validateNutrients(food.per100),assumption:food.assumption,confidence:food.confidence};
   })};
+}
+
+export function standardizeAIFoods(foods){
+ return foods.map(food=>{const known=findFood(food.name);return known?{...food,name:known.name,per100:{...known.per100},assumption:food.assumption.slice(0,700)+`；营养采用${known.reference} · ${known.sourceId}，份量由AI估计，可修改。`}:food;});
 }

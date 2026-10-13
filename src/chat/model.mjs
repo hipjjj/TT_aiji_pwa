@@ -1,3 +1,4 @@
+import { recordLimits } from "../recordLimits.mjs";
 import { validateAIAnalysis, mealTypes } from "../nutrition/model.mjs";
 import { categories, validDate } from "../model.mjs";
 export const penguins = ["鲍比", "小包", "嘟嘟糕", "黏黏包"];
@@ -38,10 +39,14 @@ export function validateChatRequest(x) {
 }
 export function validateProposal(p) {
   const kind = str(p.kind, 30),
-    text = str(p.text, 500),
-    name = str(p.name ?? "", 100, true),
-    unit = str(p.unit ?? "", 20, true),
-    quantity = str(p.quantity ?? "", 30, true),
+    text = str(
+      p.text,
+      recordLimits.note,
+      ["账单", "食材", "购物", "饮食"].includes(kind),
+    ),
+    name = str(p.name ?? "", recordLimits.name, true),
+    unit = str(p.unit ?? "", recordLimits.unit, true),
+    quantity = str(p.quantity ?? "", recordLimits.quantity, true),
     category = str(p.category ?? "", 20, true),
     date = str(p.date ?? "", 10, true),
     location = str(p.location ?? "", 10, true),
@@ -212,5 +217,24 @@ export function validateChatBackup(data) {
       })),
     };
   }
-  return { threads, messages, memories, growth };
+  const draftIds = new Set();
+  const drafts =
+    x.drafts === undefined
+      ? undefined
+      : arr(x.drafts, 1000).map((d) => {
+          if (!["群聊", ...penguins].includes(d.mode))
+            throw Error("聊天草稿模式无效");
+          return {
+            id: (() => {
+              const v = str(d.id, 110);
+              if (draftIds.has(v)) throw Error("聊天草稿编号重复");
+              draftIds.add(v);
+              return v;
+            })(),
+            text: str(d.text, 2000, true),
+            mode: d.mode,
+            updatedAt: num(d.updatedAt, 9e15),
+          };
+        });
+  return { threads, messages, memories, growth, ...(drafts ? { drafts } : {}) };
 }

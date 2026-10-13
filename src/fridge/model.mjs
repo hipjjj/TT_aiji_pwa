@@ -1,3 +1,4 @@
+import {recordLimits} from '../recordLimits.mjs';
 import { validDate } from "../model.mjs";
 import {
   foodLibrary,
@@ -99,12 +100,12 @@ export function validateInventoryItem(value) {
     throw new Error("到期日期无效");
   return {
     id: id(value.id),
-    name: text(value.name, 60, "食材名称", false),
-    quantity: text(value.quantity, 40, "食材数量"),
-    unit: text(value.unit, 12, "单位"),
+    name: text(value.name, recordLimits.name, "食材名称", false),
+    quantity: text(value.quantity, recordLimits.quantity, "食材数量"),
+    unit: text(value.unit, recordLimits.unit, "单位"),
     location: value.location,
     expiry: value.expiry,
-    note: text(value.note, 200, "备注"),
+    note: text(value.note, recordLimits.note, "备注"),
     updatedAt: numeric(value.updatedAt, 0, Number.MAX_SAFE_INTEGER, "更新时间"),
   };
 }
@@ -118,10 +119,10 @@ export function validateShoppingItem(value) {
     throw new Error("购物清单状态无效");
   return {
     id: id(value.id),
-    name: text(value.name, 60, "购物食材", false),
-    quantity: text(value.quantity, 40, "购物数量"),
-    unit: text(value.unit, 12, "单位"),
-    note: text(value.note, 200, "购物备注"),
+    name: text(value.name, recordLimits.name, "购物食材", false),
+    quantity: text(value.quantity, recordLimits.quantity, "购物数量"),
+    unit: text(value.unit, recordLimits.unit, "单位"),
+    note: text(value.note, recordLimits.note, "购物备注"),
     recipeName: text(value.recipeName, 100, "菜名"),
     checked: value.checked,
     stocked: value.stocked,
@@ -457,8 +458,8 @@ export function validateAIRecipeResult(value) {
     )
       throw new Error("AI食谱内容无效");
     const ingredients = recipe.ingredients.map((item) => {
-      const name = text(item.name, 60, "AI食材名称", false),
-        suppliedUnit = text(item.unit, 12, "AI食材单位", false),
+      const name = text(item.name, recordLimits.name, "AI食材名称", false),
+        suppliedUnit = text(item.unit, recordLimits.unit, "AI食材单位", false),
         unit = units[suppliedUnit.toLowerCase()] || suppliedUnit;
       const matched = foodLibrary.find(
         (food) =>
@@ -521,9 +522,9 @@ export function validateRecipeRequest(value) {
   const dish = text(value.dish, 100, "想吃的菜");
   if (value.mode === "dish" && !dish) throw new Error("请填写想吃的菜");
   const inventory = value.inventory.map((item) => ({
-    name: text(item.name, 60, "食材", false),
+    name: text(item.name, recordLimits.name, "食材", false),
     quantity: text(item.quantity, 40, "数量"),
-    unit: text(item.unit, 12, "单位"),
+    unit: text(item.unit, recordLimits.unit, "单位"),
   }));
   return { mode: value.mode, dish, inventory, preferences };
 }
