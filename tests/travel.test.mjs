@@ -27,3 +27,9 @@ test('travel backup preserves omission semantics and rejects damaged records bef
 test('local story uses recorded facts; AI payload strips photos and other app data and validates output input lengths',()=>{
  const input=trip();const story=draftStory(input);assert.match(story,/杭州/);assert.match(story,/西湖/);assert.match(story,/走累了就慢慢休息/);assert(!/晴天|酒店|同行人/.test(story));const payload=storyPayload({...input,expense:'private',body:'private'});assert.equal(payload.stops[0].city,'杭州市');assert(!Object.hasOwn(payload,'photos'));assert(!JSON.stringify(payload).includes('private'));assert.throws(()=>validateStoryRequest({...payload,endDate:'2026-09-01'}));
 });
+
+test('retired scenic category migrates old backups without losing places or travel memories',()=>{
+ const historic=trip({stops:[{cityId:'330100',spots:[{name:'以前记过的公园',grade:'4A'}]}]});
+ const restored=validateTravelBackup({travel:{trips:[historic],visitedCities:[],spots:[{id:'custom',cityId:'330100',name:'以前记过的公园',grade:'4A',sourceURL:'',updatedAt:1}]}});
+ assert.equal(restored.trips[0].stops[0].spots[0].grade,'其他');assert.equal(restored.spots[0].grade,'其他');assert.equal(restored.trips[0].stops[0].spots[0].name,'以前记过的公园');assert.equal(restored.trips[0].note,historic.note);assert.equal(restored.trips[0].startDate,historic.startDate);
+});

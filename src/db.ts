@@ -95,3 +95,23 @@ db.version(7).stores({
   chatMemories: "id,kind",
   chatGrowth: "id",
 });
+
+// Keep previously recorded destinations while retiring their old rating category.
+db.version(8)
+  .stores({ trips: "id,startDate,endDate", travelSpots: "id,cityId,grade" })
+  .upgrade(async (tx) => {
+    await tx
+      .table("travelSpots")
+      .toCollection()
+      .modify((spot) => {
+        if (spot.grade === "4A") spot.grade = "其他";
+      });
+    await tx
+      .table("trips")
+      .toCollection()
+      .modify((trip) => {
+        for (const stop of trip.stops || [])
+          for (const spot of stop.spots || [])
+            if (spot.grade === "4A") spot.grade = "其他";
+      });
+  });

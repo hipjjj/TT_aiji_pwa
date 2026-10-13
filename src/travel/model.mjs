@@ -16,6 +16,8 @@ const str = (value, max, label, empty = true) => {
     throw Error(`${label}无效`);
   return value.trim();
 };
+// Compatibility only: preserve places from retired categories in old backups.
+const normalizeScenicGrade = (grade) => (grade === "4A" ? "其他" : grade);
 const identifier = (value) => str(value, 100, "记录编号", false);
 const time = (value) => {
   if (
@@ -50,11 +52,11 @@ export function validateTrip(input) {
     )
       throw Error("旅行城市或景点无效");
     const spots = stop.spots.map((spot) => {
-      if (!spot || !["5A", "4A", "其他"].includes(spot.grade))
+      if (!spot || !["5A", "其他"].includes(normalizeScenicGrade(spot.grade)))
         throw Error("景点评级无效");
       return {
         name: str(spot.name, 150, "景点名称", false),
-        grade: spot.grade,
+        grade: normalizeScenicGrade(spot.grade),
         ...(spot.catalogId ? { catalogId: identifier(spot.catalogId) } : {}),
       };
     });
@@ -210,7 +212,7 @@ export function validateUserScenic(input) {
   if (
     !input ||
     !cityById(input.cityId) ||
-    !["5A", "4A", "其他"].includes(input.grade)
+    !["5A", "其他"].includes(normalizeScenicGrade(input.grade))
   )
     throw Error("补充景点无效");
   const sourceURL = str(input.sourceURL, 500, "景点来源链接");
@@ -228,7 +230,7 @@ export function validateUserScenic(input) {
     id: identifier(input.id),
     cityId: input.cityId,
     name: str(input.name, 150, "景点名称", false),
-    grade: input.grade,
+    grade: normalizeScenicGrade(input.grade),
     sourceURL,
     updatedAt: time(input.updatedAt),
   };

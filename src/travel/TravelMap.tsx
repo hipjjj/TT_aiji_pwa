@@ -58,14 +58,16 @@ export default function TravelMap({
       geometry: splitGeometry(feature.geometry).main,
     }))
     .filter((feature) => feature.geometry.coordinates.length) as
-    MapFeature[] | undefined;
+    | MapFeature[]
+    | undefined;
   const inset = data?.features
     .map((feature) => ({
       ...feature,
       geometry: splitGeometry(feature.geometry).inset,
     }))
     .filter((feature) => feature.geometry.coordinates.length) as
-    MapFeature[] | undefined;
+    | MapFeature[]
+    | undefined;
   const outline = data?.outline ? splitGeometry(data.outline) : null;
   const insetBounds = outline?.inset.coordinates.length
     ? [...(inset || []), { geometry: outline.inset }]
@@ -288,8 +290,7 @@ export default function TravelMap({
         </p>
         <p>
           5A 列表采用 LoreRoutes 的373条名录快照（2026-08-31），CC BY-SA
-          4.0；评级可能变动，请以主管部门最新公布为准。4A
-          全国名录暂未完整收录，自填评级会明确标记。
+          4.0；评级可能变动，请以主管部门最新公布为准，自填评级会明确标记。
           <a
             href="https://github.com/tuansuwu/china-5a-scenic-areas"
             target="_blank"

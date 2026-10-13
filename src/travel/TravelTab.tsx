@@ -44,7 +44,7 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
   const [view, setView] = useState<"map" | "journal">("map"),
     [provinceId, setProvinceId] = useState<string | null>(null),
     [cityId, setCityId] = useState<string | null>(null),
-    [grade, setGrade] = useState<"5A" | "4A" | "其他">("5A"),
+    [grade, setGrade] = useState<"5A" | "其他">("5A"),
     [spotSearch, setSpotSearch] = useState(""),
     [limit, setLimit] = useState(20),
     [markDate, setMarkDate] = useState(""),
@@ -724,7 +724,7 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
             </button>
             <h3 className="travel-section-title">城市景点小清单</h3>
             <div className="travel-grade-filters">
-              {(["5A", "4A", "其他"] as const).map((value) => (
+              {(["5A", "其他"] as const).map((value) => (
                 <button
                   key={value}
                   aria-pressed={grade === value}
@@ -750,18 +750,11 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
                 placeholder="找一个景点…"
               />
             </label>
-            {grade === "4A" && (
-              <p className="travel-data-note">
-                4A 全国名录尚未完整收录，下面的自填条目不代表完整官方名单。
-              </p>
-            )}
             {!shownSpots.length ? (
               <p className="nutrition-small-note">
                 {grade === "5A"
                   ? "这份来源快照未匹配到景区，不代表当地没有；也可以自填补充。"
-                  : grade === "4A"
-                    ? "尚无匹配的4A条目，可补充并标明来源。"
-                    : "还没有补充其他地点，街道、小店和公园都可以记下来。"}
+                  : "还没有补充其他地点，街道、小店和公园都可以记下来。"}
               </p>
             ) : (
               <ul className="travel-scenic-list">
@@ -842,7 +835,7 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
                       })
                     }
                   >
-                    {["其他", "5A", "4A"].map((value) => (
+                    {["其他", "5A"].map((value) => (
                       <option key={value}>{value}</option>
                     ))}
                   </select>
@@ -1122,7 +1115,7 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
                         })
                       }
                     >
-                      {["其他", "5A", "4A"].map((value) => (
+                      {["其他", "5A"].map((value) => (
                         <option key={value}>{value}</option>
                       ))}
                     </select>

@@ -1,7 +1,7 @@
 export type TravelPhoto = { id: string; dataURL: string; caption: string };
 export type TravelSpot = {
   name: string;
-  grade: "5A" | "4A" | "其他";
+  grade: "5A" | "其他";
   catalogId?: string;
 };
 export type TravelStop = { cityId: string; spots: TravelSpot[] };
@@ -42,7 +42,7 @@ export type Scenic = {
   id: string;
   cityId: string;
   name: string;
-  grade: "5A" | "4A";
+  grade: "5A";
   source: string;
   sourceURL: string;
   snapshot: string;
@@ -71,7 +71,7 @@ export type UserScenic = {
   id: string;
   cityId: string;
   name: string;
-  grade: "5A" | "4A" | "其他";
+  grade: "5A" | "其他";
   sourceURL: string;
   updatedAt: number;
 };
