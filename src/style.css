@@ -24,3 +24,8 @@
 @media(max-width:520px){.finance-view{margin:20px 0 23px}.finance-view button{font-size:12px;padding:12px 8px}}
 
 .ledger-heading{margin:25px 3px 18px}.ledger-heading h2{font-size:24px;line-height:1.45;margin:9px 0 0}.ledger-heading+.ticket{margin-top:0}
+
+/* Use one title scale for the sections beneath each character illustration. */
+.ledger-heading h2,.nutrition-heading h2,.fridge-heading h2,.personal-heading h2{font-size:23px;line-height:1.45;margin:9px 0 0}
+@media(max-width:600px){.ledger-heading h2,.nutrition-heading h2,.fridge-heading h2,.personal-heading h2{font-size:19px}}
+@media(max-width:360px){.ledger-heading h2,.nutrition-heading h2,.fridge-heading h2,.personal-heading h2{font-size:17px}}
