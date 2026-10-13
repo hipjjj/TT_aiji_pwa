@@ -19,7 +19,7 @@
 
 在 Actions 中手动运行 **Deploy Xiaobao AI backend**。工作流会运行测试，部署 `tt-aiji-pwa-xiaobao-ai` 与持久额度存储，再通过标准输入设置 Worker Secret。最后检查健康状态并分别调用一次真实文字分析和食谱分析（会产生少量 API 费用及占用两次额度），验证 OpenAI 接通。它不会因为前端每次推送就自动部署，也不会输出密钥。
 
-确认工作流成功后，从工作流摘要或 Cloudflare Workers 管理页取得实际 HTTPS 根地址。打开“营养屋 → 小包的食物库与估算说明 → 连接AI服务”，填写该地址和你设置的访问口令。这里不填写 OpenAI API 密钥。地址例如 `https://实际服务名.实际子域.workers.dev`，不要填写 `/analyze` 路径。
+确认工作流成功后，从工作流摘要或 Cloudflare Workers 管理页取得实际 HTTPS 根地址。打开“个人 → AI连接设置”，填写该地址和你设置的访问口令。这里不填写 OpenAI API 密钥。地址例如 `https://实际服务名.实际子域.workers.dev`，不要填写 `/analyze` 路径。
 
 ## 本机部署与开发
 

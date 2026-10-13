@@ -1,0 +1,110 @@
+.personal-heading {
+  margin: 27px 3px 22px;
+}
+.personal-heading h2 {
+  font-size: 25px;
+  margin: 9px 0;
+}
+.personal-heading p {
+  font-size: 12px;
+  color: #8292a0;
+  line-height: 1.9;
+}
+.personal-ai {
+  padding: 25px;
+  background: #fffcf5;
+  border: 1px solid #fff;
+  border-radius: 26px;
+  margin-bottom: 23px;
+}
+.personal-ai h2 {
+  font-size: 21px;
+  margin: 10px 0 13px;
+}
+.personal-note {
+  font-size: 11px;
+  color: #80909e;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+.personal-connection-state {
+  display: block;
+  background: #edf3f8;
+  color: #6d8496;
+  font-size: 11px;
+  padding: 12px 14px;
+  border-radius: 13px;
+  line-height: 1.8;
+  margin: 17px 0 22px;
+}
+.personal-ai form label {
+  margin: 20px 0 0;
+}
+.personal-ai .backup-primary,
+.personal-ai .backup-secondary {
+  width: 100%;
+  margin-top: 15px;
+}
+.personal-server-help {
+  margin-top: 23px;
+  border-top: 1px dashed #e1e3dd;
+  padding-top: 17px;
+  color: #81909a;
+  font-size: 11px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+.personal-server-help summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+.personal-server-help a {
+  color: #678caa;
+  text-decoration: underline;
+}
+.personal-result {
+  font-size: 12px;
+  line-height: 1.9;
+  background: #edf3e8;
+  color: #718866;
+  padding: 12px;
+  border-radius: 13px;
+}
+.personal-ai input {
+  font-size: 16px;
+}
+.personal-data .backup-panel {
+  margin-top: 0;
+}
+.personal-data .backup-panel h2 {
+  font-size: 22px;
+}
+@media (max-width: 520px) {
+  .personal-ai {
+    padding: 21px 18px;
+  }
+  .personal-heading h2 {
+    font-size: 23px;
+  }
+  .personal-data .backup-panel {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}
+.personal-ai .backup-primary {
+  border: 0;
+  border-radius: 14px;
+  background: #89adc6;
+  color: #fff;
+  padding: 14px;
+  font-size: 13px;
+  font-weight: 650;
+}
+.personal-ai .backup-secondary {
+  border: 1px solid #dce3e6;
+  border-radius: 14px;
+  background: #fffaf0;
+  color: #8294a2;
+  padding: 12px;
+  font-size: 12px;
+}

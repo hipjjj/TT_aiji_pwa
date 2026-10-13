@@ -144,8 +144,10 @@ function MacroEstimate({ assessment }: { assessment: Assessment }) {
 }
 export default function FridgeTab({
   onDataChange,
+  onManageAI,
 }: {
   onDataChange: () => Promise<void>;
+  onManageAI: () => void;
 }) {
   const [inventory, setInventory] = useState<InventoryItem[]>([]),
     [shopping, setShopping] = useState<ShoppingItem[]>([]),
@@ -175,13 +177,8 @@ export default function FridgeTab({
     [aiNote, setAINote] = useState(""),
     [aiConsent, setAIConsent] = useState(false),
     [asking, setAsking] = useState(false);
-  const [aiOpen, setAIOpen] = useState(false),
-    [apiURL, setAPIURL] = useState(""),
-    [access, setAccess] = useState(
-      () => sessionStorage.getItem("xiaobao-ai-access") || "",
-    ),
-    [urlDraft, setURLDraft] = useState(""),
-    [codeDraft, setCodeDraft] = useState("");
+  const [apiURL,setAPIURL]=useState('');
+  const [access]=useState(()=>sessionStorage.getItem('xiaobao-ai-access')||'');
   const abort = useRef<AbortController | null>(null);
   const [shoppingOpen, setShoppingOpen] = useState(false),
     [editingShop, setEditingShop] = useState<ShoppingItem | null>(null),
@@ -373,49 +370,10 @@ export default function FridgeTab({
       setBusy(false);
     }
   };
-  const openConnection = () => {
-    setURLDraft(apiURL);
-    setCodeDraft(sessionStorage.getItem("xiaobao-ai-access") || access);
-    setError("");
-    setAIOpen(true);
-  };
-  const saveConnection = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setBusy(true);
-    try {
-      const url = new URL(urlDraft.trim());
-      const local =
-        import.meta.env.DEV &&
-        ["127.0.0.1", "localhost"].includes(url.hostname) &&
-        url.protocol === "http:";
-      if (
-        (url.protocol !== "https:" && !local) ||
-        url.username ||
-        url.password ||
-        url.search ||
-        url.hash ||
-        url.pathname !== "/"
-      )
-        throw new Error("请填写 AI 后端的 HTTPS 根地址");
-      const code = codeDraft.trim();
-      if (code.length < 16 || code.length > 200)
-        throw new Error("访问口令须为16–200字符");
-      await db.settings.put({ id: "ai", url: url.origin });
-      sessionStorage.setItem("xiaobao-ai-access", code);
-      setAccess(code);
-      setAPIURL(url.origin);
-      setAIOpen(false);
-      notice("连接保存好啦，嘟嘟糕和小包共用这个安全后端");
-    } catch (error) {
-      setError(errorText(error));
-    } finally {
-      setBusy(false);
-    }
-  };
   const askAI = async () => {
     const code = sessionStorage.getItem("xiaobao-ai-access") || access;
     if (!apiURL || !code) {
-      openConnection();
+      setError("请先到“个人 → AI连接设置”配置服务，本地菜谱仍可使用。");
       return;
     }
     if (!navigator.onLine) {
@@ -1015,7 +973,7 @@ export default function FridgeTab({
                   <button onClick={() => abort.current?.abort()}>停止</button>
                 </div>
               )}
-              {error && !aiOpen && (
+              {error && (
                 <p className="nutrition-error" role="alert">
                   {error}
                 </p>
@@ -1046,8 +1004,8 @@ export default function FridgeTab({
                   />{" "}
                   显示营养估算
                 </label>
-                <button className="fridge-text-button" onClick={openConnection}>
-                  AI连接设置
+                <button className="fridge-text-button" onClick={onManageAI}>
+                  去个人页设置AI
                 </button>
               </div>
               <div className="fridge-zones recipe-filters">
@@ -1810,52 +1768,12 @@ export default function FridgeTab({
           </button>
         </form>
       </Modal>
-      <Modal
-        {...modalProps}
-        open={aiOpen}
-        onClose={() => {
-          if (!busy) setAIOpen(false);
-        }}
-        title="连接嘟嘟糕的AI服务"
-      >
-        <form onSubmit={saveConnection} noValidate>
-          {modalError}
-          <p className="nutrition-small-note">
-            与小包共用后端地址和会话访问口令。这里不能填写 OpenAI API
-            密钥；后端需部署支持食谱的新版本。
-          </p>
-          <label>
-            AI后端地址
-            <input
-              aria-label="冰箱AI后端地址"
-              type="url"
-              value={urlDraft}
-              onChange={(event) => setURLDraft(event.target.value)}
-              placeholder="https://服务名.workers.dev"
-            />
-          </label>
-          <label>
-            访问口令
-            <input
-              aria-label="冰箱AI访问口令"
-              type="password"
-              autoComplete="current-password"
-              value={codeDraft}
-              onChange={(event) => setCodeDraft(event.target.value)}
-            />
-          </label>
-          <button className="primary" disabled={busy}>
-            保存AI连接
-          </button>
-        </form>
-      </Modal>
       {!itemOpen &&
         !prefsOpen &&
         !selected &&
         !shoppingOpen &&
         !purchaseOpen &&
-        !cookOpen &&
-        !aiOpen && (
+        !cookOpen && (
           <div className={`toast ${message ? "visible" : ""}`} role="status">
             {message}
           </div>
