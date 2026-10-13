@@ -733,9 +733,6 @@ export default function ChatRoom({
               void send();
             }}
           >
-            <p className="chat-consent">
-              发送即同意将本次文字、近期对话和相关已确认记忆发给 OpenAI。
-            </p>
             <div>
               <textarea
                 aria-label="给企鹅们的话"
