@@ -1,3 +1,4 @@
+import { validateAIAnalysis, mealTypes } from "../nutrition/model.mjs";
 import { categories, validDate } from "../model.mjs";
 export const penguins = ["鲍比", "小包", "嘟嘟糕", "黏黏包"];
 const str = (x, max, empty = false) => {
@@ -46,7 +47,7 @@ export function validateProposal(p) {
     location = str(p.location ?? "", 10, true),
     memoryKind = str(p.memoryKind ?? "", 20, true),
     cents = num(p.cents ?? 0, 100000000);
-  if (!["记忆", "成长", "账单", "食材", "购物"].includes(kind))
+  if (!["记忆", "成长", "账单", "食材", "购物", "饮食"].includes(kind))
     throw Error("不支持的操作");
   if (
     kind === "记忆" &&
@@ -64,6 +65,18 @@ export function validateProposal(p) {
     throw Error("请补全食材名称、数量和单位");
   if (kind === "食材" && !["冷藏", "冷冻", "常温"].includes(location))
     throw Error("储存位置无效");
+  let foods = [];
+  const mealType = str(p.mealType ?? "", 10, true);
+  if (kind === "饮食") {
+    if (!validDate(date) || !mealTypes.includes(mealType))
+      throw Error("请检查饮食日期和餐次");
+    foods = validateAIAnalysis({ foods: p.foods, note: "" }).foods;
+    if (!foods.length) throw Error("请填写吃了什么，才能记录营养");
+  } else if (
+    p.foods !== undefined &&
+    (!Array.isArray(p.foods) || p.foods.length)
+  )
+    throw Error("非饮食卡片不能包含食物");
   return {
     kind,
     text,
@@ -75,6 +88,8 @@ export function validateProposal(p) {
     location,
     memoryKind,
     cents,
+    mealType,
+    foods,
   };
 }
 // Persistence is a local transaction, never an effect of generated dialogue.

@@ -16,6 +16,7 @@ export async function resolveProposal(
       db.expenses,
       db.inventory,
       db.shopping,
+      db.meals,
     ],
     async () => {
       const message = await db.chatMessages.get(messageId);
@@ -57,6 +58,22 @@ export async function resolveProposal(
             location: p.location as "冷藏",
             expiry: null,
             note: p.text,
+            updatedAt: now,
+          });
+        if (p.kind === "饮食")
+          await db.meals.add({
+            id,
+            date: p.date,
+            mealType: p.mealType as import("../nutrition/types").MealType,
+            items: (p.foods || []).map((food) => ({
+              ...food,
+              id: crypto.randomUUID(),
+              source: "ai" as const,
+              sourceLabel: "AI估算 · 企鹅小家",
+            })),
+            note: p.text,
+            photo: null,
+            expenseId: null,
             updatedAt: now,
           });
         if (p.kind === "购物")

@@ -10,6 +10,7 @@ import {
 import { resolveProposal } from "./store";
 import type { ChatThread, ChatMessage, ChatMode, Proposal } from "./types";
 import { categories } from "../model.mjs";
+import { sumNutrition } from "../nutrition/model.mjs";
 import bobby from "../assets/penguin-park.webp";
 import bao from "../assets/xiaobao-nutrition.webp";
 import dudu from "../assets/dudu-fridge.webp";
@@ -30,11 +31,13 @@ function Card({
   messageId,
   onChange,
   onViewExpense,
+  onViewRecord,
 }: {
   proposal: Proposal;
   messageId: string;
   onChange: () => Promise<void>;
   onViewExpense: (date: string) => void;
+  onViewRecord: (kind: "饮食" | "食材" | "购物", date: string) => void;
 }) {
   const [p, setP] = useState(proposal),
     [error, setError] = useState(""),
@@ -67,6 +70,39 @@ function Card({
             </p>
             <button onClick={() => onViewExpense(proposal.date)}>
               查看账单
+            </button>
+          </>
+        )}
+        {proposal.status === "accepted" &&
+          ["食材", "购物"].includes(proposal.kind) && (
+            <>
+              <p>
+                {proposal.name} · {proposal.quantity}
+                {proposal.unit} {proposal.location}
+              </p>
+              <button
+                onClick={() =>
+                  onViewRecord(proposal.kind as "食材" | "购物", proposal.date)
+                }
+              >
+                {proposal.kind === "食材" ? "查看冰箱" : "查看购物清单"}
+              </button>
+            </>
+          )}
+        {proposal.status === "accepted" && proposal.kind === "饮食" && (
+          <>
+            <p>
+              {proposal.date} · {proposal.mealType} ·{" "}
+              {proposal.foods?.map((f) => f.name).join("、")}
+            </p>
+            <p>
+              热量 {sumNutrition(proposal.foods || []).kcal} kcal · 蛋白质{" "}
+              {sumNutrition(proposal.foods || []).protein} g · 碳水{" "}
+              {sumNutrition(proposal.foods || []).carbs} g · 脂肪{" "}
+              {sumNutrition(proposal.foods || []).fat} g
+            </p>
+            <button onClick={() => onViewRecord("饮食", proposal.date)}>
+              查看饮食
             </button>
           </>
         )}
@@ -139,6 +175,116 @@ function Card({
             </label>
           </>
         )}
+        {p.kind === "饮食" && (
+          <>
+            <label>
+              饮食日期
+              <input
+                aria-label="待确认饮食日期"
+                type="date"
+                value={p.date}
+                onChange={(e) => field("date", e.target.value)}
+              />
+            </label>
+            <label>
+              餐次
+              <select
+                aria-label="待确认餐次"
+                value={p.mealType}
+                onChange={(e) => field("mealType", e.target.value)}
+              >
+                {["早餐", "午餐", "晚餐", "加餐"].map((k) => (
+                  <option key={k}>{k}</option>
+                ))}
+              </select>
+            </label>
+            {(p.foods || []).map((food, i) => (
+              <details key={i} open className="chat-food">
+                <summary>
+                  {food.name} · {food.grams} g
+                </summary>
+                <label>
+                  食物名称
+                  <input
+                    value={food.name}
+                    maxLength={100}
+                    onChange={(e) =>
+                      setP({
+                        ...p,
+                        foods: p.foods!.map((f, j) =>
+                          j === i ? { ...f, name: e.target.value } : f,
+                        ),
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  可食用重量（克）
+                  <input
+                    aria-label={`食物${i + 1}重量`}
+                    type="number"
+                    min="0.01"
+                    max="10000"
+                    step="any"
+                    value={food.grams}
+                    onChange={(e) =>
+                      setP({
+                        ...p,
+                        foods: p.foods!.map((f, j) =>
+                          j === i ? { ...f, grams: Number(e.target.value) } : f,
+                        ),
+                      })
+                    }
+                  />
+                </label>
+                <p>{food.assumption} · AI估算，确认前可修改</p>
+                <details>
+                  <summary>修改每100克营养</summary>
+                  {(["kcal", "protein", "carbs", "fat"] as const).map((k) => (
+                    <label key={k}>
+                      {
+                        {
+                          kcal: "热量（kcal）",
+                          protein: "蛋白质（g）",
+                          carbs: "碳水（g）",
+                          fat: "脂肪（g）",
+                        }[k]
+                      }
+                      <input
+                        type="number"
+                        min="0"
+                        step="any"
+                        value={food.per100[k]}
+                        onChange={(e) =>
+                          setP({
+                            ...p,
+                            foods: p.foods!.map((f, j) =>
+                              j === i
+                                ? {
+                                    ...f,
+                                    per100: {
+                                      ...f.per100,
+                                      [k]: Number(e.target.value),
+                                    },
+                                  }
+                                : f,
+                            ),
+                          })
+                        }
+                      />
+                    </label>
+                  ))}
+                </details>
+              </details>
+            ))}
+            <p className="chat-meal-totals" aria-live="polite">
+              本餐估算：{sumNutrition(p.foods || []).kcal} kcal · 蛋白质{" "}
+              {sumNutrition(p.foods || []).protein} g · 碳水{" "}
+              {sumNutrition(p.foods || []).carbs} g · 脂肪{" "}
+              {sumNutrition(p.foods || []).fat} g
+            </p>
+          </>
+        )}
         {["食材", "购物"].includes(p.kind) && (
           <>
             <label>
@@ -195,12 +341,14 @@ export default function ChatRoom({
   onManageAI,
   onRecordsChanged,
   onViewExpense,
+  onViewRecord,
 }: {
   initialMode: ChatMode;
   onClose: () => void;
   onManageAI: () => void;
   onRecordsChanged: () => Promise<void>;
   onViewExpense: (date: string) => void;
+  onViewRecord: (kind: "饮食" | "食材" | "购物", date: string) => void;
 }) {
   const [threads, setThreads] = useState<ChatThread[]>([]),
     [thread, setThread] = useState<ChatThread | null>(null),
@@ -209,7 +357,6 @@ export default function ChatRoom({
     [text, setText] = useState(""),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [consent, setConsent] = useState(false),
     [history, setHistory] = useState(false),
     [ready, setReady] = useState(false);
   const request = useRef<AbortController | null>(null),
@@ -263,7 +410,7 @@ export default function ChatRoom({
   const send = async (retry = false) => {
     if (busy || !ready) return;
     const input = retry ? messages.at(-1)?.text : text.trim();
-    if (!input || !consent) return;
+    if (!input) return;
     setBusy(true);
     setError("");
     let active = thread;
@@ -338,7 +485,7 @@ export default function ChatRoom({
       let recent = context.slice(-32).map(({ speaker, text, proposals }) => {
         if (!proposals.length) return { speaker, text };
         const receipts = proposals.map((p) =>
-          `${p.kind}：${p.status === "accepted" ? "用户已确认并保存" : p.status === "dismissed" ? "用户已取消" : "尚未确认"}；${p.kind === "账单" ? `${p.date} ${p.category} ¥${p.cents / 100}` : ["食材", "购物"].includes(p.kind) ? `${p.name} ${p.quantity}${p.unit} ${p.location}` : p.text}`.slice(
+          `${p.kind}：${p.status === "accepted" ? "用户已确认并保存" : p.status === "dismissed" ? "用户已取消" : "尚未确认"}；${p.kind === "账单" ? `${p.date} ${p.category} ¥${p.cents / 100}` : ["食材", "购物"].includes(p.kind) ? `${p.name} ${p.quantity}${p.unit} ${p.location}` : p.kind === "饮食" ? `${p.date} ${p.mealType} ${p.foods?.map((f) => f.name + " " + f.grams + "g").join("、")}` : p.text}`.slice(
             0,
             250,
           ),
@@ -519,7 +666,7 @@ export default function ChatRoom({
             {!messages.length && (
               <div className="chat-welcome">
                 <div className="chat-family">
-                  {penguins.map((n) => (
+                  {(mode === "群聊" ? penguins : [mode]).map((n) => (
                     <span
                       key={n}
                       className="chat-avatar"
@@ -566,6 +713,7 @@ export default function ChatRoom({
                       messageId={m.id}
                       onChange={changed}
                       onViewExpense={onViewExpense}
+                      onViewRecord={onViewRecord}
                     />
                   ))}
                 </div>
@@ -585,15 +733,9 @@ export default function ChatRoom({
               void send();
             }}
           >
-            <label className="chat-consent">
-              <input
-                type="checkbox"
-                checked={consent}
-                onChange={(e) => setConsent(e.target.checked)}
-                disabled={busy}
-              />
-              允许将本次文字、近期对话和相关已确认记忆发给 OpenAI
-            </label>
+            <p className="chat-consent">
+              发送即同意将本次文字、近期对话和相关已确认记忆发给 OpenAI。
+            </p>
             <div>
               <textarea
                 aria-label="给企鹅们的话"
@@ -607,9 +749,7 @@ export default function ChatRoom({
                 disabled={busy}
                 onChange={(e) => setText(e.target.value)}
               />
-              <button disabled={busy || !ready || !consent || !text.trim()}>
-                发送
-              </button>
+              <button disabled={busy || !ready || !text.trim()}>发送</button>
             </div>
             {busy && (
               <button type="button" onClick={() => request.current?.abort()}>
@@ -623,7 +763,7 @@ export default function ChatRoom({
         <div className="chat-error" role="alert">
           <p>{error}</p>
           {messages.at(-1)?.speaker === "用户" && (
-            <button disabled={busy || !consent} onClick={() => void send(true)}>
+            <button disabled={busy} onClick={() => void send(true)}>
               重试这条消息
             </button>
           )}

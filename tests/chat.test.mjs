@@ -269,3 +269,63 @@ test("corrected group save claims remain distinct across repeated validation", (
   assert.notEqual(result.replies[0].text, result.replies[1].text);
   assert.deepEqual(validateChatResult(result), result);
 });
+
+test("meal proposals validate portions and all four nutrients, preserve backup, reject empty and unsafe nutrition", () => {
+  const food = {
+    name: "熟米饭",
+    grams: 150,
+    per100: { kcal: 130, protein: 2.38, carbs: 28.59, fat: 0.21 },
+    assumption: "按熟饭估算",
+    confidence: "medium",
+  };
+  const meal = {
+    ...p,
+    kind: "饮食",
+    text: "午饭",
+    cents: 0,
+    category: "",
+    mealType: "午餐",
+    foods: [food],
+  };
+  const result = validateChatResult(
+    {
+      replies: [{ speaker: "小包", text: "先核对一下份量吧。" }],
+      proposals: [meal],
+    },
+    "小包",
+  );
+  assert.equal(result.proposals[0].foods[0].grams, 150);
+  for (const bad of [
+    { ...meal, foods: [] },
+    { ...meal, mealType: "宵夜" },
+    { ...meal, foods: [{ ...food, grams: -1 }] },
+    { ...meal, foods: [{ ...food, per100: { ...food.per100, protein: -2 } }] },
+  ])
+    assert.throws(() =>
+      validateChatResult({ replies: result.replies, proposals: [bad] }, "小包"),
+    );
+  const restored = validateChatBackup({
+    chat: {
+      threads: [{ id: "t", mode: "小包", title: "吃饭", updatedAt: 1 }],
+      messages: [
+        {
+          id: "m",
+          threadId: "t",
+          speaker: "小包",
+          text: "确认份量",
+          createdAt: 2,
+          proposals: [{ ...meal, id: "proposal", status: "pending" }],
+        },
+      ],
+      memories: [],
+      growth: null,
+    },
+  });
+  assert.deepEqual(restored.messages[0].proposals[0].foods, [food]);
+  assert.throws(() =>
+    validateChatResult({
+      replies: result.replies,
+      proposals: [{ ...p, foods: [food] }],
+    }),
+  );
+});

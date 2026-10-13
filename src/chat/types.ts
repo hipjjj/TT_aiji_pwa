@@ -1,8 +1,9 @@
+import type { AIAnalysis, MealType } from "../nutrition/types";
 export type Penguin = "鲍比" | "小包" | "嘟嘟糕" | "黏黏包";
 export type ChatMode = "群聊" | Penguin;
 export type Proposal = {
   id: string;
-  kind: "记忆" | "成长" | "账单" | "食材" | "购物";
+  kind: "记忆" | "成长" | "账单" | "食材" | "购物" | "饮食";
   text: string;
   name: string;
   unit: string;
@@ -12,6 +13,8 @@ export type Proposal = {
   location: string;
   memoryKind: string;
   cents: number;
+  mealType?: MealType | "";
+  foods?: AIAnalysis["foods"];
   status: "pending" | "accepted" | "dismissed";
 };
 export type ChatThread = {

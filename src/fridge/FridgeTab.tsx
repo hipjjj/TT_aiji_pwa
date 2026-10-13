@@ -145,7 +145,9 @@ function MacroEstimate({ assessment }: { assessment: Assessment }) {
 export default function FridgeTab({
   onDataChange,
   onManageAI,
+  initialView,
 }: {
+  initialView?:"inventory"|"shopping";
   onDataChange: () => Promise<void>;
   onManageAI: () => void;
 }) {
@@ -159,7 +161,7 @@ export default function FridgeTab({
     [message, setMessage] = useState(""),
     [error, setError] = useState("");
   const [view, setView] = useState<"inventory" | "recipes" | "shopping">(
-      "inventory",
+      initialView||"inventory",
     ),
     [place, setPlace] = useState("全部"),
     [stockSearch, setStockSearch] = useState("");
