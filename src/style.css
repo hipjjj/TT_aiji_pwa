@@ -29,3 +29,4 @@
 .ledger-heading h2,.nutrition-heading h2,.fridge-heading h2,.personal-heading h2{font-size:23px;line-height:1.45;margin:9px 0 0}
 @media(max-width:600px){.ledger-heading h2,.nutrition-heading h2,.fridge-heading h2,.personal-heading h2{font-size:19px}}
 @media(max-width:360px){.ledger-heading h2,.nutrition-heading h2,.fridge-heading h2,.personal-heading h2{font-size:17px}}
+.amount-operators{display:flex;gap:6px;margin-top:12px}.amount-operators button{flex:1;min-width:0;min-height:44px;border:1px solid #d6e2e8;border-radius:12px;background:#edf5f8;color:#456c82;font-size:20px}.amount-operators button:last-child{background:#ffdfd0;border-color:#ecc6b7;color:#80594d}.amount-operators button:disabled{opacity:.45}.amount-calculation{font-size:12px;line-height:1.7;color:#5e7d88;margin:10px 0 0;overflow-wrap:anywhere}.amount-calculation.invalid{color:#a15546}.entry-dialog:not(.budget-dialog) .amount-field input{font-size:clamp(22px,6vw,32px)}
