@@ -13,3 +13,4 @@ export type Expense = {id:string;cents:number;category:string;date:string;note:s
 export type Budget = {month:string;cents:number};
 
 export type AIAnalysis = {note:string;foods:{name:string;grams:number;per100:Nutrients;assumption:string;confidence:'high'|'medium'|'low'}[]};
+export type PersonalFood = {id:string;key:string;name:string;aliases:string[];per100:Nutrients;defaultGrams:number;gramsPerFist:number|null;note:string;updatedAt:number};

@@ -8,6 +8,7 @@ import type {
 import Dexie, { type Table } from "dexie";
 import { normalizeCategory } from "./model.mjs";
 import type {
+  PersonalFood,
   AIConfiguration,
   Budget,
   Expense,
@@ -25,6 +26,7 @@ export const db = new Dexie("riri-expenses") as Dexie & {
   chatMessages: Table<ChatMessage, string>;
   chatMemories: Table<ChatMemory, string>;
   chatGrowth: Table<ChatGrowth, string>;
+  personalFoods: Table<PersonalFood,string>;
   expenses: Table<Expense, string>;
   budgets: Table<Budget, string>;
   meals: Table<Meal, string>;
@@ -131,3 +133,5 @@ db.version(9).stores({
   appMeta: "id",
   chatDrafts: "id,updatedAt",
 });
+
+db.version(10).stores({personalFoods:"id,&key,updatedAt"});

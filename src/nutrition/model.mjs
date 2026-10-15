@@ -8,6 +8,10 @@ export const aiHandPortionReferences=aiHandData.entries;
 export const foodLibrary = [...rawFoods,...aiFoods];
 export const fistPortionLibrary=foodLibrary.flatMap(food=>{const ref=fistReferences[food.id],ai=aiHandData.entries[food.id];return ref?[{foodId:food.id,name:food.name,grams:ref.gramsPerFist,min:ref.gramsPerFist,max:ref.gramsPerFist,basis:'USDA杯重参考'}]:ai?[{foodId:food.id,name:food.name,grams:ai.gramsPerFist,min:ai.minGrams,max:ai.maxGrams,basis:'AI粗估'}]:[];});
 export function fistPortion(food,amount){
+ if(food.id.startsWith('personal-food-')){
+  const grams=food.portions['拳'];if(!grams||!Number.isFinite(amount)||amount<=0||grams*amount>10000)return null;
+  return makePortion(food,round(grams*amount,2),`按我的食物库已确认的1拳约${grams}克换算，${amount}拳约${round(grams*amount,2)}克；${food.note}。请核对实际份量及做法。`);
+ }
  const ref=fistReferences[food.id],ai=aiHandData.entries[food.id];
  if(!ref&&ai){
   if(!Number.isFinite(amount)||amount<=0||amount*ai.gramsPerFist>10000)return null;
@@ -70,11 +74,11 @@ export function validateProfile(input) {
   if(!input||input.id!=='main'||!['auto','manual'].includes(input.mode))throw new Error('营养目标资料无效');
   return {id:'main',mode:input.mode,body:input.mode==='auto'?validateBody(input.body):null,targets:validateTargets(input.targets),updatedAt:number(input.updatedAt,0,Number.MAX_SAFE_INTEGER,'目标更新时间')};
 }
-const normalize = text => text.trim().toLowerCase().replace(/[\s（）()]/g,'');
-export function findFood(name) {const n=normalize(name);return foodLibrary.find(food=>[food.name,...food.aliases].some(alias=>normalize(alias)===n));}
-export function searchFoods(query,group='全部') {
+const normalize = text => text.normalize('NFKC').trim().toLowerCase().replace(/[\s（）()]/g,'');
+export function findFood(name,personalFoods=[]) {const n=normalize(name);return [...personalFoods,...foodLibrary].find(food=>[food.name,...food.aliases].some(alias=>normalize(alias)===n));}
+export function searchFoods(query,group='全部',personalFoods=[]) {
   const n=normalize(query);
-  return foodLibrary.filter(food=>(group==='全部'||food.group===group)&&(!n||[food.name,...food.aliases].some(alias=>normalize(alias).includes(n))));
+  return [...personalFoods,...foodLibrary].filter(food=>(group==='全部'||food.group===group)&&(!n||[food.name,...food.aliases].some(alias=>normalize(alias).includes(n))));
 }
 export function makePortion(food,grams=food.defaultGrams,assumption='') {
   return {id:crypto.randomUUID(),foodId:food.id,name:food.name,grams,per100:{...food.per100},source:'dictionary',sourceLabel:`${food.reference} · ${food.sourceId}`,assumption:assumption||`${food.defaultUnit}份量仅为参考；${food.note}`};
@@ -84,7 +88,7 @@ function quantity(text) {
   const digits={一:1,二:2,两:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9};let result=0,current=0;
   for(const char of text){if(digits[char])current=digits[char];else if(char==='十'||char==='百'){result+=(current||1)*(char==='十'?10:100);current=0;}else return NaN;}return result+current;
 }
-export function parseMealText(text) {
+export function parseMealText(text,personalFoods=[]) {
   if(typeof text!=='string'||text.length>2000)throw new Error('文字描述不能超过2000字');
   const normalized=text.replace(/[０-９]/g,c=>String(c.charCodeAt(0)-0xff10));
   const fragments=normalized.split(/[，,、；;+＋\n]+/).map(s=>s.trim()).filter(Boolean);
@@ -97,7 +101,7 @@ export function parseMealText(text) {
     const prefix=name.match(before),suffix=name.match(after);
     if(prefix){amount=quantity(prefix[1]);unit=prefix[2].toLowerCase();name=prefix[3].trim().replace(/^的/,'');}
     else if(suffix){name=suffix[1].trim();amount=quantity(suffix[2]);unit=suffix[3].toLowerCase();}
-    const food=findFood(name);
+    const food=findFood(name,personalFoods);
     if(unit&&unit.includes('拳')){const portion=food?fistPortion(food,amount):null;if(portion){items.push(portion);}else{unresolved.push({text:fragment,reason:'“拳”没有固定克重，这项食物暂缺对应的一杯参考重量或份量超出范围。请补充克数，或点击“小包帮你问问AI”估算后核对食物、份量和用油。'});}continue;}
     if(!food){unresolved.push({text:fragment,reason:'食物库暂未匹配，请选择食物或手动补充；也可以主动问AI。'});continue;}
     let grams=food.defaultGrams,assumption=`未提供克数，按1${food.defaultUnit}约${grams}克估计；请核对。`;
@@ -110,7 +114,7 @@ export function parseMealText(text) {
       else {unresolved.push({text:fragment,reason:'这个份量单位尚无对应重量，请改用克数或从食物库选择。'});continue;}
     }
     if(!Number.isFinite(grams)||grams<=0||grams>10000){unresolved.push({text:fragment,reason:'份量须大于0且不超过10000克。'});continue;}
-    items.push(makePortion(food,round(grams,2),`${assumption} ${food.kind==='recipe'?food.note:''}`.trim()));
+    items.push(makePortion(food,round(grams,2),`${assumption} ${food.kind==='recipe'||food.id.startsWith('personal-food-')?food.note:''}`.trim()));
   }
   return {items,unresolved};
 }
