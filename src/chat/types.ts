@@ -28,6 +28,7 @@ export type ChatMessage = {
   threadId: string;
   speaker: "用户" | Penguin;
   text: string;
+  photo?: string;
   createdAt: number;
   proposals: Proposal[];
 };

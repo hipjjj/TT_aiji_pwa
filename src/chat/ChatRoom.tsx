@@ -1,3 +1,4 @@
+import { preparePhoto } from "../nutrition/photo";
 import { recordLimits } from "../recordLimits.mjs";
 import { restoreChat, rememberSelection, draftKey } from "./session";
 import React, { useEffect, useRef, useState } from "react";
@@ -367,6 +368,35 @@ export default function ChatRoom({
     [history, setHistory] = useState(false),
     [unsent, setUnsent] = useState<{ mode: ChatMode; text: string }[]>([]),
     [ready, setReady] = useState(false);
+  const [photo, setPhoto] = useState<string | null>(null),
+    [photoBusy, setPhotoBusy] = useState(false),
+    [viewPhoto, setViewPhoto] = useState<string | null>(null);
+  const photoInput = useRef<HTMLInputElement>(null),
+    photoEpoch = useRef(0);
+  const clearPhoto = () => {
+    photoEpoch.current++;
+    setPhoto(null);
+    setPhotoBusy(false);
+  };
+  const loadPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const epoch = photoEpoch.current;
+    setPhotoBusy(true);
+    try {
+      const value = await preparePhoto(file);
+      if (alive.current && epoch === photoEpoch.current) {
+        setPhoto(value);
+        setError("");
+      }
+    } catch (e) {
+      if (alive.current && epoch === photoEpoch.current)
+        setError(e instanceof Error ? e.message : "图片处理失败");
+    } finally {
+      if (alive.current && epoch === photoEpoch.current) setPhotoBusy(false);
+    }
+  };
   const request = useRef<AbortController | null>(null),
     alive = useRef(true),
     bottom = useRef<HTMLDivElement>(null);
@@ -457,6 +487,7 @@ export default function ChatRoom({
     try {
       await flushDraft();
       const draft = await db.chatDrafts.get(draftKey(t, t.mode));
+      clearPhoto();
       setThread(t);
       setMode(t.mode);
       setText(draft?.text || "");
@@ -487,6 +518,7 @@ export default function ChatRoom({
       )
         return;
       await db.chatDrafts.delete(draftKey(null, m));
+      clearPhoto();
       setMode(m);
       setThread(null);
       setMessages([]);
@@ -520,6 +552,7 @@ export default function ChatRoom({
       else {
         await flushDraft();
         const draft = await db.chatDrafts.get(draftKey(null, m));
+        clearPhoto();
         setMode(m);
         setThread(null);
         setMessages([]);
@@ -539,8 +572,11 @@ export default function ChatRoom({
     }
   };
   const send = async (retry = false) => {
-    if (busy || !ready) return;
-    const input = retry ? messages.at(-1)?.text : text.trim();
+    if (busy || photoBusy || !ready) return;
+    const sentPhoto = retry ? messages.at(-1)?.photo : photo;
+    const input = retry
+      ? messages.at(-1)?.text
+      : text.trim() || (sentPhoto ? "看看这张图片，想听听你怎么说。" : "");
     if (!input) return;
     setBusy(true);
     setError("");
@@ -586,6 +622,7 @@ export default function ChatRoom({
           text: input,
           createdAt: Date.now(),
           proposals: [],
+          ...(sentPhoto ? { photo: sentPhoto } : {}),
         };
         await db.transaction(
           "rw",
@@ -598,6 +635,7 @@ export default function ChatRoom({
         context = [...messages, m];
         setMessages(context);
         await db.chatDrafts.delete(draftKey(thread, mode));
+        setPhoto(null);
         setText("");
         draftRef.current = {
           id: draftKey(active, active.mode),
@@ -622,27 +660,38 @@ export default function ChatRoom({
         )
         .slice(0, 20)
         .map(({ kind, text }) => ({ kind, text }));
-      let recent = context.slice(-32).map(({ speaker, text, proposals }) => {
-        if (!proposals.length) return { speaker, text };
-        const receipts = proposals.map((p) =>
-          `${p.kind}：${p.status === "accepted" ? "用户已确认并保存" : p.status === "dismissed" ? "用户已取消" : "尚未确认"}；${p.kind === "账单" ? `${p.date} ${p.category} ¥${p.cents / 100}` : ["食材", "购物"].includes(p.kind) ? `${p.name} ${p.quantity}${p.unit} ${p.location}` : p.kind === "饮食" ? `${p.date} ${p.mealType} ${p.foods?.map((f) => f.name + " " + f.grams + "g").join("、")}` : p.text}`.slice(
-            0,
-            250,
-          ),
+      let recent = context
+        .slice(-32)
+        .map(
+          (
+            { speaker, text, proposals, photo: historicalPhoto },
+            index,
+            list,
+          ) => {
+            if (historicalPhoto && index !== list.length - 1)
+              text = (text + "\n[曾附图片，本轮未上传]").slice(0, 2000);
+            if (!proposals.length) return { speaker, text };
+            const receipts = proposals.map((p) =>
+              `${p.kind}：${p.status === "accepted" ? "用户已确认并保存" : p.status === "dismissed" ? "用户已取消" : "尚未确认"}；${p.kind === "账单" ? `${p.date} ${p.category} ¥${p.cents / 100}` : ["食材", "购物"].includes(p.kind) ? `${p.name} ${p.quantity}${p.unit} ${p.location}` : p.kind === "饮食" ? `${p.date} ${p.mealType} ${p.foods?.map((f) => f.name + " " + f.grams + "g").join("、")}` : p.text}`.slice(
+                0,
+                250,
+              ),
+            );
+            return {
+              speaker,
+              text: (
+                text.slice(0, 1200) +
+                "\n[应用内卡片状态，仅说明操作结果，并非企鹅对白]\n" +
+                receipts.join("\n")
+              ).slice(0, 2000),
+            };
+          },
         );
-        return {
-          speaker,
-          text: (
-            text.slice(0, 1200) +
-            "\n[应用内卡片状态，仅说明操作结果，并非企鹅对白]\n" +
-            receipts.join("\n")
-          ).slice(0, 2000),
-        };
-      });
       while (JSON.stringify(recent).length > 14000 && recent.length > 1)
         recent = recent.slice(1);
       const payload = validateChatRequest({
         mode: active.mode,
+        photo: sentPhoto,
         messages: recent,
         memories,
         growth: growth?.value || 0,
@@ -870,6 +919,21 @@ export default function ChatRoom({
                       ? m.text
                       : honestOperationReply(m.text, m.proposals)}
                   </p>
+                  {m.photo && (
+                    <button
+                      type="button"
+                      className="chat-photo-button"
+                      aria-label="查看聊天图片"
+                      onClick={() => setViewPhoto(m.photo!)}
+                    >
+                      <img
+                        className="chat-photo"
+                        src={m.photo}
+                        alt="你发送的图片"
+                        loading="lazy"
+                      />
+                    </button>
+                  )}
                   {m.proposals.map((p) => (
                     <Card
                       key={p.id}
@@ -897,6 +961,37 @@ export default function ChatRoom({
               void send();
             }}
           >
+            {photo && (
+              <div className="chat-photo-preview">
+                <img src={photo} alt="待发送的图片" />
+                <button
+                  type="button"
+                  disabled={busy || photoBusy}
+                  onClick={() => setPhoto(null)}
+                >
+                  移除图片
+                </button>
+              </div>
+            )}
+            <input
+              ref={photoInput}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              aria-label="选择聊天图片"
+              hidden
+              onChange={(e) => void loadPhoto(e)}
+            />
+            <button
+              className="chat-upload"
+              type="button"
+              disabled={busy || photoBusy || !ready}
+              onClick={() => photoInput.current?.click()}
+            >
+              {photoBusy ? "正在压缩…" : "＋ 图片"}
+            </button>
+            <small className="chat-photo-help">
+              每次1张，发送时交给AI查看；发送前会压缩，未发送图片切换聊天或关闭后不保留。
+            </small>
             <div>
               <textarea
                 aria-label="给企鹅们的话"
@@ -910,7 +1005,13 @@ export default function ChatRoom({
                 disabled={busy || !ready}
                 onChange={(e) => changeText(e.target.value)}
               />
-              <button disabled={busy || !ready || !text.trim()}>发送</button>
+              <button
+                disabled={
+                  busy || photoBusy || !ready || (!text.trim() && !photo)
+                }
+              >
+                发送
+              </button>
             </div>
             {busy && (
               <button type="button" onClick={() => request.current?.abort()}>
@@ -920,16 +1021,38 @@ export default function ChatRoom({
           </form>
         </>
       )}
+      {viewPhoto && (
+        <div
+          className="chat-photo-viewer"
+          role="dialog"
+          aria-modal="true"
+          aria-label="聊天图片预览"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              e.stopPropagation();
+              setViewPhoto(null);
+            }
+          }}
+        >
+          <button type="button" autoFocus onClick={() => setViewPhoto(null)}>
+            关闭图片
+          </button>
+          <img src={viewPhoto} alt="聊天图片大图" />
+        </div>
+      )}
       {error && (
         <div className="chat-error" role="alert">
           <p>{error}</p>
           {messages.at(-1)?.speaker === "用户" && (
-            <button disabled={busy} onClick={() => void send(true)}>
+            <button
+              disabled={busy || photoBusy}
+              onClick={() => void send(true)}
+            >
               重试这条消息
             </button>
           )}
           <button
-            disabled={busy}
+            disabled={busy || photoBusy}
             onClick={() => {
               close();
               onManageAI();

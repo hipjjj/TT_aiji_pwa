@@ -1,5 +1,9 @@
 import { recordLimits } from "../recordLimits.mjs";
-import { validateAIAnalysis, mealTypes } from "../nutrition/model.mjs";
+import {
+  validateAIAnalysis,
+  mealTypes,
+  validatePhoto,
+} from "../nutrition/model.mjs";
 import { categories, validDate } from "../model.mjs";
 export const penguins = ["鲍比", "小包", "嘟嘟糕", "黏黏包"];
 const str = (x, max, empty = false) => {
@@ -35,7 +39,8 @@ export function validateChatRequest(x) {
   if (!validDate(today)) throw Error("日期无效");
   const value = { mode: x.mode, messages, memories, growth, today };
   if (JSON.stringify(value).length > 26000) throw Error("聊天上下文太长");
-  return value;
+  const photo = validatePhoto(x.photo);
+  return photo ? { ...value, photo } : value;
 }
 export function validateProposal(p) {
   const kind = str(p.kind, 30),
@@ -181,6 +186,7 @@ export function validateChatBackup(data) {
   const messages = arr(x.messages, 100000).map((m) => {
     if (!known.has(m.threadId) || !["用户", ...penguins].includes(m.speaker))
       throw Error("聊天记录关联无效");
+    if (m.photo && m.speaker !== "用户") throw Error("只有用户消息可以附图");
     const proposals = arr(m.proposals || [], 3).map((p) => {
       if (!["pending", "accepted", "dismissed"].includes(p.status))
         throw Error("确认状态无效");
@@ -193,6 +199,7 @@ export function validateChatBackup(data) {
       text: str(m.text, 2000),
       createdAt: num(m.createdAt, 9e15),
       proposals,
+      ...(m.photo ? { photo: validatePhoto(m.photo) } : {}),
     };
   });
   const memories = arr(x.memories, 10000).map((m) => {

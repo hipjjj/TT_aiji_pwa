@@ -107,4 +107,12 @@ jobs:
           if (!chatResult.proposals.some(p=>p.kind==='饮食'&&p.mealType==='午餐'&&p.foods.length===2)) throw new Error('Live chat failed to generate meal nutrition confirmation');
           if (!chatResult.proposals.some(p=>p.kind==='食材'&&p.name.includes('牛奶')&&p.location==='冷藏')) throw new Error('Live chat failed to generate fridge confirmation');
           console.log('PASS: real OpenAI expense, meal nutrition and fridge cards; no user records were saved');
+          const vision=await fetch(`${process.env.SERVICE_URL}/chat`,{
+            method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
+            body:JSON.stringify({mode:'鲍比',messages:[{speaker:'用户',text:'这张图片主要是什么颜色？简短说出颜色就好，不要创建任何记录。'}],photo:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAAlklEQVRoge2SwQkAMBCD3H9pO0QfchBwACNBOA25gRtAXtFdiLuQG7gB5BXdhbgLuYEbQF7RXYi7kBu4AeQV3YW4C7mBG0Be0V2Iu5AbuAHkFd2FuAu5gRtAXtFdiLuQG7gB5BXdhbgLuYEbQF7RXYi7kBu4AeQV3YW4C7mBG0Be0V2Iu5AbuAHkFd2FuAu5gRtAXvGHB6nc8OJ57m0sAAAAAElFTkSuQmCC',memories:[],growth:0,today:new Date().toISOString().slice(0,10)}),signal:AbortSignal.timeout(45000)
+          });
+          if (!vision.ok) throw new Error(`Live vision chat verification failed with HTTP ${vision.status}`);
+          const visionResult=validateChatResult(await vision.json(),'鲍比');
+          if (!visionResult.replies.some(r=>r.text.includes('红')) || visionResult.proposals.length) throw new Error('Live vision chat did not identify the test image correctly');
+          console.log('PASS: real OpenAI penguin image chat identifies red fixture; no user photos or records used');
           JS
