@@ -1,0 +1,12 @@
+name: Review public hand portion references
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sources:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read public nutrition guidance
+        run: python3 scripts/research-hand-portions.py
