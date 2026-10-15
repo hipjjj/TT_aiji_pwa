@@ -35,6 +35,26 @@ jobs:
           JS
       - run: npm ci
       - run: npm test
+      - name: Verify upgraded chat model before deploying
+        run: |
+          node --input-type=module - <<'JS'
+          import {readFileSync} from 'node:fs';
+          const config=readFileSync('server/wrangler.toml','utf8');
+          const model=config.match(/^CHAT_MODEL = "([^"]+)"/m)?.[1];
+          if (!model) throw new Error('CHAT_MODEL is missing');
+          const workflow=readFileSync('.github/workflows/deploy-nutrition-ai.yml','utf8');
+          const photo=workflow.match(/photo:'(data:image\/png;base64,[A-Za-z0-9+/=]+)'/)?.[1];
+          if (!photo) throw new Error('Vision test fixture is missing');
+          const response=await fetch('https://api.openai.com/v1/responses',{
+            method:'POST',headers:{Authorization:`Bearer ${process.env.NUTRITION_API_KEY}`,'Content-Type':'application/json'},
+            body:JSON.stringify({model,store:false,...(/^gpt-5-mini(?:-|$)/.test(model)?{reasoning:{effort:'minimal'}}:{}),input:[{role:'user',content:[{type:'input_text',text:'What is the main color of this image? Answer in Chinese in the color field.'},{type:'input_image',image_url:photo,detail:'low'}]}],max_output_tokens:1200,text:{format:{type:'json_schema',name:'vision_preflight',strict:true,schema:{type:'object',additionalProperties:false,required:['color'],properties:{color:{type:'string'}}}}}}),signal:AbortSignal.timeout(35000)
+          });
+          if (!response.ok) throw new Error(`Chat model preflight failed with HTTP ${response.status}; current deployed model has not been changed`);
+          const output=await response.json();
+          const text=(output.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==='output_text').map(x=>x.text).join('');
+          if (output.status!=='completed'||!JSON.parse(text).color.includes('红')) throw new Error('Chat vision/structured-output preflight failed; current deployed model has not been changed');
+          console.log(`PASS: ${model} supports this account, image input and strict JSON output`);
+          JS
       - name: Deploy Worker and quota storage
         id: worker
         run: |
@@ -70,7 +90,8 @@ jobs:
           let ready=false;
           for (let attempt=0;attempt<6;attempt++) {
             const response=await fetch(`${process.env.SERVICE_URL}/health`,{headers:{Origin:origin},signal:AbortSignal.timeout(15000)});
-            ready=response.ok && (await response.json()).ready===true;
+            const health=await response.json();
+            ready=response.ok && health.ready===true && health.chatModel==='gpt-5-mini' && health.model==='gpt-4.1-mini';
             if (ready) break;
             await new Promise(resolve=>setTimeout(resolve,3000));
           }
