@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {calculateTargets,dayBefore,findFood,foodLibrary,makePortion,parseMealText,rangeStatus,sumNutrition,validateAIAnalysis,validateMeal,validateNutrients,validateNutritionBackup,validateProfile,weeklySummary} from '../src/nutrition/model.mjs';
 const body={sex:'male',age:30,heightCm:175,weightKg:70,activity:'moderate',goal:'maintain'};
 const meal=(date='2026-10-12')=>({id:'meal-1',date,mealType:'午餐',items:[makePortion(findFood('米饭'),150)],note:'',photo:null,expenseId:null,updatedAt:1});
-test('sourced dictionary has 115 foods and reproducible recipe nutrition',()=>{
- assert.equal(foodLibrary.length,115);
+test('dictionary keeps 115 sourced foods plus two explicitly labeled AI references and reproducible recipes',()=>{
+ assert.equal(foodLibrary.length,117);assert.equal(foodLibrary.filter(f=>f.estimated).length,2);
  for(const food of foodLibrary){validateNutrients(food.per100);assert.ok(food.sourceId&&food.sourceName&&food.reference);if(food.kind==='recipe'){for(const key of ['kcal','protein','carbs','fat']){const expected=Math.round(food.ingredients.reduce((sum,item)=>sum+Math.round(foodLibrary.find(row=>row.id===item.foodId).per100[key]*100)*item.grams,0)/food.yieldGrams)/100;assert.equal(food.per100[key],expected);}}}
 });
 test('Chinese dictionary parsing uses cooked weight and sums real SR28 nutrients',()=>{
@@ -30,11 +30,10 @@ test('AI results require bounded nutrients, weights and confidence; data cannot 
  const value={note:'估计份量',foods:[{name:'米饭',grams:150,per100:{kcal:130,protein:2.38,carbs:28.59,fat:.21},assumption:'约一碗',confidence:'medium'}]};assert.equal(validateAIAnalysis(value).foods.length,1);assert.throws(()=>validateAIAnalysis({...value,foods:[{...value.foods[0],grams:-1}]}));assert.throws(()=>validateNutrients({kcal:900,protein:100,carbs:100,fat:100}));assert.throws(()=>validateAIAnalysis({...value,foods:[{...value.foods[0],confidence:'certain'}]}));
 });
 
-test('plus-separated meals preserve known foods and clearly flag fist portions without inventing weights',()=>{
+test('plus-separated meals resolve the original example with explicit AI estimates',()=>{
  const result=parseMealText('米饭400g+炒牛肉两拳+萝卜叶半拳');
- assert.equal(result.items.length,1);assert.equal(result.items[0].foodId,'rice');assert.equal(result.items[0].grams,400);
- assert.deepEqual(result.unresolved.map(x=>x.text),['炒牛肉两拳','萝卜叶半拳']);
- assert(result.unresolved.every(x=>x.reason.includes('没有固定克重')&&x.reason.includes('AI')));
+ assert.equal(result.items.length,3);assert.equal(result.items[0].foodId,'rice');assert.deepEqual(result.items.map(x=>x.grams),[400,300,80]);
+ assert.deepEqual(result.unresolved,[]);assert(result.items.slice(1).every(x=>x.assumption.includes('AI粗估')&&x.confidence==='low'));
  assert.equal(parseMealText('米饭100g＋鸡蛋1个').items.length,2);
  assert.equal(parseMealText('两拳头米饭').items[0].grams,372);
  assert.equal(parseMealText('鸡胸肉半拳').items[0].grams,70);

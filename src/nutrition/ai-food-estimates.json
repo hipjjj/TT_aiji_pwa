@@ -1,0 +1,67 @@
+[
+  {
+    "id": "ai-stir-beef",
+    "name": "炒牛肉（AI参考配方）",
+    "group": "中餐菜品",
+    "aliases": [
+      "炒牛肉",
+      "清炒牛肉",
+      "小炒牛肉"
+    ],
+    "per100": {
+      "kcal": 224.0,
+      "protein": 27.82,
+      "carbs": 0.0,
+      "fat": 11.72
+    },
+    "portions": {
+      "份": 150
+    },
+    "defaultGrams": 150,
+    "defaultUnit": "份",
+    "reference": "AI参考配方 · USDA食材组合估算",
+    "sourceId": "ai-stir-beef-v1",
+    "sourceName": "熟瘦牛肉200克＋食用油10克，成品按210克估算",
+    "note": "AI参考配方，非实测：熟瘦牛肉200克＋油10克，成品210克；不含额外配菜、糖、淀粉或酱料，请按实际修改。",
+    "kind": "recipe",
+    "ingredients": [
+      {
+        "foodId": "beef",
+        "grams": 200
+      },
+      {
+        "foodId": "oil",
+        "grams": 10
+      }
+    ],
+    "yieldGrams": 210,
+    "estimated": true
+  },
+  {
+    "id": "ai-radish-greens",
+    "name": "萝卜叶（熟、未加油，AI估算）",
+    "group": "蔬菜",
+    "aliases": [
+      "萝卜叶",
+      "熟萝卜叶",
+      "水煮萝卜叶"
+    ],
+    "per100": {
+      "kcal": 30,
+      "protein": 2.5,
+      "carbs": 4,
+      "fat": 0.5
+    },
+    "portions": {
+      "份": 100
+    },
+    "defaultGrams": 100,
+    "defaultUnit": "份",
+    "reference": "AI营养参考估算（非实测）",
+    "sourceId": "ai-radish-greens-v1",
+    "sourceName": "熟萝卜叶、沥水、未加油的粗略营养估算",
+    "note": "营养与拳头重量均为AI预估，不是USDA萝卜叶实测值。默认水煮沥水、未加油；若实际是炒菜，请另计油或问AI核对。",
+    "kind": "ingredient",
+    "estimated": true
+  }
+]

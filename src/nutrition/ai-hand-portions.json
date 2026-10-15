@@ -1,0 +1,504 @@
+{
+  "version": 1,
+  "generatedAt": "2026-10-15",
+  "generatedBy": "AI assistant pre-estimate; no live API required at lookup",
+  "method": "1 fist roughly 1 cup volume; subjective plausible ranges, not measured values or statistical confidence intervals",
+  "entries": {
+    "oats-dry": {
+      "gramsPerFist": 80,
+      "minGrams": 55,
+      "maxGrams": 110,
+      "assumption": "干片，松散盛放",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "sweet-potato": {
+      "gramsPerFist": 200,
+      "minGrams": 140,
+      "maxGrams": 270,
+      "assumption": "熟块，不捣泥",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "pumpkin": {
+      "gramsPerFist": 180,
+      "minGrams": 120,
+      "maxGrams": 240,
+      "assumption": "熟块，不压实",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "white-bread": {
+      "gramsPerFist": 40,
+      "minGrams": 25,
+      "maxGrams": 65,
+      "assumption": "切块，松散堆放",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "whole-bread": {
+      "gramsPerFist": 45,
+      "minGrams": 30,
+      "maxGrams": 70,
+      "assumption": "切块，松散堆放",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "millet-dry": {
+      "gramsPerFist": 190,
+      "minGrams": 140,
+      "maxGrams": 240,
+      "assumption": "干粒，平装",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "rice-dry": {
+      "gramsPerFist": 190,
+      "minGrams": 140,
+      "maxGrams": 240,
+      "assumption": "干粒，平装",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "egg": {
+      "gramsPerFist": 135,
+      "minGrams": 95,
+      "maxGrams": 180,
+      "assumption": "去壳熟蛋切块",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "fried-egg": {
+      "gramsPerFist": 120,
+      "minGrams": 80,
+      "maxGrams": 170,
+      "assumption": "煎蛋切块，油量按原食物参考",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "raw-chicken": {
+      "gramsPerFist": 170,
+      "minGrams": 120,
+      "maxGrams": 230,
+      "assumption": "生肉切块，松散盛放",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "pork": {
+      "gramsPerFist": 150,
+      "minGrams": 100,
+      "maxGrams": 210,
+      "assumption": "熟瘦肉切片",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "raw-pork": {
+      "gramsPerFist": 170,
+      "minGrams": 120,
+      "maxGrams": 230,
+      "assumption": "生瘦肉切片",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "beef": {
+      "gramsPerFist": 150,
+      "minGrams": 100,
+      "maxGrams": 210,
+      "assumption": "熟瘦肉切片",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "lamb": {
+      "gramsPerFist": 150,
+      "minGrams": 100,
+      "maxGrams": 210,
+      "assumption": "熟瘦肉切块",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "salmon": {
+      "gramsPerFist": 160,
+      "minGrams": 110,
+      "maxGrams": 220,
+      "assumption": "生鱼肉切块",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "tilapia": {
+      "gramsPerFist": 145,
+      "minGrams": 95,
+      "maxGrams": 200,
+      "assumption": "熟鱼肉小块，不压碎",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "cod": {
+      "gramsPerFist": 145,
+      "minGrams": 95,
+      "maxGrams": 200,
+      "assumption": "熟鱼肉小块，不压碎",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "shrimp": {
+      "gramsPerFist": 145,
+      "minGrams": 100,
+      "maxGrams": 200,
+      "assumption": "熟去壳虾仁，松散盛放",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "squid": {
+      "gramsPerFist": 150,
+      "minGrams": 100,
+      "maxGrams": 210,
+      "assumption": "生鱿鱼切圈",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "crab": {
+      "gramsPerFist": 125,
+      "minGrams": 80,
+      "maxGrams": 180,
+      "assumption": "熟蟹肉，松散盛放",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "fried-tofu": {
+      "gramsPerFist": 100,
+      "minGrams": 60,
+      "maxGrams": 160,
+      "assumption": "炸豆腐切块，空隙较多",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "tomato": {
+      "gramsPerFist": 170,
+      "minGrams": 120,
+      "maxGrams": 230,
+      "assumption": "生番茄切块",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "green-pepper": {
+      "gramsPerFist": 130,
+      "minGrams": 80,
+      "maxGrams": 190,
+      "assumption": "生青椒切块",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "ginger": {
+      "gramsPerFist": 90,
+      "minGrams": 55,
+      "maxGrams": 140,
+      "assumption": "生姜切片",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "apple": {
+      "gramsPerFist": 130,
+      "minGrams": 85,
+      "maxGrams": 185,
+      "assumption": "去核带皮切块",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "banana": {
+      "gramsPerFist": 150,
+      "minGrams": 100,
+      "maxGrams": 210,
+      "assumption": "去皮切片，不捣泥",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "pear": {
+      "gramsPerFist": 150,
+      "minGrams": 100,
+      "maxGrams": 210,
+      "assumption": "去核切块",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "kiwi": {
+      "gramsPerFist": 175,
+      "minGrams": 120,
+      "maxGrams": 235,
+      "assumption": "去皮切片",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "grapes": {
+      "gramsPerFist": 150,
+      "minGrams": 100,
+      "maxGrams": 210,
+      "assumption": "可食果粒，松散盛放",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "mango": {
+      "gramsPerFist": 165,
+      "minGrams": 110,
+      "maxGrams": 225,
+      "assumption": "去皮去核切块",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "strawberry": {
+      "gramsPerFist": 145,
+      "minGrams": 95,
+      "maxGrams": 205,
+      "assumption": "去蒂整果，松散盛放",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "blueberry": {
+      "gramsPerFist": 145,
+      "minGrams": 100,
+      "maxGrams": 200,
+      "assumption": "果粒，松散盛放",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "watermelon": {
+      "gramsPerFist": 150,
+      "minGrams": 100,
+      "maxGrams": 215,
+      "assumption": "去皮切块",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "pineapple": {
+      "gramsPerFist": 165,
+      "minGrams": 110,
+      "maxGrams": 230,
+      "assumption": "可食部分切块",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "lychee": {
+      "gramsPerFist": 185,
+      "minGrams": 125,
+      "maxGrams": 250,
+      "assumption": "去皮去核果肉",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "dates": {
+      "gramsPerFist": 150,
+      "minGrams": 95,
+      "maxGrams": 215,
+      "assumption": "去核干果，松散盛放",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "almond": {
+      "gramsPerFist": 140,
+      "minGrams": 95,
+      "maxGrams": 195,
+      "assumption": "整粒果仁",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "walnut": {
+      "gramsPerFist": 105,
+      "minGrams": 65,
+      "maxGrams": 160,
+      "assumption": "去壳核桃仁碎块",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "cashew": {
+      "gramsPerFist": 135,
+      "minGrams": 90,
+      "maxGrams": 190,
+      "assumption": "整粒果仁",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "mixed-nuts": {
+      "gramsPerFist": 130,
+      "minGrams": 85,
+      "maxGrams": 185,
+      "assumption": "去壳混合果仁",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "peanuts": {
+      "gramsPerFist": 145,
+      "minGrams": 95,
+      "maxGrams": 200,
+      "assumption": "去壳熟花生仁",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "egg-fried-rice": {
+      "gramsPerFist": 190,
+      "minGrams": 130,
+      "maxGrams": 260,
+      "assumption": "炒熟米饭，松散盛放",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "tomato-egg": {
+      "gramsPerFist": 190,
+      "minGrams": 130,
+      "maxGrams": 270,
+      "assumption": "成品含菜汁，不压实",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "pepper-pork": {
+      "gramsPerFist": 160,
+      "minGrams": 105,
+      "maxGrams": 230,
+      "assumption": "成品肉丝和青椒混合",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "kung-pao": {
+      "gramsPerFist": 175,
+      "minGrams": 115,
+      "maxGrams": 245,
+      "assumption": "成品鸡丁和配菜混合",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "mapo-tofu": {
+      "gramsPerFist": 220,
+      "minGrams": 150,
+      "maxGrams": 300,
+      "assumption": "成品豆腐及附着酱汁",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "chicken-rice": {
+      "gramsPerFist": 190,
+      "minGrams": 130,
+      "maxGrams": 265,
+      "assumption": "饭和鸡肉混合，不按纯鸡肉计算",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "beef-noodles": {
+      "gramsPerFist": 230,
+      "minGrams": 160,
+      "maxGrams": 300,
+      "assumption": "面、肉和汤按原配方比例混合；不能仅套用捞出面条",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "tomato-egg-noodles": {
+      "gramsPerFist": 230,
+      "minGrams": 160,
+      "maxGrams": 300,
+      "assumption": "面、配料和汤按原配方比例混合；不能仅套用捞出面条",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "stir-broccoli": {
+      "gramsPerFist": 150,
+      "minGrams": 95,
+      "maxGrams": 220,
+      "assumption": "炒熟花球，不压实",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "stir-greens": {
+      "gramsPerFist": 150,
+      "minGrams": 90,
+      "maxGrams": 230,
+      "assumption": "炒熟叶菜，略沥汁",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "stir-spinach": {
+      "gramsPerFist": 170,
+      "minGrams": 105,
+      "maxGrams": 250,
+      "assumption": "炒熟菠菜，略沥汁",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "potato-strips": {
+      "gramsPerFist": 160,
+      "minGrams": 105,
+      "maxGrams": 235,
+      "assumption": "成品土豆丝，松散盛放",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "fried-eggplant": {
+      "gramsPerFist": 165,
+      "minGrams": 105,
+      "maxGrams": 245,
+      "assumption": "成品茄子块，油量仍按配方参考",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "dumplings": {
+      "gramsPerFist": 150,
+      "minGrams": 95,
+      "maxGrams": 220,
+      "assumption": "熟饺子松散堆放，包含空隙",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "steamed-bun": {
+      "gramsPerFist": 85,
+      "minGrams": 50,
+      "maxGrams": 135,
+      "assumption": "熟馒头按整体体积",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "pork-bun": {
+      "gramsPerFist": 120,
+      "minGrams": 75,
+      "maxGrams": 180,
+      "assumption": "熟包子按整体体积",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "chicken-salad": {
+      "gramsPerFist": 110,
+      "minGrams": 60,
+      "maxGrams": 185,
+      "assumption": "鸡肉和生蔬菜混合，不压实",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "egg-sandwich": {
+      "gramsPerFist": 100,
+      "minGrams": 60,
+      "maxGrams": 155,
+      "assumption": "成品按整体体积",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "shrimp-rice": {
+      "gramsPerFist": 190,
+      "minGrams": 130,
+      "maxGrams": 265,
+      "assumption": "炒饭成品，松散盛放",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "ai-stir-beef": {
+      "gramsPerFist": 150,
+      "minGrams": 95,
+      "maxGrams": 220,
+      "assumption": "成品熟牛肉片，少量油，无大量蔬菜或汤汁",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    },
+    "ai-radish-greens": {
+      "gramsPerFist": 160,
+      "minGrams": 90,
+      "maxGrams": 240,
+      "assumption": "熟萝卜叶，沥水但不压紧，未计油",
+      "basis": "ai_estimate",
+      "confidence": "low"
+    }
+  }
+}

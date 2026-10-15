@@ -1,14 +1,23 @@
 import {recordLimits} from '../recordLimits.mjs';
 import rawFoods from './foods.json' with { type:'json' };
 import fistReferences from './hand-portions.json' with { type:'json' };
+import aiHandData from './ai-hand-portions.json' with {type:'json'};
+import aiFoods from './ai-food-estimates.json' with {type:'json'};
 export const handPortionReferences=fistReferences;
+export const aiHandPortionReferences=aiHandData.entries;
+export const foodLibrary = [...rawFoods,...aiFoods];
+export const fistPortionLibrary=foodLibrary.flatMap(food=>{const ref=fistReferences[food.id],ai=aiHandData.entries[food.id];return ref?[{foodId:food.id,name:food.name,grams:ref.gramsPerFist,min:ref.gramsPerFist,max:ref.gramsPerFist,basis:'USDA杯重参考'}]:ai?[{foodId:food.id,name:food.name,grams:ai.gramsPerFist,min:ai.minGrams,max:ai.maxGrams,basis:'AI粗估'}]:[];});
 export function fistPortion(food,amount){
- const ref=fistReferences[food.id];
+ const ref=fistReferences[food.id],ai=aiHandData.entries[food.id];
+ if(!ref&&ai){
+  if(!Number.isFinite(amount)||amount<=0||amount*ai.gramsPerFist>10000)return null;
+  const portion=makePortion(food,round(amount*ai.gramsPerFist,2),`拳头份量为AI粗估，非实测：1拳约${ai.gramsPerFist}克，可能约${ai.minGrams}–${ai.maxGrams}克；${amount}拳按${round(amount*ai.gramsPerFist,2)}克计算。假设：${ai.assumption}。手大小和压实程度会改变重量，请核对克数。${food.kind==='recipe'?'营养沿用所列参考配方（含配方中的油），不是这道菜的实测值；实际用油和配菜不同时请修改。':'未计额外烹调油。'}${food.estimated?'该条目营养也含AI参考估算，请核对。':''}`);
+  return {...portion,sourceLabel:portion.sourceLabel+' · 拳头份量为AI粗估',confidence:'low'};
+ }
  if(!ref||!Number.isFinite(amount)||amount<=0||amount*ref.gramsPerFist>10000)return null;
  return makePortion(food,round(amount*ref.gramsPerFist,2),`拳头体积粗估：采用1拳≈1杯的参考体积，${amount}拳约${round(amount*ref.gramsPerFist,2)}克；该食物USDA SR28 ${ref.sourceId} 的${ref.cupDescription}每杯约${ref.gramsPerFist}克。手大小、切法、生熟和压实程度会改变重量，请核对克数；烹调油需另计。`);
 }
 import { validDate } from '../model.mjs';
-export const foodLibrary = rawFoods;
 export const mealTypes = ['早餐','午餐','晚餐','加餐'];
 export const nutrientKeys = ['kcal','protein','carbs','fat'];
 const nutrientNames={kcal:'热量',protein:'蛋白质',carbs:'碳水化合物',fat:'脂肪'};
@@ -157,5 +166,5 @@ export function validateAIAnalysis(result) {
 }
 
 export function standardizeAIFoods(foods){
- return foods.map(food=>{const known=findFood(food.name);return known?{...food,name:known.name,per100:{...known.per100},assumption:food.assumption.slice(0,700)+`；营养采用${known.reference} · ${known.sourceId}，份量由AI估计，可修改。`}:food;});
+ return foods.map(food=>{const known=findFood(food.name);return known&&!known.estimated?{...food,name:known.name,per100:{...known.per100},assumption:food.assumption.slice(0,700)+`；营养采用${known.reference} · ${known.sourceId}，份量由AI估计，可修改。`}:food;});
 }

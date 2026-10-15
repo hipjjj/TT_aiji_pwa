@@ -79,7 +79,8 @@ export async function resolveProposal(
               date: p.date,
               mealType: p.mealType as import("../nutrition/types").MealType,
               items: (p.foods || []).map((food) => {
-                const known = findFood(food.name) as FoodDefinition | undefined;
+                const matched = findFood(food.name) as FoodDefinition | undefined;
+                const known = matched?.estimated ? undefined : matched;
                 return {
                   ...food,
                   id: crypto.randomUUID(),

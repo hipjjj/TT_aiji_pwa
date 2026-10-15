@@ -26,3 +26,4 @@
 @media(max-width:600px),(any-pointer:coarse){
   .nutrition-dialog-body input:not([type=checkbox]),.nutrition-dialog-body select,.nutrition-dialog-body textarea{font-size:16px}
 }
+.fist-library{margin:14px 0;padding:12px;border:1px solid #e1dfcb;border-radius:14px;background:#fffaf0}.fist-library summary{font-weight:700;cursor:pointer}.fist-library-table{max-height:350px;overflow:auto}.fist-library table{width:100%;border-collapse:collapse;font-size:11px;line-height:1.7}.fist-library th,.fist-library td{padding:9px 5px;text-align:left;border-bottom:1px solid #e9e3d4;vertical-align:top}.fist-library th{position:sticky;top:0;background:#fffaf0}.fist-library small{display:block;font-size:10px;color:#947451}

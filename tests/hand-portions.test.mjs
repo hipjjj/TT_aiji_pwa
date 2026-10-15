@@ -15,5 +15,5 @@ test('fist references preserve source identity, original household weights and e
  }
  assert.equal(fistPortion(foodLibrary.find(f=>f.id==='rice'),0),null);
  assert.equal(fistPortion(foodLibrary.find(f=>f.id==='rice'),100),null);
- for(const text of ['米饭0拳','米饭100拳','炒牛肉两拳','萝卜叶半拳','食用油一拳'])assert.equal(parseMealText(text).items.length,0,text);
+ for(const text of ['米饭0拳','米饭100拳','未知菜两拳','食用油一拳'])assert.equal(parseMealText(text).items.length,0,text);
 });
