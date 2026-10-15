@@ -71,9 +71,9 @@ function quantity(text) {
 export function parseMealText(text) {
   if(typeof text!=='string'||text.length>2000)throw new Error('文字描述不能超过2000字');
   const normalized=text.replace(/[０-９]/g,c=>String(c.charCodeAt(0)-0xff10));
-  const fragments=normalized.split(/[，,、；;\n]+/).map(s=>s.trim()).filter(Boolean);
+  const fragments=normalized.split(/[，,、；;+＋\n]+/).map(s=>s.trim()).filter(Boolean);
   if(fragments.length>20)throw new Error('一餐最多记录20种食物');
-  const n='(\\d+(?:\\.\\d+)?|半|[一二两三四五六七八九十百]+)',u='(公斤|千克|kg|毫升|ml|克|g|斤|两|碗|个|根|片|杯|份|勺|把|盒|盘|条)';
+  const n='(\\d+(?:\\.\\d+)?|半|[一二两三四五六七八九十百]+)',u='(公斤|千克|kg|毫升|ml|克|g|斤|两|碗|个|根|片|杯|份|勺|把|盒|盘|条|拳头|拳)';
   const before=new RegExp(`^${n}\\s*${u}\\s*(.+)$`,'i'),after=new RegExp(`^(.+?)\\s*${n}\\s*${u}$`,'i');
   const items=[],unresolved=[];
   for(const fragment of fragments){
@@ -81,6 +81,7 @@ export function parseMealText(text) {
     const prefix=name.match(before),suffix=name.match(after);
     if(prefix){amount=quantity(prefix[1]);unit=prefix[2].toLowerCase();name=prefix[3].trim();}
     else if(suffix){name=suffix[1].trim();amount=quantity(suffix[2]);unit=suffix[3].toLowerCase();}
+    if(unit==='拳'||unit==='拳头'){unresolved.push({text:fragment,reason:'“拳”没有固定克重，本地字典不能准确换算。请补充克数，或点击“小包帮你问问AI”估算后核对食物、份量和用油。'});continue;}
     const food=findFood(name);
     if(!food){unresolved.push({text:fragment,reason:'食物库暂未匹配，请选择食物或手动补充；也可以主动问AI。'});continue;}
     let grams=food.defaultGrams,assumption=`未提供克数，按1${food.defaultUnit}约${grams}克估计；请核对。`;

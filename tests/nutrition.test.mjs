@@ -29,3 +29,14 @@ test('nutrition backup preserves snapshots, rejects duplicates and unsafe images
 test('AI results require bounded nutrients, weights and confidence; data cannot be silently trusted',()=>{
  const value={note:'估计份量',foods:[{name:'米饭',grams:150,per100:{kcal:130,protein:2.38,carbs:28.59,fat:.21},assumption:'约一碗',confidence:'medium'}]};assert.equal(validateAIAnalysis(value).foods.length,1);assert.throws(()=>validateAIAnalysis({...value,foods:[{...value.foods[0],grams:-1}]}));assert.throws(()=>validateNutrients({kcal:900,protein:100,carbs:100,fat:100}));assert.throws(()=>validateAIAnalysis({...value,foods:[{...value.foods[0],confidence:'certain'}]}));
 });
+
+test('plus-separated meals preserve known foods and clearly flag fist portions without inventing weights',()=>{
+ const result=parseMealText('米饭400g+炒牛肉两拳+萝卜叶半拳');
+ assert.equal(result.items.length,1);assert.equal(result.items[0].foodId,'rice');assert.equal(result.items[0].grams,400);
+ assert.deepEqual(result.unresolved.map(x=>x.text),['炒牛肉两拳','萝卜叶半拳']);
+ assert(result.unresolved.every(x=>x.reason.includes('没有固定克重')&&x.reason.includes('AI')));
+ assert.equal(parseMealText('米饭100g＋鸡蛋1个').items.length,2);
+ assert.equal(parseMealText('两拳头米饭').unresolved.length,1);
+ assert.equal(parseMealText('鸡胸肉半拳').items.length,0);
+ assert.throws(()=>parseMealText(Array(21).fill('米饭100克').join('+')));
+});
