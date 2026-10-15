@@ -1,6 +1,7 @@
 """Fetch public nutrition guidance for review; never reads app records or secrets."""
 import concurrent.futures, html, re, urllib.request
 URLS = [
+ 'https://medlineplus.gov/ency/patientinstructions/000337.htm',
  'https://www.cdc.gov/diabetes/healthy-eating/meal-planning-methods.html',
  'https://www.diabetes.org.uk/living-with-diabetes/eating/portion-sizes',
  'https://www.bhf.org.uk/informationsupport/heart-matters-magazine/nutrition/weight/portion-sizes',

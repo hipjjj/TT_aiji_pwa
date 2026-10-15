@@ -36,7 +36,7 @@ test('plus-separated meals preserve known foods and clearly flag fist portions w
  assert.deepEqual(result.unresolved.map(x=>x.text),['炒牛肉两拳','萝卜叶半拳']);
  assert(result.unresolved.every(x=>x.reason.includes('没有固定克重')&&x.reason.includes('AI')));
  assert.equal(parseMealText('米饭100g＋鸡蛋1个').items.length,2);
- assert.equal(parseMealText('两拳头米饭').unresolved.length,1);
- assert.equal(parseMealText('鸡胸肉半拳').items.length,0);
+ assert.equal(parseMealText('两拳头米饭').items[0].grams,372);
+ assert.equal(parseMealText('鸡胸肉半拳').items[0].grams,70);
  assert.throws(()=>parseMealText(Array(21).fill('米饭100克').join('+')));
 });

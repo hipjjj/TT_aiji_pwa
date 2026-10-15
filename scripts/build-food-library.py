@@ -70,3 +70,15 @@ for food in foods:
         aliases[alias]=food['id']
 (ROOT / 'src/nutrition/foods.json').write_text(json.dumps(foods,ensure_ascii=False,indent=2)+'\n')
 print(f'Generated {len(foods)} foods, including {len(recipes)} explicitly labeled reference recipes')
+
+# Fist estimates use the visual convention 1 fist ~= 1 cup, then the SAME food's
+# USDA household weight. Deliberately exclude foods without a comparable cup row.
+hand_ids = ['rice','brown-rice','sticky-rice','corn','oatmeal','potato','baked-sweet-potato','egg-noodles','rice-noodles','quinoa','chicken','roast-chicken','duck','tofu','soft-tofu','edamame','mung-beans','lentils','chickpeas','broccoli','raw-broccoli','bok-choy','napa','spinach','raw-spinach','cucumber','eggplant','raw-eggplant','cooked-tomato','mushroom','shiitake','peas','cooked-pepper','lettuce','zucchini']
+hand_portions = {}
+for key in hand_ids:
+    food = next(f for f in foods if f['id'] == key)
+    rows = conn.execute("SELECT amount,description,gm_weight FROM weight WHERE food_id=? AND lower(description) LIKE 'cup%' ORDER BY CASE WHEN description='cup' THEN 0 ELSE 1 END, sequence_num", (int(food['sourceId']),)).fetchall()
+    if not rows: raise RuntimeError(f'Missing cup reference for {key}')
+    amount, description, grams = rows[0]
+    hand_portions[key] = {'gramsPerFist': round(grams / amount, 2), 'sourceId': food['sourceId'], 'cupDescription': description, 'sourceAmount': amount, 'sourceGrams': grams}
+(ROOT / 'src/nutrition/hand-portions.json').write_text(json.dumps(hand_portions,ensure_ascii=False,indent=2)+'\n')

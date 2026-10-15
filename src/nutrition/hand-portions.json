@@ -1,0 +1,247 @@
+{
+  "rice": {
+    "gramsPerFist": 186.0,
+    "sourceId": "20051",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 186.0
+  },
+  "brown-rice": {
+    "gramsPerFist": 195.0,
+    "sourceId": "20041",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 195.0
+  },
+  "sticky-rice": {
+    "gramsPerFist": 174.0,
+    "sourceId": "20055",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 174.0
+  },
+  "corn": {
+    "gramsPerFist": 149.0,
+    "sourceId": "11168",
+    "cupDescription": "cup cut",
+    "sourceAmount": 1.0,
+    "sourceGrams": 149.0
+  },
+  "oatmeal": {
+    "gramsPerFist": 234.0,
+    "sourceId": "08121",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 234.0
+  },
+  "potato": {
+    "gramsPerFist": 156.0,
+    "sourceId": "11367",
+    "cupDescription": "cup",
+    "sourceAmount": 0.5,
+    "sourceGrams": 78.0
+  },
+  "baked-sweet-potato": {
+    "gramsPerFist": 200.0,
+    "sourceId": "11508",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 200.0
+  },
+  "egg-noodles": {
+    "gramsPerFist": 160.0,
+    "sourceId": "20110",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 160.0
+  },
+  "rice-noodles": {
+    "gramsPerFist": 176.0,
+    "sourceId": "20134",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 176.0
+  },
+  "quinoa": {
+    "gramsPerFist": 185.0,
+    "sourceId": "20137",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 185.0
+  },
+  "chicken": {
+    "gramsPerFist": 140.0,
+    "sourceId": "05065",
+    "cupDescription": "cup, chopped or diced",
+    "sourceAmount": 1.0,
+    "sourceGrams": 140.0
+  },
+  "roast-chicken": {
+    "gramsPerFist": 140.0,
+    "sourceId": "05064",
+    "cupDescription": "cup, chopped or diced",
+    "sourceAmount": 1.0,
+    "sourceGrams": 140.0
+  },
+  "duck": {
+    "gramsPerFist": 140.0,
+    "sourceId": "05142",
+    "cupDescription": "cup, chopped or diced",
+    "sourceAmount": 1.0,
+    "sourceGrams": 140.0
+  },
+  "tofu": {
+    "gramsPerFist": 252.0,
+    "sourceId": "16426",
+    "cupDescription": "cup",
+    "sourceAmount": 0.5,
+    "sourceGrams": 126.0
+  },
+  "soft-tofu": {
+    "gramsPerFist": 248.0,
+    "sourceId": "16127",
+    "cupDescription": "cup (1/2\" cubes)",
+    "sourceAmount": 1.0,
+    "sourceGrams": 248.0
+  },
+  "edamame": {
+    "gramsPerFist": 180.0,
+    "sourceId": "11451",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 180.0
+  },
+  "mung-beans": {
+    "gramsPerFist": 202.0,
+    "sourceId": "16081",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 202.0
+  },
+  "lentils": {
+    "gramsPerFist": 198.0,
+    "sourceId": "16070",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 198.0
+  },
+  "chickpeas": {
+    "gramsPerFist": 164.0,
+    "sourceId": "16057",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 164.0
+  },
+  "broccoli": {
+    "gramsPerFist": 156.0,
+    "sourceId": "11091",
+    "cupDescription": "cup, chopped",
+    "sourceAmount": 0.5,
+    "sourceGrams": 78.0
+  },
+  "raw-broccoli": {
+    "gramsPerFist": 91.0,
+    "sourceId": "11090",
+    "cupDescription": "cup chopped",
+    "sourceAmount": 1.0,
+    "sourceGrams": 91.0
+  },
+  "bok-choy": {
+    "gramsPerFist": 170.0,
+    "sourceId": "11117",
+    "cupDescription": "cup, shredded",
+    "sourceAmount": 1.0,
+    "sourceGrams": 170.0
+  },
+  "napa": {
+    "gramsPerFist": 119.0,
+    "sourceId": "11120",
+    "cupDescription": "cup, shredded",
+    "sourceAmount": 1.0,
+    "sourceGrams": 119.0
+  },
+  "spinach": {
+    "gramsPerFist": 180.0,
+    "sourceId": "11458",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 180.0
+  },
+  "raw-spinach": {
+    "gramsPerFist": 30.0,
+    "sourceId": "11457",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 30.0
+  },
+  "cucumber": {
+    "gramsPerFist": 104.0,
+    "sourceId": "11205",
+    "cupDescription": "cup slices",
+    "sourceAmount": 0.5,
+    "sourceGrams": 52.0
+  },
+  "eggplant": {
+    "gramsPerFist": 99.0,
+    "sourceId": "11210",
+    "cupDescription": "cup (1\" cubes)",
+    "sourceAmount": 1.0,
+    "sourceGrams": 99.0
+  },
+  "raw-eggplant": {
+    "gramsPerFist": 82.0,
+    "sourceId": "11209",
+    "cupDescription": "cup, cubes",
+    "sourceAmount": 1.0,
+    "sourceGrams": 82.0
+  },
+  "cooked-tomato": {
+    "gramsPerFist": 240.0,
+    "sourceId": "11530",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 240.0
+  },
+  "mushroom": {
+    "gramsPerFist": 156.0,
+    "sourceId": "11261",
+    "cupDescription": "cup pieces",
+    "sourceAmount": 1.0,
+    "sourceGrams": 156.0
+  },
+  "shiitake": {
+    "gramsPerFist": 145.0,
+    "sourceId": "11269",
+    "cupDescription": "cup pieces",
+    "sourceAmount": 1.0,
+    "sourceGrams": 145.0
+  },
+  "peas": {
+    "gramsPerFist": 160.0,
+    "sourceId": "11305",
+    "cupDescription": "cup",
+    "sourceAmount": 1.0,
+    "sourceGrams": 160.0
+  },
+  "cooked-pepper": {
+    "gramsPerFist": 135.0,
+    "sourceId": "11334",
+    "cupDescription": "cup, chopped or strips",
+    "sourceAmount": 1.0,
+    "sourceGrams": 135.0
+  },
+  "lettuce": {
+    "gramsPerFist": 36.0,
+    "sourceId": "11253",
+    "cupDescription": "cup shredded",
+    "sourceAmount": 1.0,
+    "sourceGrams": 36.0
+  },
+  "zucchini": {
+    "gramsPerFist": 180.0,
+    "sourceId": "11478",
+    "cupDescription": "cup, sliced",
+    "sourceAmount": 1.0,
+    "sourceGrams": 180.0
+  }
+}

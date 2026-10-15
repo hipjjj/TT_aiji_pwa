@@ -1,5 +1,12 @@
 import {recordLimits} from '../recordLimits.mjs';
 import rawFoods from './foods.json' with { type:'json' };
+import fistReferences from './hand-portions.json' with { type:'json' };
+export const handPortionReferences=fistReferences;
+export function fistPortion(food,amount){
+ const ref=fistReferences[food.id];
+ if(!ref||!Number.isFinite(amount)||amount<=0||amount*ref.gramsPerFist>10000)return null;
+ return makePortion(food,round(amount*ref.gramsPerFist,2),`拳头体积粗估：采用1拳≈1杯的参考体积，${amount}拳约${round(amount*ref.gramsPerFist,2)}克；该食物USDA SR28 ${ref.sourceId} 的${ref.cupDescription}每杯约${ref.gramsPerFist}克。手大小、切法、生熟和压实程度会改变重量，请核对克数；烹调油需另计。`);
+}
 import { validDate } from '../model.mjs';
 export const foodLibrary = rawFoods;
 export const mealTypes = ['早餐','午餐','晚餐','加餐'];
@@ -73,16 +80,16 @@ export function parseMealText(text) {
   const normalized=text.replace(/[０-９]/g,c=>String(c.charCodeAt(0)-0xff10));
   const fragments=normalized.split(/[，,、；;+＋\n]+/).map(s=>s.trim()).filter(Boolean);
   if(fragments.length>20)throw new Error('一餐最多记录20种食物');
-  const n='(\\d+(?:\\.\\d+)?|半|[一二两三四五六七八九十百]+)',u='(公斤|千克|kg|毫升|ml|克|g|斤|两|碗|个|根|片|杯|份|勺|把|盒|盘|条|拳头|拳)';
+  const n='(\\d+(?:\\.\\d+)?|半|[一二两三四五六七八九十百]+)',u='(公斤|千克|kg|毫升|ml|克|g|斤|两|碗|个拳头|个拳|个|根|片|杯|份|勺|把|盒|盘|条|拳头|拳)';
   const before=new RegExp(`^${n}\\s*${u}\\s*(.+)$`,'i'),after=new RegExp(`^(.+?)\\s*${n}\\s*${u}$`,'i');
   const items=[],unresolved=[];
   for(const fragment of fragments){
     let name=fragment.replace(/^(?:早餐|午餐|晚餐|加餐)?[：:]?(?:吃了|吃的)?/,'').trim(),amount=null,unit=null;
     const prefix=name.match(before),suffix=name.match(after);
-    if(prefix){amount=quantity(prefix[1]);unit=prefix[2].toLowerCase();name=prefix[3].trim();}
+    if(prefix){amount=quantity(prefix[1]);unit=prefix[2].toLowerCase();name=prefix[3].trim().replace(/^的/,'');}
     else if(suffix){name=suffix[1].trim();amount=quantity(suffix[2]);unit=suffix[3].toLowerCase();}
-    if(unit==='拳'||unit==='拳头'){unresolved.push({text:fragment,reason:'“拳”没有固定克重，本地字典不能准确换算。请补充克数，或点击“小包帮你问问AI”估算后核对食物、份量和用油。'});continue;}
     const food=findFood(name);
+    if(unit&&unit.includes('拳')){const portion=food?fistPortion(food,amount):null;if(portion){items.push(portion);}else{unresolved.push({text:fragment,reason:'“拳”没有固定克重，这项食物暂缺对应的一杯参考重量或份量超出范围。请补充克数，或点击“小包帮你问问AI”估算后核对食物、份量和用油。'});}continue;}
     if(!food){unresolved.push({text:fragment,reason:'食物库暂未匹配，请选择食物或手动补充；也可以主动问AI。'});continue;}
     let grams=food.defaultGrams,assumption=`未提供克数，按1${food.defaultUnit}约${grams}克估计；请核对。`;
     if(amount!==null){

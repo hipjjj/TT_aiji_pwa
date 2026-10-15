@@ -112,3 +112,5 @@ AI 后端代码、Secret 配置及部署说明见 [docs/nutrition-ai.md](docs/nu
 ### 分别配置聊天与工具模型
 
 Worker 的 `server/wrangler.toml` 中，`CHAT_MODEL` 默认为 `gpt-5-mini`，仅用于企鹅小家的文字和图片聊天；`NUTRITION_MODEL` 默认为 `gpt-4.1-mini`，用于饮食、食谱和游记。聊天采用 minimal 推理以控制等待时间，保留严格结构化输出与业务确认卡片。`/health` 的 `chatModel` 和 `model` 分别报告两类模型。修改模型后需重新部署 Worker，前端连接地址、访问口令和本地数据均无需更换。部署前先检查账号能否调用升级模型并完成看图和 JSON 输出，检查失败不会替换当前 Worker。
+
+本地饮食文字支持“拳／拳头／个拳头”（如“米饭两拳＋鸡胸肉半拳”）：35项有同种食品杯重依据的食物使用1拳≈1杯体积粗估，显示估计克数和假设，可手动修改。参考依据、适用限制及可复现数据见 [拳头份量说明](docs/hand-portions.md)；不对未知菜品统一套用重量。
