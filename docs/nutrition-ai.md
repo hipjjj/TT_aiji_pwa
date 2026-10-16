@@ -43,7 +43,7 @@ npx wrangler secret put ACCESS_CODE --config server/wrangler.toml
 - 仅允许配置的前端 Origin，要求访问口令，并通过持久 Durable Object 对整个后端限制默认每日30次、每分钟5次。失败请求也消耗额度；日额度按 UTC 午夜重置。可调整 `DAILY_AI_LIMIT` / `PER_MINUTE_AI_LIMIT`。
 - 缺少密钥、访问口令或额度存储时拒绝分析，防止无保护的付费调用。错误回复不包含 API 密钥、原始上游错误或请求照片。
 - 照片只在点击问AI并勾选同意时发送。Worker 不持久保存照片或个人资料；额度存储只保存计数。
-- 访问口令只保存在当前浏览器会话，不进入备份。Cloudflare/OpenAI 凭据始终在服务端。生产 Worker URL 是公开的，访问口令不可使用演示值或公开分享。
+- 访问口令持久保存在当前设备，关闭浏览器或PWA后无需重输，不进入备份。Cloudflare/OpenAI 凭据始终在服务端。生产 Worker URL 是公开的，访问口令不可使用演示值或公开分享。
 
 ## 验证状态
 
@@ -51,7 +51,7 @@ npx wrangler secret put ACCESS_CODE --config server/wrangler.toml
 
 ## 嘟嘟糕的食谱 AI
 
-复用同一个 Worker、OpenAI 密钥与会话访问口令，不需要另外一组秘密。已有后端需重新运行 **Deploy Xiaobao AI backend**，发布包含 `/recipes` 的版本。前端单独推送不会更新后端。
+复用同一个 Worker、OpenAI 密钥与设备访问口令，不需要另外一组秘密。已有后端需重新运行 **Deploy Xiaobao AI backend**，发布包含 `/recipes` 的版本。前端单独推送不会更新后端。
 
 `POST /recipes` 使用相同 Origin 和 `X-Access-Code`。正文包含 `mode:"inventory"|"dish"`、`dish`、最多100项 `{name,quantity,unit}` 库存及冰箱偏好（人数、时间、忌口/过敏、饮食偏好、是否显示营养、常备调料）。只发送尚未过期的库存；不发送存放位置、日期、食材备注、身体资料或账单。用户需先同意，再主动点击“嘟嘟糕问AI”。
 

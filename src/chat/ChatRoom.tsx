@@ -1,3 +1,4 @@
+import {readAccessCode} from '../personal/access-code.mjs';
 import { preparePhoto } from "../nutrition/photo";
 import { recordLimits } from "../recordLimits.mjs";
 import { restoreChat, rememberSelection, draftKey } from "./session";
@@ -588,7 +589,7 @@ export default function ChatRoom({
         url = config
           ? config.url
           : import.meta.env.VITE_NUTRITION_API_URL || "",
-        access = sessionStorage.getItem("xiaobao-ai-access") || "";
+        access = readAccessCode();
       if (!url || access.length < 16)
         throw Error("请先在个人页保存AI连接地址和访问口令");
       const endpoint = new URL(url);

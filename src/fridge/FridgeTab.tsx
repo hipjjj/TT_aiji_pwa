@@ -1,3 +1,4 @@
+import {readAccessCode} from '../personal/access-code.mjs';
 import {recordLimits} from '../recordLimits.mjs';
 import React, { useEffect, useRef, useState } from "react";
 import { db } from "../db";
@@ -181,7 +182,7 @@ export default function FridgeTab({
     [aiConsent, setAIConsent] = useState(false),
     [asking, setAsking] = useState(false);
   const [apiURL,setAPIURL]=useState('');
-  const [access]=useState(()=>sessionStorage.getItem('xiaobao-ai-access')||'');
+  const [access]=useState(()=>readAccessCode());
   const abort = useRef<AbortController | null>(null);
   const [shoppingOpen, setShoppingOpen] = useState(false),
     [editingShop, setEditingShop] = useState<ShoppingItem | null>(null),
@@ -374,7 +375,7 @@ export default function FridgeTab({
     }
   };
   const askAI = async () => {
-    const code = sessionStorage.getItem("xiaobao-ai-access") || access;
+    const code = readAccessCode();
     if (!apiURL || !code) {
       setError("请先到“个人 → AI连接设置”配置服务，本地菜谱仍可使用。");
       return;

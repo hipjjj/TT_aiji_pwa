@@ -1,3 +1,4 @@
+import {readAccessCode} from '../personal/access-code.mjs';
 import OverseasTravel from "./OverseasTravel";
 import type { OverseasTrip } from "./overseas-types";
 import React, { useEffect, useRef, useState } from "react";
@@ -377,7 +378,7 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
     }
   };
   const aiStory = async () => {
-    const access = sessionStorage.getItem("xiaobao-ai-access") || "";
+    const access = readAccessCode();
     if (!apiURL || !access) {
       setError(
         "请先到“个人 → AI连接设置”配置服务；当前行程会保留，可以先本地整理。",

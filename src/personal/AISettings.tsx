@@ -1,3 +1,4 @@
+import {readAccessCode,saveAccessCode,clearAccessCode} from './access-code.mjs';
 import React, { useEffect, useState } from "react";
 import { db } from "../db";
 export default function AISettings() {
@@ -17,7 +18,7 @@ export default function AISettings() {
           : import.meta.env.VITE_NUTRITION_API_URL || "";
         setURL(value);
         setSavedURL(value);
-        setCode(sessionStorage.getItem("xiaobao-ai-access") || "");
+        setCode(readAccessCode());
         setReady(true);
       })
       .catch(() => setError("彪彪暂时打不开连接设置，请检查浏览器存储"));
@@ -47,7 +48,7 @@ export default function AISettings() {
       const access = code.trim();
       if (access.length < 16 || access.length > 200)
         throw new Error("访问口令须为16–200字符");
-      sessionStorage.setItem("xiaobao-ai-access", access);
+      saveAccessCode(access);
       await db.settings.put({ id: "ai", url: parsed.origin });
       setURL(parsed.origin);
       setCode(access);
@@ -65,7 +66,7 @@ export default function AISettings() {
     setMessage("");
     try {
       await db.settings.put({ id: "ai", url: "" });
-      sessionStorage.removeItem("xiaobao-ai-access");
+      clearAccessCode();
       setURL("");
       setCode("");
       setSavedURL("");
@@ -87,7 +88,7 @@ export default function AISettings() {
         {!ready
           ? "正在读取…"
           : savedURL && code
-            ? "已保存地址和本次会话口令 · 尚未验证服务"
+            ? "已保存地址和设备口令 · 尚未验证服务"
             : savedURL
               ? "已保存服务地址 · 请补充访问口令"
               : "尚未配置 · 本地功能可正常使用"}
@@ -117,7 +118,7 @@ export default function AISettings() {
           />
         </label>
         <p className="personal-note">
-          访问口令仅保留在当前浏览器会话，关闭会话后需重新输入；服务地址保存在设备里。两者都不随备份导出。
+          服务地址和访问口令保存在当前设备，关闭后再打开无需重新输入。可随时清除连接；两者都不随备份导出。
         </p>
         <button className="backup-primary" disabled={!ready || busy}>
           {busy ? "正在保存…" : "保存AI连接"}

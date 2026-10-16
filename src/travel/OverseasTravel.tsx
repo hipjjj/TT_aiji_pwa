@@ -1,3 +1,4 @@
+import {readAccessCode} from '../personal/access-code.mjs';
 import React, { useEffect, useRef, useState } from "react";
 import { db } from "../db";
 import { Modal } from "../nutrition/NutritionTab";
@@ -263,7 +264,7 @@ export default function OverseasTravel({
         url = settings
           ? settings.url
           : import.meta.env.VITE_NUTRITION_API_URL || "",
-        code = sessionStorage.getItem("xiaobao-ai-access") || "";
+        code = readAccessCode();
       if (version !== editVersion.current || signal.aborted) return;
       if (!url || code.length < 16)
         throw Error("请到个人页配置AI连接，当前行程仍保留");
