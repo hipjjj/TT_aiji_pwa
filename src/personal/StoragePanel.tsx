@@ -126,10 +126,10 @@ export default function StoragePanel() {
               : ""}
           </p>
           <p>
-            上次导出：
+            上次完整备份：
             {stats.last
               ? new Date(stats.last).toLocaleString("zh-CN")
-              : "还没有导出过备份"}
+              : "还没有导出过完整备份"}
           </p>
           {stats.records > 0 &&
             (!stats.last || Date.now() - stats.last > 7 * 86400000) && (
@@ -137,8 +137,8 @@ export default function StoragePanel() {
                 <strong>彪彪提醒：给小抽屉留一份备份吧。</strong>
                 <p>
                   {stats.last
-                    ? "已经超过7天没导出了。"
-                    : "已有本地记录，建议导出第一份备份。"}
+                    ? "已经超过7天没导出完整备份了。"
+                    : "已有本地记录，建议导出第一份完整备份。"}
                 </p>
                 <button
                   onClick={() =>
