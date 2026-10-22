@@ -150,3 +150,32 @@ export function buildScopedBackup(
   validateScopedBackup(out);
   return out;
 }
+
+export function selectTravelSnapshot(snapshot, selection) {
+  if (
+    !selection ||
+    !["domestic", "overseas"].includes(selection.kind) ||
+    typeof selection.id !== "string" ||
+    !selection.id
+  )
+    throw Error("请选择有效的旅行日记");
+  const list =
+    selection.kind === "domestic" ? snapshot.trips : snapshot.overseasTrips;
+  const trip = (list || []).find((row) => row.id === selection.id);
+  if (!trip) throw Error("这篇旅行日记已不存在，请重新选择");
+  return {
+    ...snapshot,
+    trips: selection.kind === "domestic" ? [trip] : [],
+    overseasTrips: selection.kind === "overseas" ? [trip] : [],
+    visitedCities: [],
+    spots: [],
+  };
+}
+export function travelExportName(title) {
+  return (
+    title
+      .replace(/[\\/:*?"<>|\u0000-\u001f]/g, "-")
+      .trim()
+      .slice(0, 60) || "未命名旅行"
+  );
+}
