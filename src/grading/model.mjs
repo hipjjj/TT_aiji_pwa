@@ -238,3 +238,36 @@ export function validateGradingBackup(data) {
     photosIncluded: x.photosIncluded,
   };
 }
+
+export function makeRangePoints(count, ranges) {
+  integer(count, 1, 100, "题数");
+  if (!Array.isArray(ranges) || !ranges.length || ranges.length > 100)
+    throw Error("请至少填写一个计分区间，最多100个");
+  const points = Array(count).fill(null);
+  for (const range of ranges) {
+    const from = integer(range?.from, 1, count, "题目A"),
+      to = integer(range?.to, 1, count, "题目B");
+    if (from > to) throw Error("题目A不能大于题目B");
+    const score = makePoints(1, range.points, "")[0];
+    for (let n = from; n <= to; n++) {
+      if (points[n - 1] !== null) throw Error(`第${n}题的计分区间重叠，请检查`);
+      points[n - 1] = score;
+    }
+  }
+  const missing = points.findIndex((p) => p === null);
+  if (missing >= 0)
+    throw Error(`第${missing + 1}题尚未设置分值，请补齐所有题目的计分区间`);
+  return points;
+}
+export function pointsToRanges(points) {
+  if (!Array.isArray(points) || !points.length || points.length > 100)
+    throw Error("原计分设置无效");
+  const ranges = [];
+  points.forEach((p, index) => {
+    makePoints(1, p, "");
+    const previous = ranges.at(-1);
+    if (previous && previous.points === p) previous.to = index + 1;
+    else ranges.push({ from: index + 1, to: index + 1, points: p });
+  });
+  return ranges;
+}

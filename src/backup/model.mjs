@@ -2,7 +2,7 @@ export const backupScopes = [
   {
     id: "grading",
     label: "试卷批阅",
-    description: "邪恶包的批阅设置、标准答案、逐题对错和可选试卷照片。",
+    description: "邪恶包和羊羊包的批阅设置、标准答案、逐题对错和可选试卷照片。",
   },
   {
     id: "all",

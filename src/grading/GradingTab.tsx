@@ -4,7 +4,8 @@ import { Modal } from "../nutrition/NutritionTab";
 import { readAccessCode } from "../personal/access-code.mjs";
 import {
   parseAnswerKey,
-  makePoints,
+  makeRangePoints,
+  pointsToRanges,
   validateGradingSettings,
   validateExamRecognition,
   gradeExam,
@@ -21,8 +22,9 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
     [ready, setReady] = useState(false),
     [settingsOpen, setSettingsOpen] = useState(false),
     [count, setCount] = useState("20"),
-    [defaultPoints, setDefaultPoints] = useState("2"),
-    [rules, setRules] = useState(""),
+    [ranges, setRanges] = useState<
+      { id: string; from: string; to: string; points: string }[]
+    >([]),
     [keyText, setKeyText] = useState(""),
     [examName, setExamName] = useState("选择题试卷"),
     [settingsError, setSettingsError] = useState("");
@@ -74,7 +76,9 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
         }
       })
       .catch(() => setError("无法读取批阅设置，请检查本地存储"));
-    void loadHistory().catch(()=>{if(alive.current)setError("无法读取批阅历史，请检查本地存储")});
+    void loadHistory().catch(() => {
+      if (alive.current) setError("无法读取批阅历史，请检查本地存储");
+    });
     return () => {
       alive.current = false;
       generation.current++;
@@ -94,8 +98,16 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
     )
       return;
     setCount(String(settings?.questionCount || 20));
-    setDefaultPoints(String(settings?.points[0] || 2));
-    setRules(settings?.points.map((p, i) => `${i + 1}:${p}`).join("\n") || "");
+    setRanges(
+      settings
+        ? pointsToRanges(settings.points).map((row) => ({
+            id: crypto.randomUUID(),
+            from: String(row.from),
+            to: String(row.to),
+            points: String(row.points),
+          }))
+        : [{ id: crypto.randomUUID(), from: "1", to: "", points: "" }],
+    );
     setKeyText(settings?.key.join(" ") || "");
     setExamName(settings?.title || "选择题试卷");
     setSettingsError("");
@@ -111,7 +123,14 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
           title: examName,
           questionCount,
           key: parseAnswerKey(keyText, questionCount),
-          points: makePoints(questionCount, Number(defaultPoints), rules),
+          points: makeRangePoints(
+            questionCount,
+            ranges.map((row) => ({
+              from: Number(row.from),
+              to: Number(row.to),
+              points: Number(row.points),
+            })),
+          ),
           updatedAt: Date.now(),
         }) as GradingSettings;
       await db.gradingSettings.put(value);
@@ -293,8 +312,8 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
     <section className="grading-tab">
       <div className="grading-heading">
         <span className="park-label">A LITTLE STRICT, A LOT OF CARE</span>
-        <h2>邪恶包来打分</h2>
-        <p>选择题交过来，邪恶包认真看，分数按规矩算。</p>
+        <h2>邪恶包和羊羊包的批改室</h2>
+        <p>选择题交过来，两只小企鹅一起认真批改。</p>
       </div>
       <section className="grading-settings-card">
         <div>
@@ -353,7 +372,7 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
           disabled={!settings || !photo || busy || photoBusy || saving}
           onClick={() => void recognize()}
         >
-          {busy ? "邪恶包正在逐题看…" : "让邪恶包识别作答"}
+          {busy ? "两只小企鹅正在逐题看…" : "让邪恶包和羊羊包识别作答"}
         </button>
         {busy && (
           <button
@@ -530,7 +549,7 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
       )}
       <details className="grading-history">
         <summary>最近批阅 · {history.length}条</summary>
-        {!history.length && <p>确认保存后，邪恶包会把结果放在这里。</p>}
+        {!history.length && <p>确认保存后，邪恶包和羊羊包会把结果放在这里。</p>}
         {history.map((row) => (
           <article key={row.id}>
             <button
@@ -558,6 +577,7 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
           if (!saving) setSettingsOpen(false);
         }}
         title="设置答案与分值"
+        eyebrow="邪恶包和羊羊包的批改室"
       >
         <form onSubmit={saveSettings}>
           <label>
@@ -569,48 +589,136 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
               onChange={(e) => setExamName(e.target.value)}
             />
           </label>
-          <div className="grading-settings-grid">
-            <label>
-              总共几题
-              <input
-                aria-label="选择题总题数"
-                type="number"
-                min="1"
-                max="100"
-                step="1"
-                required
-                value={count}
-                onChange={(e) => setCount(e.target.value)}
-              />
-            </label>
-            <label>
-              默认每题几分
-              <input
-                aria-label="默认每题分值"
-                type="number"
-                min="0.01"
-                max="100"
-                step="0.01"
-                required
-                value={defaultPoints}
-                onChange={(e) => setDefaultPoints(e.target.value)}
-              />
-            </label>
-          </div>
           <label>
-            指定题目分值（选填）
-            <textarea
-              aria-label="分值规则"
-              rows={4}
-              maxLength={4000}
-              placeholder={"1-10:2\n11-15:3\n16:5"}
-              value={rules}
-              onChange={(e) => setRules(e.target.value)}
+            总共几题
+            <input
+              aria-label="选择题总题数"
+              type="number"
+              min="1"
+              max="100"
+              step="1"
+              required
+              value={count}
+              onChange={(e) => setCount(e.target.value)}
             />
           </label>
-          <p className="grading-small">
-            每行“题号或区间:分值”，未列出的题使用默认分值。区间不能重叠。
-          </p>
+          <section className="grading-score-ranges" aria-label="指定题目分值">
+            <h3>指定题目分值</h3>
+            <p className="grading-small">
+              题目A是起始题号，题目B是结束题号。单题的两个题号填相同数字；每道题都需要设置分值，区间不能重叠。
+            </p>
+            {ranges.map((row, index) => (
+              <fieldset
+                key={row.id}
+                className="grading-score-range"
+                disabled={saving}
+              >
+                <legend>第{index + 1}组</legend>
+                {ranges.length > 1 && (
+                  <button
+                    type="button"
+                    className="grading-remove-range"
+                    aria-label={`删除第${index + 1}组区间`}
+                    onClick={() =>
+                      setRanges((previous) =>
+                        previous.filter((x) => x.id !== row.id),
+                      )
+                    }
+                  >
+                    删除区间
+                  </button>
+                )}
+                <div className="grading-range-inputs">
+                  <label>
+                    题目A
+                    <input
+                      aria-label={`第${index + 1}组题目A`}
+                      type="number"
+                      min="1"
+                      max={Number(count) || 100}
+                      step="1"
+                      required
+                      value={row.from}
+                      onChange={(e) =>
+                        setRanges((previous) =>
+                          previous.map((x) =>
+                            x.id === row.id
+                              ? { ...x, from: e.target.value }
+                              : x,
+                          ),
+                        )
+                      }
+                    />
+                  </label>
+                  <label>
+                    题目B
+                    <input
+                      aria-label={`第${index + 1}组题目B`}
+                      type="number"
+                      min="1"
+                      max={Number(count) || 100}
+                      step="1"
+                      required
+                      value={row.to}
+                      onChange={(e) =>
+                        setRanges((previous) =>
+                          previous.map((x) =>
+                            x.id === row.id ? { ...x, to: e.target.value } : x,
+                          ),
+                        )
+                      }
+                    />
+                  </label>
+                  <label>
+                    每题分数
+                    <input
+                      aria-label={`第${index + 1}组每题分数`}
+                      type="number"
+                      min="0.01"
+                      max="100"
+                      step="0.01"
+                      required
+                      value={row.points}
+                      onChange={(e) =>
+                        setRanges((previous) =>
+                          previous.map((x) =>
+                            x.id === row.id
+                              ? { ...x, points: e.target.value }
+                              : x,
+                          ),
+                        )
+                      }
+                    />
+                  </label>
+                </div>
+              </fieldset>
+            ))}
+            <button
+              type="button"
+              className="grading-add-range"
+              disabled={saving || ranges.length >= 100}
+              onClick={() =>
+                setRanges((previous) => {
+                  const end = Math.max(
+                    0,
+                    ...previous.map((row) => Number(row.to) || 0),
+                  );
+                  return [
+                    ...previous,
+                    {
+                      id: crypto.randomUUID(),
+                      from:
+                        end > 0 && end < Number(count) ? String(end + 1) : "",
+                      to: "",
+                      points: "",
+                    },
+                  ];
+                })
+              }
+            >
+              ＋ Add new
+            </button>
+          </section>
           <label>
             标准答案
             <textarea
@@ -640,6 +748,7 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
         open={fullPhoto}
         onClose={() => setFullPhoto(false)}
         title="试卷照片"
+        eyebrow="邪恶包和羊羊包的批改室"
       >
         {photo && (
           <img className="grading-full-photo" src={photo} alt="试卷大图" />

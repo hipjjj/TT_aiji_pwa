@@ -82,7 +82,7 @@ export default function AISettings() {
       <span className="park-label">Biao Biao’s Connections</span>
       <h2>AI连接设置</h2>
       <p className="personal-note">
-        企鹅小家的聊天、小包的营养分析、嘟嘟糕的食谱、黏黏包的游记和邪恶包的试卷识别，共用这里的 OpenAI 连接信息。
+        企鹅小家的聊天、小包的营养分析、嘟嘟糕的食谱、黏黏包的游记和邪恶包和羊羊包的试卷识别，共用这里的 OpenAI 连接信息。
       </p>
       <span className="personal-connection-state">
         {!ready
