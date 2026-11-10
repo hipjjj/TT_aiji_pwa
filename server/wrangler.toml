@@ -6,6 +6,7 @@ compatibility_date = "2026-10-12"
 ALLOWED_ORIGINS = "https://hipjjj.github.io"
 NUTRITION_MODEL = "gpt-4.1-mini"
 CHAT_MODEL = "gpt-5-mini"
+GRADING_MODEL = "gpt-5"
 DAILY_AI_LIMIT = "30"
 PER_MINUTE_AI_LIMIT = "5"
 
