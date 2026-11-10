@@ -47,7 +47,7 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
     >([]),
     [savedId, setSavedId] = useState<string | null>(null),
     [fullPhoto, setFullPhoto] = useState(false),
-    [reviewOpen, setReviewOpen] = useState(false);
+    [recordDirty, setRecordDirty] = useState(false);
   const input = useRef<HTMLInputElement>(null),
     abort = useRef<AbortController | null>(null),
     alive = useRef(true),
@@ -88,6 +88,7 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
   const resetResult = () => {
     setResult(null);
     setSavedId(null);
+    setRecordDirty(false);
     setError("");
     setMessage("");
   };
@@ -218,7 +219,6 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
           note: parsed.note,
           model: typeof data.model === "string" ? data.model : "GPT",
         });
-        setReviewOpen(true);
         setSavedId(null);
         setTitle(settings.title || "选择题批阅");
       }
@@ -238,11 +238,48 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
     }
   };
   const score = result ? gradeExam(result.settings, result.answers) : null;
+  const changeStudentAnswer = (number: number, answer: string) => {
+    if (![...choiceLetters, "", "?"].includes(answer)) return;
+    setResult((previous) =>
+      previous
+        ? {
+            ...previous,
+            answers: previous.answers.map((row) =>
+              row.number === number
+                ? { ...row, answer, confirmed: answer !== "?" }
+                : row,
+            ),
+          }
+        : previous,
+    );
+    setRecordDirty(true);
+    setError("");
+    setMessage("答案已修改，核对后请保存批阅。");
+  };
+  const changeCorrectAnswer = (number: number, answer: string) => {
+    if (!choiceLetters.includes(answer)) return;
+    setResult((previous) =>
+      previous
+        ? {
+            ...previous,
+            settings: {
+              ...previous.settings,
+              key: previous.settings.key.map((key, index) =>
+                index === number - 1 ? answer : key,
+              ),
+            },
+          }
+        : previous,
+    );
+    setRecordDirty(true);
+    setError("");
+    setMessage("正确答案已修改，仅用于本次批阅，核对后请保存。");
+  };
   const save = async () => {
     if (!result || !score) return;
     if (score.pending) {
       setError(
-        "还有待核对题，请先在下方选择实际答案；明确未作答请选择“未作答”。",
+        "还有待核对题，请在表格的学生答案行选择实际选项；明确未作答请选择“—”。",
       );
       return;
     }
@@ -259,6 +296,7 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
       }) as ExamRecord;
       await db.examGrades.put(value);
       setSavedId(value.id);
+      setRecordDirty(false);
       await loadHistory();
       setError("");
       setMessage("批阅已保存到这台设备。");
@@ -271,7 +309,7 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
   const openRecord = async (id: string) => {
     if (
       result &&
-      !savedId &&
+      (!savedId || recordDirty) &&
       !confirm("打开历史记录会替换当前未保存结果，继续吗？")
     )
       return;
@@ -286,9 +324,10 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
         model: "已保存的识别结果",
       });
       setPhoto(value.photo);
+      setKeepPhoto(!!value.photo);
+      setRecordDirty(false);
       setTitle(value.title);
       setSavedId(value.id);
-      setReviewOpen(gradeExam(value.settings, value.answers).pending > 0);
       setError("");
       setMessage("");
     } catch (e) {
@@ -420,6 +459,10 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
             ✓ 对　✗ 错　? 待核对。由{result.model}
             识别作答，按你提供的答案与分值在本机计分。
           </p>
+          <p className="grading-small">
+            直接点选表格中的答案即可修改、即时重算。学生答案带 ? 表示待核对，—
+            表示未作答；修改正确答案仅用于本次批阅。
+          </p>
           {Array.from(
             { length: Math.ceil(score.rows.length / 10) },
             (_, block) => (
@@ -440,8 +483,83 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
                     </tr>
                   </thead>
                   <tbody>
+                    <tr className="grading-correct-answer-row">
+                      <th scope="row">正确答案</th>
+                      {score.rows
+                        .slice(block * 10, block * 10 + 10)
+                        .map((row) => (
+                          <td key={row.number}>
+                            <select
+                              aria-label={`第${row.number}题正确答案`}
+                              className="grading-table-answer"
+                              disabled={saving || busy}
+                              value={row.key}
+                              onChange={(event) =>
+                                changeCorrectAnswer(
+                                  row.number,
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              {choiceLetters.map((letter) => (
+                                <option key={letter} value={letter}>
+                                  {letter}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                        ))}
+                    </tr>
+                    <tr className="grading-student-answer-row">
+                      <th scope="row">学生答案</th>
+                      {score.rows
+                        .slice(block * 10, block * 10 + 10)
+                        .map((row) => {
+                          const answer = result.answers[row.number - 1],
+                            review =
+                              row.status === "pending" && answer.answer !== "?";
+                          return (
+                            <td
+                              key={row.number}
+                              className={
+                                row.status === "pending"
+                                  ? "grading-answer-pending"
+                                  : ""
+                              }
+                            >
+                              <select
+                                aria-label={`第${row.number}题学生答案`}
+                                className="grading-table-answer"
+                                title={`第${row.number}题，${row.points}分${answer.note ? "；" + answer.note : ""}`}
+                                aria-description={`${row.points}分${answer.note ? "；" + answer.note : ""}`}
+                                disabled={saving || busy}
+                                value={review ? "review" : answer.answer}
+                                onChange={(event) =>
+                                  changeStudentAnswer(
+                                    row.number,
+                                    event.target.value,
+                                  )
+                                }
+                              >
+                                {review && (
+                                  <option value="review">
+                                    {answer.answer || "—"}?
+                                  </option>
+                                )}
+                                <option value="?">?</option>
+                                <option value="">—</option>
+                                {choiceLetters.map((letter) => (
+                                  <option key={letter} value={letter}>
+                                    {letter}
+                                  </option>
+                                ))}
+                              </select>
+                            </td>
+                          );
+                        })}
+                    </tr>
                     <tr>
-                      <th>对错</th>
+                      <th scope="row">对错</th>
                       {score.rows
                         .slice(block * 10, block * 10 + 10)
                         .map((row) => (
@@ -464,68 +582,17 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
             ),
           )}
           {result.note && <p className="grading-small">{result.note}</p>}
-          <details
-            className="grading-review"
-            open={reviewOpen}
-            onToggle={(event) => setReviewOpen(event.currentTarget.open)}
-          >
-            <summary>核对／修改识别答案</summary>
-            <p>
-              看不清的题不会直接判错。选择实际选项即表示已核对；空白请选择“未作答”，分数会立即重算。
-            </p>
-            <div className="grading-answer-grid">
-              {result.answers.map((row, i) => (
-                <label
-                  key={row.number}
-                  className={
-                    score.rows[i].status === "pending" ? "needs-review" : ""
-                  }
-                >
-                  <b>
-                    第{row.number}题 · {result.settings.points[i]}分
-                  </b>
-                  <select
-                    aria-label={`第${row.number}题学生答案`}
-                    disabled={saving || busy}
-                    value={row.answer}
-                    onChange={(e) =>
-                      setResult({
-                        ...result,
-                        answers: result.answers.map((answer, j) =>
-                          i === j
-                            ? {
-                                ...answer,
-                                answer: e.target.value,
-                                confirmed: e.target.value !== "?",
-                              }
-                            : answer,
-                        ),
-                      })
-                    }
-                  >
-                    <option value="?">待核对</option>
-                    <option value="">未作答</option>
-                    {choiceLetters.map((letter) => (
-                      <option key={letter} value={letter}>
-                        {letter}
-                      </option>
-                    ))}
-                  </select>
-                  <small>
-                    标准答案：{result.settings.key[i]}
-                    {row.note ? ` · ${row.note}` : ""}
-                  </small>
-                </label>
-              ))}
-            </div>
-          </details>
           <label>
             批阅名称
             <input
               aria-label="批阅名称"
               maxLength={100}
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                setRecordDirty(true);
+                setMessage("");
+              }}
               disabled={saving || busy}
             />
           </label>
@@ -534,7 +601,11 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
               type="checkbox"
               checked={keepPhoto}
               disabled={saving || busy}
-              onChange={(e) => setKeepPhoto(e.target.checked)}
+              onChange={(e) => {
+                setKeepPhoto(e.target.checked);
+                setRecordDirty(true);
+                setMessage("");
+              }}
             />
             <span>同时保存本次压缩照片</span>
           </label>
