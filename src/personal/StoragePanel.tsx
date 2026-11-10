@@ -37,6 +37,8 @@ export default function StoragePanel() {
         db.fridgePreferences,
         db.chatDrafts,
         db.personalFoods,
+        db.examGrades,
+        db.gradingSettings,
       ];
       const arrays = await db.transaction("r", tables, () =>
         Promise.all(tables.map((t) => t.toArray())),

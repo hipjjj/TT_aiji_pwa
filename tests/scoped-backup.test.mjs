@@ -93,6 +93,7 @@ test("each module produces a compatible backup containing only its whitelisted s
       "exportScope",
       "expenses",
       "budgets",
+      "grading",
       "nutrition",
       "personalFoods",
       "fridge",
@@ -100,6 +101,7 @@ test("each module produces a compatible backup containing only its whitelisted s
       "overseas",
       "chat",
     ],
+    grading: ["version","exportScope","expenses","grading"],
     bills: ["version", "exportScope", "expenses", "budgets"],
     nutrition: [
       "version",

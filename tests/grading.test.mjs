@@ -253,3 +253,46 @@ test("invalid exam images/counts are rejected before quota or provider calls; la
     undefined,
   );
 });
+
+test("exam body accepts a high-resolution payload above the nutrition limit without widening other endpoints", async () => {
+  const bytes = Buffer.concat([
+      Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+      Buffer.alloc(710000),
+    ]),
+    large = "data:image/png;base64," + bytes.toString("base64");
+  let calls = 0;
+  const fetchImpl = async () => {
+    calls++;
+    return Response.json({
+      status: "completed",
+      output: [
+        {
+          content: [
+            {
+              type: "output_text",
+              text: JSON.stringify({ answers: [], note: "请核对" }),
+            },
+          ],
+        },
+      ],
+    });
+  };
+  const response = await handle(
+    request({ questionCount: 1, photo: large }),
+    env,
+    { fetchImpl },
+  );
+  assert.equal(response.status, 200);
+  assert.equal(calls, 1);
+  const nutrition = new Request("https://worker.test/analyze", {
+    method: "POST",
+    headers: {
+      Origin: origin,
+      "Content-Type": "application/json",
+      "X-Access-Code": env.ACCESS_CODE,
+    },
+    body: JSON.stringify({ text: "食物", photo: large }),
+  });
+  assert.equal((await handle(nutrition, env, { fetchImpl })).status, 413);
+  assert.equal(calls, 1);
+});

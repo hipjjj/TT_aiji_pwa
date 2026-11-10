@@ -1,5 +1,10 @@
 export const backupScopes = [
   {
+    id: "grading",
+    label: "试卷批阅",
+    description: "邪恶包的批阅设置、标准答案、逐题对错和可选试卷照片。",
+  },
+  {
     id: "all",
     label: "全部数据",
     description: "账单、营养、食物库、冰箱、旅行、聊天和记忆。",
@@ -35,8 +40,9 @@ export const backupScopes = [
 export const scopeLabel = (scope) =>
   backupScopes.find((x) => x.id === scope)?.label || "全部数据";
 export const scopeHasPhotos = (scope) =>
-  ["all", "nutrition", "travel", "chat"].includes(scope);
+  ["all", "nutrition", "travel", "chat", "grading"].includes(scope);
 const sections = {
+  grading: ["grading"],
   bills: ["budgets"],
   nutrition: ["nutrition", "personalFoods", "nutritionExpenseLinksOmitted"],
   fridge: ["fridge"],
@@ -110,6 +116,14 @@ export function buildScopedBackup(
     };
     if (scope === "nutrition") out.nutritionExpenseLinksOmitted = true;
   }
+  if (has("grading"))
+    out.grading = {
+      settings: snapshot.gradingSettings || null,
+      records: (snapshot.examGrades || []).map((record) =>
+        includePhotos ? record : { ...record, photo: null },
+      ),
+      photosIncluded: includePhotos,
+    };
   if (has("fridge"))
     out.fridge = {
       inventory: snapshot.inventory,

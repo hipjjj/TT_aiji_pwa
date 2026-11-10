@@ -1,3 +1,4 @@
+import type {GradingSettings,ExamRecord} from './grading/types';
 import type { OverseasTrip } from "./travel/overseas-types";
 import type {
   ChatThread,
@@ -27,6 +28,8 @@ export const db = new Dexie("riri-expenses") as Dexie & {
   chatMemories: Table<ChatMemory, string>;
   chatGrowth: Table<ChatGrowth, string>;
   personalFoods: Table<PersonalFood,string>;
+  gradingSettings:Table<GradingSettings,string>;
+  examGrades:Table<ExamRecord,string>;
   expenses: Table<Expense, string>;
   budgets: Table<Budget, string>;
   meals: Table<Meal, string>;
@@ -135,3 +138,5 @@ db.version(9).stores({
 });
 
 db.version(10).stores({personalFoods:"id,&key,updatedAt"});
+
+db.version(11).stores({gradingSettings:"id",examGrades:"id,createdAt"});

@@ -5,6 +5,7 @@ import {
   selectTravelSnapshot,
 } from "./model.mjs";
 export type BackupScope =
+  | "grading"
   | "all"
   | "bills"
   | "nutrition"
@@ -23,6 +24,7 @@ export async function createBackup(
   if (selection && scope !== "travel")
     throw Error("单篇旅行只能在旅行册范围导出");
   const groups = {
+    grading: ["examGrades", "gradingSettings"],
     bills: ["expenses", "budgets"],
     nutrition: ["meals", "nutritionProfiles", "personalFoods"],
     fridge: ["inventory", "shopping", "fridgePreferences"],
@@ -56,6 +58,10 @@ export async function createBackup(
         ),
       );
       const snapshot = {
+        examGrades: data.examGrades,
+        gradingSettings:
+          data.gradingSettings?.find((x: { id: string }) => x.id === "main") ||
+          null,
         expenses: data.expenses,
         budgets: data.budgets,
         meals: data.meals,
