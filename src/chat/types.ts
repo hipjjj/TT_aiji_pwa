@@ -1,5 +1,5 @@
 import type { AIAnalysis, MealType } from "../nutrition/types";
-export type Penguin = "鲍比" | "小包" | "嘟嘟糕" | "黏黏包";
+export type Penguin = "鲍比" | "小包" | "嘟嘟糕" | "黏黏包" | "邪恶包" | "羊羊包";
 export type ChatMode = "群聊" | Penguin;
 export type Proposal = {
   id: string;

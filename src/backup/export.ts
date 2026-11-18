@@ -1,3 +1,4 @@
+import {emptyStudy,studyKey,validateStudy} from '../study/model.mjs';
 import { db } from "../db";
 import {
   buildScopedBackup,
@@ -5,6 +6,7 @@ import {
   selectTravelSnapshot,
 } from "./model.mjs";
 export type BackupScope =
+  | "study"
   | "grading"
   | "all"
   | "bills"
@@ -24,6 +26,7 @@ export async function createBackup(
   if (selection && scope !== "travel")
     throw Error("单篇旅行只能在旅行册范围导出");
   const groups = {
+    study:["appMeta"],
     grading: ["examGrades", "gradingSettings"],
     bills: ["expenses", "budgets"],
     nutrition: ["meals", "nutritionProfiles", "personalFoods"],
@@ -57,7 +60,9 @@ export async function createBackup(
           ]),
         ),
       );
+      const studyRow=data.appMeta?.find((x:{id:string})=>x.id===studyKey);
       const snapshot = {
+        study: data.appMeta ? (studyRow ? validateStudy(JSON.parse(String(studyRow.value))) : emptyStudy()) : undefined,
         examGrades: data.examGrades,
         gradingSettings:
           data.gradingSettings?.find((x: { id: string }) => x.id === "main") ||

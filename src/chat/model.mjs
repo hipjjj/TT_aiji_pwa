@@ -5,7 +5,7 @@ import {
   validatePhoto,
 } from "../nutrition/model.mjs";
 import { categories, validDate } from "../model.mjs";
-export const penguins = ["鲍比", "小包", "嘟嘟糕", "黏黏包"];
+export const penguins = ["鲍比", "小包", "嘟嘟糕", "黏黏包", "邪恶包", "羊羊包"];
 const str = (x, max, empty = false) => {
   if (typeof x !== "string" || x.length > max || (!empty && !x.trim()))
     throw Error("聊天内容格式无效");

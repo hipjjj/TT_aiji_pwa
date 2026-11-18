@@ -1,4 +1,5 @@
 export const backupScopes = [
+  {id:"study",label:"学习室",description:"导入的英文文章、生词本和阅读足迹。"},
   {
     id: "grading",
     label: "试卷批阅",
@@ -7,18 +8,18 @@ export const backupScopes = [
   {
     id: "all",
     label: "全部数据",
-    description: "账单、营养、食物库、冰箱、旅行、聊天和记忆。",
+    description: "账单、饮食、食物库、冰箱、旅行、备课、学习、聊天和记忆。",
   },
   { id: "bills", label: "账单", description: "账单明细与每月预算。" },
   {
     id: "nutrition",
-    label: "营养屋",
+    label: "吃饭小屋 · 饮食",
     description:
       "饮食、营养目标和我的食物库；不包含关联账单，新设备导入后不保留账单关联。",
   },
   {
     id: "fridge",
-    label: "嘟嘟冰箱",
+    label: "吃饭小屋 · 冰箱",
     description: "食材库存、购物清单及冰箱偏好。",
   },
   {
@@ -42,6 +43,7 @@ export const scopeLabel = (scope) =>
 export const scopeHasPhotos = (scope) =>
   ["all", "nutrition", "travel", "chat", "grading"].includes(scope);
 const sections = {
+  study:["study"],
   grading: ["grading"],
   bills: ["budgets"],
   nutrition: ["nutrition", "personalFoods", "nutritionExpenseLinksOmitted"],
@@ -102,6 +104,7 @@ export function buildScopedBackup(
     exportScope: scope,
     expenses: has("bills") ? snapshot.expenses : [],
   };
+  if (has("study") && (snapshot.study !== undefined || scope === "study")) out.study=snapshot.study || {articles:[],words:[],footprints:[]};
   if (has("bills")) out.budgets = snapshot.budgets;
   if (has("nutrition")) {
     out.personalFoods = snapshot.personalFoods;

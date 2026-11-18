@@ -148,8 +148,10 @@ export default function FridgeTab({
   onDataChange,
   onManageAI,
   initialView,
+  hideNavigation=false,
 }: {
-  initialView?:"inventory"|"shopping";
+  initialView?:"inventory"|"recipes"|"shopping";
+  hideNavigation?:boolean;
   onDataChange: () => Promise<void>;
   onManageAI: () => void;
 }) {
@@ -231,7 +233,7 @@ export default function FridgeTab({
   useEffect(() => {
     reload()
       .then(() => setReady(true))
-      .catch(() => setMessage("嘟嘟糕打不开本地冰箱，请检查浏览器存储设置"));
+      .catch(() => setMessage("小包打不开本地冰箱，请检查浏览器存储设置"));
     return () => abort.current?.abort();
   }, []);
   useEffect(() => {
@@ -288,8 +290,8 @@ export default function FridgeTab({
       await reload();
       notice(
         reason === "丢弃"
-          ? "嘟嘟糕记下了，下次一起少浪费一点"
-          : "这份食材用完啦，嘟嘟糕收好空位了",
+          ? "小包记下了，下次一起少浪费一点"
+          : "这份食材用完啦，小包收好空位了",
       );
     } catch (error) {
       setMessage(errorText(error));
@@ -312,7 +314,7 @@ export default function FridgeTab({
       await reload();
       setPrefsOpen(false);
       setAIRecipes([]);
-      notice("嘟嘟糕记好你的口味和常备调料啦");
+      notice("小包记好你的口味和常备调料啦");
     } catch (error) {
       setError(errorText(error));
     } finally {
@@ -365,7 +367,7 @@ export default function FridgeTab({
       await reload();
       notice(
         count
-          ? `嘟嘟糕写好 ${count} 样食材，去购物清单看看吧`
+          ? `小包写好 ${count} 样食材，去购物清单看看吧`
           : "这道菜的缺料已在购物清单里，请核对",
       );
     } catch (error) {
@@ -430,7 +432,7 @@ export default function FridgeTab({
         setAINote(result.note);
         notice(
           allowed.length
-            ? `嘟嘟糕问到 ${allowed.length} 道菜，请核对食材和做法`
+            ? `小包问到 ${allowed.length} 道菜，请核对食材和做法`
             : "AI没有返回符合当前条件的菜，可以调整条件再试",
         );
       } finally {
@@ -567,7 +569,7 @@ export default function FridgeTab({
             date: purchaseDate,
             category: "食品日用",
             cents: parseAmount(purchaseCost),
-            note: `嘟嘟糕采购：${purchases.map((item) => item.name).join("、")}`.slice(
+            note: `小包采购：${purchases.map((item) => item.name).join("、")}`.slice(
               0,
               200,
             ),
@@ -655,7 +657,7 @@ export default function FridgeTab({
           date: mealDate,
           mealType,
           items: recipeMealPortions(cookRecipe, portions),
-          note: `嘟嘟糕做的${cookRecipe.name} · 个人约${portions}人份`,
+          note: `小包做的${cookRecipe.name} · 个人约${portions}人份`,
           photo: null,
           expenseId: null,
           updatedAt: Date.now(),
@@ -686,7 +688,7 @@ export default function FridgeTab({
       notice(
         meal
           ? "好好吃饭啦！小包也收好这餐的营养记录了"
-          : "做菜确认好啦，嘟嘟糕整理好冰箱了",
+          : "做菜确认好啦，小包整理好冰箱了",
       );
     } catch (error) {
       setError(errorText(error));
@@ -747,7 +749,7 @@ export default function FridgeTab({
           </b>
         </div>
       </div>
-      <div className="fridge-view" role="group" aria-label="冰箱功能">
+      {!hideNavigation&&<div className="fridge-view" role="group" aria-label="冰箱功能">
         <button
           aria-pressed={view === "inventory"}
           onClick={() => {
@@ -775,9 +777,9 @@ export default function FridgeTab({
         >
           购物清单
         </button>
-      </div>
+      </div>}
       {!ready ? (
-        <p className="empty">嘟嘟糕正在打开冰箱门…</p>
+        <p className="empty">小包正在打开冰箱门…</p>
       ) : (
         <>
           {view === "inventory" && (
@@ -791,7 +793,7 @@ export default function FridgeTab({
               </button>
               {urgent.length > 0 && (
                 <div className="fridge-urgent">
-                  <strong>嘟嘟糕提醒：这几样先看看 ♡</strong>
+                  <strong>小包提醒：这几样先看看 ♡</strong>
                   <p>
                     {urgent
                       .map((item) => `${item.name}（${expiryStatus(item)}）`)
@@ -944,7 +946,7 @@ export default function FridgeTab({
                     setAINote("");
                     setRecipeFilter("全部");
                     setError("");
-                    notice("嘟嘟糕按冰箱库存和口味，整理好本地食谱啦");
+                    notice("小包按冰箱库存和口味，整理好本地食谱啦");
                   }}
                 >
                   {copy.local}
@@ -973,7 +975,7 @@ export default function FridgeTab({
               </label>
               {asking && (
                 <div className="analysis-working" role="status">
-                  嘟嘟糕正在问今天的菜谱…
+                  小包正在问今天的菜谱…
                   <button onClick={() => abort.current?.abort()}>停止</button>
                 </div>
               )}
@@ -1037,7 +1039,7 @@ export default function FridgeTab({
                 <div className="empty">
                   <span aria-hidden="true">🍳</span>
                   <h3>暂时没有符合条件的菜</h3>
-                  <p>换个菜名或调整口味条件，也可以让嘟嘟糕问 AI。</p>
+                  <p>换个菜名或调整口味条件，也可以让小包问 AI。</p>
                 </div>
               ) : (
                 <div className="fridge-recipe-grid">
@@ -1095,7 +1097,7 @@ export default function FridgeTab({
             <>
               <div className="fridge-shopping-heading">
                 <div>
-                  <h3>嘟嘟糕的采购小纸条</h3>
+                  <h3>小包的采购小纸条</h3>
                   <p>勾选买到了，再确认放进冰箱。</p>
                 </div>
                 <button
@@ -1250,7 +1252,7 @@ export default function FridgeTab({
             />
           </label>
           <p className="nutrition-small-note">
-            不用称重也能先记下来；数量不明确时，嘟嘟糕会提醒核对。
+            不用称重也能先记下来；数量不明确时，小包会提醒核对。
           </p>
           <button className="primary" disabled={busy}>
             {busy ? "正在放好…" : "保存食材"}
@@ -1263,7 +1265,7 @@ export default function FridgeTab({
         onClose={() => {
           if (!busy) setPrefsOpen(false);
         }}
-        title="嘟嘟糕记记你的口味"
+        title="小包记记你的口味"
       >
         <form onSubmit={savePrefs} noValidate>
           {modalError}
@@ -1400,7 +1402,7 @@ export default function FridgeTab({
               {detail.recipe.servings} 人份 · 约 {detail.recipe.minutes} 分钟 ·{" "}
               {detail.recipe.source === "ai"
                 ? "AI 推荐，请核对做法"
-                : "嘟嘟糕的家常食谱"}
+                : "小包的家常食谱"}
             </p>
             {detail.urgent.length > 0 && (
               <p className="fridge-allergy-note">
@@ -1428,7 +1430,7 @@ export default function FridgeTab({
               ))}
             </ul>
             {preferences.showNutrition && <MacroEstimate assessment={detail} />}
-            <h3>跟着嘟嘟糕做</h3>
+            <h3>跟着小包做</h3>
             <ol className="recipe-steps">
               {detail.recipe.steps.map((step, index) => (
                 <li key={index}>{step}</li>

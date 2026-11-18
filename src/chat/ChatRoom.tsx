@@ -15,17 +15,8 @@ import { resolveProposal } from "./store";
 import type { ChatThread, ChatMessage, ChatMode, Proposal } from "./types";
 import { categories } from "../model.mjs";
 import { sumNutrition, standardizeAIFoods } from "../nutrition/model.mjs";
-import bobby from "../assets/penguin-park.webp";
-import bao from "../assets/xiaobao-nutrition.webp";
-import dudu from "../assets/dudu-fridge.webp";
-import niannian from "../assets/niannian-travel.webp";
-import "./style.css";
-const portraits: Record<string, string> = {
-  鲍比: bobby,
-  小包: bao,
-  嘟嘟糕: dudu,
-  黏黏包: niannian,
-};
+import {Character, Family, type CharacterName} from '../home/Characters';
+import './style.css';
 const today = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -782,6 +773,7 @@ export default function ChatRoom({
       eyebrow="A LITTLE HOME, ALL OF US"
       className="chat-room"
     >
+      <div className="chat-family-banner"><Family/></div>
       <div className="chat-top">
         <button disabled={busy || !ready} onClick={() => setHistory(!history)}>
           聊天记录
@@ -881,14 +873,7 @@ export default function ChatRoom({
               <div className="chat-welcome">
                 <div className="chat-family">
                   {(mode === "群聊" ? penguins : [mode]).map((n) => (
-                    <span
-                      key={n}
-                      className="chat-avatar"
-                      role="img"
-                      aria-label={n}
-                      data-penguin={n}
-                      style={{ backgroundImage: `url(${portraits[n]})` }}
-                    />
+                    <Character key={n} name={n as CharacterName} className="chat-portrait"/>
                   ))}
                 </div>
                 <h3>
@@ -906,12 +891,7 @@ export default function ChatRoom({
                 key={m.id}
               >
                 {m.speaker !== "用户" && (
-                  <span
-                    className="chat-avatar"
-                    aria-hidden="true"
-                    data-penguin={m.speaker}
-                    style={{ backgroundImage: `url(${portraits[m.speaker]})` }}
-                  />
+                  <Character name={m.speaker} className="chat-portrait"/>
                 )}
                 <div>
                   <strong>{m.speaker === "用户" ? "你" : m.speaker}</strong>
