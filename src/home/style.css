@@ -17,3 +17,4 @@ main{max-width:820px;padding-bottom:110px}.topbar{padding:25px 2px 20px;border-b
 .main-room .travel-view button[aria-pressed=true]{background:#e5e5b9;color:#76813f}.main-room .nutrition-summary,.main-room .travel-map-card{border-color:#e2d4b5;background:#fff9ed}
 .chat-family-banner{height:120px}.chat-family-banner .family-portrait{width:120px;height:120px;margin-top:0}.chat-room .chat-welcome{padding-top:8px}.chat-room .chat-welcome .chat-family{display:none}
 @media(max-width:600px){.chat-family-banner{height:100px}.chat-family-banner .family-portrait{width:100px;height:100px;margin-top:0}}
+@media(min-width:601px){.circle-hall{max-width:520px}.home-door{width:225px;height:225px}.home-door .family-portrait{width:177px;height:177px}}
