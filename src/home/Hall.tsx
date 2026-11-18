@@ -9,7 +9,7 @@ export const destinations = [
   {id:'study', name:'学习室', note:'和嘟嘟糕学英语', character:'嘟嘟糕'},
   {id:'personal', name:'个人', note:'设置与数据备份', character:null},
 ] as const;
-export default function Hall({onNavigate,onChat,total,count,onAdd}:{onNavigate:(id:Destination)=>void;onChat:()=>void;total:string;count:number;onAdd:()=>void}) {
+export default function Hall({onNavigate,onChat}:{onNavigate:(id:Destination)=>void;onChat:()=>void}) {
   return <section className="hall" aria-labelledby="hall-title">
     <div className="hall-heading"><span className="eyebrow">OUR LITTLE PENGUIN WORLD</span><h1 id="hall-title">企鹅家族大厅</h1><p>今天想和谁一起做点什么？</p></div>
     <nav className="circle-hall" aria-label="圆形入口大厅">
@@ -18,6 +18,5 @@ export default function Hall({onNavigate,onChat,total,count,onAdd}:{onNavigate:(
       {destinations.map((room,index)=><button key={room.id} className={`hall-door hall-door-${index}`} onClick={()=>onNavigate(room.id)}><span className="door-picture">{room.character?<><Character name={room.character}/>{room.id==='prep'&&<Character name="羊羊包"/>}</>:<Biao/>}</span><strong>{room.name}</strong><small>{room.note}</small></button>)}
     </nav>
     <p className="hall-caption"><span aria-hidden="true">✿</span> 把生活的小事，交给企鹅朋友</p>
-    <div className="hall-ledger"><div><span>这个月的小日常</span><p><b>¥ {total}</b><small>已记 {count} 笔</small></p></div><button onClick={onAdd}>＋ 记一笔</button></div>
   </section>;
 }
