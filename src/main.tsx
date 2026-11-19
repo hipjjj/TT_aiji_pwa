@@ -1,6 +1,7 @@
 import {validateStudyBackup,mergeStudy,studyKey} from './study/model.mjs';
 import {readStudy} from './study/store';
 import Hall, {destinations} from './home/Hall';
+import HoofIcon from './home/HoofIcon';
 import {Character,Biao,WorkPair} from './home/Characters';
 import DiningRoom, {type DiningSection} from './dining/DiningRoom';
 import StudyRoom from './study/StudyRoom';
@@ -113,7 +114,7 @@ function App(){
   const navigate=(id:Tab)=>{setTab(id);setSelectedCategory(null);setMessage('');window.scrollTo(0,0);};
   const room=destinations.find(room=>room.id===tab);
   return <><main className={tab==='home'?'main-home':'main-room'}>
-    <header className="topbar"><a className="brand" href="./" onClick={e=>{e.preventDefault();navigate('home');}}><span className="brand-mark" aria-hidden="true"><img src={`${import.meta.env.BASE_URL}penguin-icon.svg`} alt=""/></span> 天天爱记<small>把日子，慢慢记下来</small></a><span className="status"><i/>{online?'离线也能记':'离线模式'}</span></header>
+    <header className="topbar"><a className="brand" href="./" onClick={e=>{e.preventDefault();navigate('home');}}><HoofIcon kind="cow"/><span className="brand-copy"><span className="brand-name">天然爱记</span><small className="brand-tagline">记录天天生活</small></span><HoofIcon kind="sheep"/></a><span className="status"><i/>{online?'离线也能记':'离线模式'}</span></header>
     {tab==='home'?<Hall onNavigate={navigate} onChat={()=>setChatOpen(true)}/>:<>
       <button className="back-hall" onClick={()=>navigate('home')}>‹ 返回入口大厅</button>
       <section className="room-welcome" aria-label={room?.name}><div><span className="eyebrow">{tab==='dining'?'A LITTLE FOOD HOUSE':tab==='prep'?'A LITTLE PREPARATION ROOM':tab==='study'?'A LITTLE ENGLISH ROOM':tab==='travel'?'A LITTLE TRAVEL BOOK':tab==='bills'?'BOBBY’S MONEY BOX':'YOUR LITTLE DATA HOME'}</span><h1>{tab==='bills'?'鲍比的钱柜':tab==='dining'?'小包的吃饭':tab==='travel'?'黏黏包的旅行':tab==='prep'?'邪恶包和羊羊包的工作间':tab==='study'?'嘟嘟糕的英文学习':'彪彪数据中心'}</h1><p>{tab==='dining'?'小包把每一餐、冰箱和买菜清单都收在这里。':tab==='prep'?'邪恶包和羊羊包，陪你认真批好每一份作业。':tab==='study'?'每天一篇，和嘟嘟糕慢慢读懂世界。':tab==='travel'?'黏黏包陪你，把走过的路装进口袋。':tab==='bills'?'每一笔小票，鲍比都会认真收好。':'设置连接、管理记忆，也备份你的每一份记录。'}</p></div><div className="room-characters">{!room?.character&&<Biao/>}{tab==='prep'?<WorkPair/>:room?.character&&<Character name={room.character}/>}</div></section>
