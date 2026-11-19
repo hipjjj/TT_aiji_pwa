@@ -1,6 +1,7 @@
 import WorldTravelMap from "./WorldTravelMap";
 import {readAccessCode} from '../personal/access-code.mjs';
 import React, { useEffect, useRef, useState } from "react";
+import {createPortal} from 'react-dom';
 import { db } from "../db";
 import { Modal } from "../nutrition/NutritionTab";
 import { localDate } from "../nutrition/model.mjs";
@@ -116,10 +117,12 @@ export function OverseasCards({
 export default function OverseasTravel({
   trips,
   onChanged,
+  actionContainer,
   children,
 }: {
   trips: OverseasTrip[];
   onChanged: () => Promise<void>;
+  actionContainer?:HTMLDivElement|null;
   children?: (props: {
     cards: React.ReactNode;
     renderCard: (t: OverseasTrip) => React.ReactNode;
@@ -330,7 +333,7 @@ export default function OverseasTravel({
         })
       ) : (
         <section className="overseas-section">
-          <button className="new-expense travel-add" onClick={() => startEdit()}>＋ 记录海外旅行</button>
+          {actionContainer?createPortal(<button className="new-expense travel-add" onClick={() => startEdit()}>＋ 记录海外旅行</button>,actionContainer):<button className="new-expense travel-add" onClick={() => startEdit()}>＋ 记录海外旅行</button>}
           <WorldTravelMap visited={footprints.countries} onRecord={code=>startEdit(undefined,code)}/>
         </section>
       )}

@@ -38,6 +38,7 @@ const library = scenicData as Scenic[];
 const failure = (error: unknown) =>
   error instanceof Error ? error.message : "暂时没有保存成功，请重试";
 export default function TravelTab() {
+  const [actionContainer,setActionContainer]=useState<HTMLDivElement|null>(null);
   const [overseas, setOverseas] = useState<OverseasTrip[]>([]),
     [journalFilter, setJournalFilter] = useState<
       "all" | "domestic" | "overseas"
@@ -618,6 +619,7 @@ export default function TravelTab() {
           </b>
         </div>
       </div>
+      <div className="travel-primary-action" ref={setActionContainer}>
       {view!=='overseas'&&<button
         className="new-expense travel-add"
         disabled={!ready || busy}
@@ -625,6 +627,7 @@ export default function TravelTab() {
       >
         ＋ 记下一段旅行 <span aria-hidden="true">✧</span>
       </button>}
+      </div>
       <div className="travel-view" role="group" aria-label="旅行手册视图">
         <button aria-pressed={view === "map"} onClick={() => setView("map")}>国内行</button>
         <button aria-pressed={view === "overseas"} onClick={() => setView("overseas")}>海外小脚印</button>
@@ -643,6 +646,7 @@ export default function TravelTab() {
         <OverseasTravel
           trips={overseas}
           onChanged={reload}
+          actionContainer={actionContainer}
         />
       ) : (
         <section className="travel-journal">
