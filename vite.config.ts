@@ -1,7 +1,12 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
-export default defineConfig({
+// Every Pages workflow run has a monotonically increasing release number.
+export default defineConfig(({ mode }) => {
+const release = Number(loadEnv(mode, '.', 'GITHUB_').GITHUB_RUN_NUMBER || 0);
+const appVersion = `${String(1 + Math.floor(release / 100)).padStart(2, '0')}.${String(release % 100).padStart(2, '0')}`;
+return {
+  define: { __APP_VERSION__: JSON.stringify(appVersion) },
   build: {
     rollupOptions: {
       output: {
@@ -47,4 +52,5 @@ export default defineConfig({
       },
     }),
   ],
+};
 });
