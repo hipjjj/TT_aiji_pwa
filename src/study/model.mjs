@@ -12,7 +12,6 @@ Huddling is especially important while male emperor penguins look after their eg
 People can learn something from these birds. A small step may not seem important, but many small steps can change a whole group. Working together can help us through a difficult day.
 
 Next time you feel cold, think of the penguins on the ice. They remind us that being close and caring for one another can make a difference.`};
-export const dictionary={huddle:'挤在一起；聚成一团',penguin:'企鹅',penguins:'企鹅（复数）',winter:'冬天',cold:'寒冷的',warm:'温暖的',warmth:'温暖；暖意',feathers:'羽毛',neighbours:'邻居',energy:'能量',tiny:'极小的',gradually:'逐渐地',protect:'保护',comfortable:'舒适的',generation:'一代',balance:'使平衡',important:'重要的',together:'一起',wind:'风',winds:'风（复数）',share:'分享',thick:'厚的',heat:'热量',ice:'冰',group:'群体',slowly:'慢慢地',remind:'提醒',difference:'不同；影响',emperor:'皇帝；帝企鹅中的“帝”',eggs:'蛋（复数）',care:'照顾；关心',learn:'学习',reading:'阅读',article:'文章',daily:'每天的',record:'记录',journey:'旅程',friend:'朋友'};
 const text=(value,max)=>{if(typeof value!=='string'||value.length>max)throw Error('学习资料文字格式无效');return value;};
 export function validateStudy(value){
   if(!value||!Array.isArray(value.articles)||!Array.isArray(value.words)||!Array.isArray(value.footprints)||value.articles.length>100||value.words.length>2000||value.footprints.length>5000)throw Error('学习资料格式无效或超出容量');

@@ -1,0 +1,9 @@
+{
+  "source": "https://github.com/skywind3000/ECDICT",
+  "revision": "39cfb9672c0906b63569e0453c2e6abfb9ab182a",
+  "sourceSha256": "d1ecbdf9ee2b920afb6f430ca6b6bb9f559588cf0dff86e04bd255f9390843cc",
+  "entries": 400244,
+  "chunks": 64,
+  "bytes": 26641610,
+  "maxChunkBytes": 431477
+}

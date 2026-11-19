@@ -43,7 +43,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ["**/*.{js,mjs,css,html,png,svg,webp}", "travel-maps/*.json"],
+        globPatterns: ["**/*.{js,mjs,css,html,png,svg,webp}", "travel-maps/*.json", "study-dictionary/*.{json,txt}"],
       },
     }),
   ],
