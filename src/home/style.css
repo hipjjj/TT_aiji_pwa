@@ -42,3 +42,6 @@ main{max-width:820px;padding-bottom:110px}.topbar{padding:25px 2px 20px;border-b
 .brand-hoof{display:block;flex-shrink:0;width:29px;height:36px;color:#877249}
 .brand-hoof-cow{transform:rotate(-13deg)}.brand-hoof-sheep{transform:rotate(13deg);color:#818956}
 @media(max-width:360px){.topbar .brand{gap:12px}.brand-name{font-size:25px}.brand-hoof{width:25px;height:32px}}
+
+.expense-day{margin-top:24px}.expense-day:first-child{margin-top:4px}.expense-day-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:11px 6px;border-bottom:1px solid #dfd7be;margin-bottom:4px}.expense-day-heading h3{margin:0;font-size:16px;line-height:1.5;color:#778348}.expense-day-heading p{margin:0;font-size:13px;line-height:1.6;color:#978363;white-space:nowrap}.expense-day-heading b{color:#795f3e;font-variant-numeric:tabular-nums}.expense-day .record:last-child{border-bottom:0}.expense-entry .form-fields input{font-size:16px;line-height:1.5}.expense-entry .form-message{margin:12px 0}.expense-entry .nutrition-dialog-body{scroll-padding:24px}
+@media(max-width:360px){.expense-day-heading{gap:6px}.expense-day-heading h3{font-size:14px}.expense-day-heading p{font-size:12px}}

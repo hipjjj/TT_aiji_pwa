@@ -3,6 +3,15 @@ export const categories = ['餐饮', '食品日用', '生活缴费', '交通', '
 export function normalizeCategory(category) {
   return category === '住房' ? '生活缴费' : category;
 }
+// A display-only grouping: retain every original record and its stable ID.
+export function groupExpensesByDay(items) {
+  const days=new Map();
+  for(const item of items){
+    if(!days.has(item.date))days.set(item.date,{date:item.date,items:[],total:0});
+    const day=days.get(item.date);day.items.push(item);day.total+=item.cents;
+  }
+  return [...days.values()].sort((a,b)=>b.date.localeCompare(a.date));
+}
 export function parseAmount(value, allowZero = false) {
   if (!/^\d+(\.\d{1,2})?$/.test(value)) throw new Error('请输入最多两位小数的有效金额');
   const [whole, fraction = ''] = value.split('.');

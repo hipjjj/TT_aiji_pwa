@@ -25,3 +25,16 @@ test('预算备份兼容旧文件并拒绝损坏或重复月份',()=>{
   assert.deepEqual(validateBudgetBackup({budgets}),budgets);
   for(const invalid of [[budgets[0],budgets[0]],[{month:'2026-13',cents:100}],[{month:'2026-10',cents:-1}],[{month:'2026-10',cents:1.5}],null])assert.throws(()=>validateBudgetBackup({budgets:invalid}));
 });
+
+test('daily expense groups are newest first, keep every original record and sum integer cents',async()=>{
+  const {groupExpensesByDay}=await import('../src/model.mjs');
+  const items=[{id:'one',date:'2026-11-17',cents:29},{id:'two',date:'2026-11-19',cents:1210},{id:'three',date:'2026-11-17',cents:71},{id:'four',date:'2026-10-31',cents:100}];
+  const before=structuredClone(items),groups=groupExpensesByDay(items);
+  assert.deepEqual(groups.map(day=>day.date),['2026-11-19','2026-11-17','2026-10-31']);
+  assert.equal(groups[1].total,100);assert.deepEqual(groups[1].items.map(row=>row.id),['one','three']);
+  assert.equal(groups[1].items[0],items[0]);assert.equal(groups.reduce((sum,day)=>sum+day.total,0),1410);assert.deepEqual(items,before);
+  const moved=items.map(row=>row.id==='one'?{...row,date:'2026-11-19',cents:30}:row);
+  assert.deepEqual(groupExpensesByDay(moved).map(day=>day.total),[1240,71,100]);
+  assert.equal(groupExpensesByDay(moved.filter(row=>row.id!=='three')).length,2);
+  assert.deepEqual(groupExpensesByDay([]),[]);
+});
