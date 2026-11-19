@@ -1,3 +1,4 @@
+import {articleURL} from './import-model.mjs';
 export const studyKey='study-state';
 export const emptyStudy=()=>({articles:[],words:[],footprints:[]});
 export const sampleArticle={id:'sample-huddle',title:'Why Do Penguins Huddle?',source:'示例文章 · 科普',text:`Winter in Antarctica is very cold. Strong winds blow across the ice. Emperor penguins have thick feathers and a layer of fat to keep them warm. But they have another way to stay comfortable: they huddle together.
@@ -16,7 +17,7 @@ const text=(value,max)=>{if(typeof value!=='string'||value.length>max)throw Erro
 export function validateStudy(value){
   if(!value||!Array.isArray(value.articles)||!Array.isArray(value.words)||!Array.isArray(value.footprints)||value.articles.length>100||value.words.length>2000||value.footprints.length>5000)throw Error('学习资料格式无效或超出容量');
   const checkRows=(rows,kind)=>{const ids=new Set();return rows.map(row=>{const id=text(row?.id,150);if(!id||ids.has(id))throw Error('学习资料编号重复或缺失');ids.add(id);if(!Number.isSafeInteger(row.updatedAt)||row.updatedAt<0)throw Error('学习资料日期无效');
-    if(kind==='article')return {id,title:text(row.title,150),text:text(row.text,100000),source:text(row.source,200),updatedAt:row.updatedAt};
+    if(kind==='article')return {id,title:text(row.title,150),text:text(row.text,100000),source:text(row.source,200),...(row.sourceUrl===undefined?{}:{sourceUrl:articleURL(row.sourceUrl)}),updatedAt:row.updatedAt};
     if(kind==='word')return {id,word:text(row.word,100),meaning:text(row.meaning,300),context:text(row.context,1500),articleId:text(row.articleId,150),mastered:row.mastered===true,updatedAt:row.updatedAt};
     if(!Number.isFinite(row.minutes)||row.minutes<0||row.minutes>1440)throw Error('阅读时长无效');
     return {id,title:text(row.title,150),articleId:text(row.articleId,150),date:text(row.date,10),minutes:row.minutes,updatedAt:row.updatedAt};});};

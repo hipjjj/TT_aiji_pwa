@@ -1,6 +1,6 @@
 import {db} from '../db';
 import {emptyStudy,studyKey,validateStudy} from './model.mjs';
-export type Article={id:string;title:string;text:string;source:string;updatedAt?:number};
+export type Article={id:string;title:string;text:string;source:string;sourceUrl?:string;updatedAt?:number};
 export type Word={id:string;word:string;meaning:string;context:string;articleId:string;mastered:boolean;updatedAt:number};
 export type Footprint={id:string;title:string;articleId:string;date:string;minutes:number;updatedAt:number};
 export type StudyData={articles:Article[];words:Word[];footprints:Footprint[]};

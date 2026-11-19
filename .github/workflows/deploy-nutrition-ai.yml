@@ -2,6 +2,8 @@ name: Deploy Xiaobao AI backend
 
 on:
   workflow_dispatch:
+  push:
+    branches: [feature/study-pdf-url-20261118]
 
 permissions:
   contents: read
@@ -95,6 +97,20 @@ jobs:
           child.stdin.end(JSON.stringify({NUTRITION_API_KEY:process.env.NUTRITION_API_KEY,ACCESS_CODE:process.env.ACCESS_CODE}));
           child.on('error',()=>process.exit(1));
           child.on('exit',code=>process.exit(code??1));
+          JS
+      - name: Verify deployed public article import
+        env:
+          SERVICE_URL: ${{ steps.worker.outputs.url }}
+        run: |
+          node --input-type=module - <<'JS'
+          const response=await fetch(`${process.env.SERVICE_URL}/study-article`,{
+            method:'POST',headers:{Origin:'https://hipjjj.github.io','Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
+            body:JSON.stringify({url:'https://example.com/'}),signal:AbortSignal.timeout(25000)
+          });
+          if (!response.ok) throw new Error(`Public article import verification failed with HTTP ${response.status}`);
+          const article=await response.json();
+          if (!article.title || article.text.length<80 || new URL(article.sourceUrl).hostname!=='example.com') throw new Error('Public article import returned invalid content');
+          console.log('PASS: authenticated public URL extraction; no AI request or local user record was created');
           JS
       - name: Verify deployed nutrition, recipe, travel and chat services
         env:

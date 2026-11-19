@@ -1,3 +1,5 @@
+import {fetchWebArticle} from './study-article.mjs';
+import {articleURL} from '../src/study/import-model.mjs';
 import {validateExamRequest,validateExamRecognition} from '../src/grading/model.mjs';
 import {examInstructions,examSchema} from './grading.mjs';
 import {validateChatRequest,validateChatResult} from '../src/chat/model.mjs';
@@ -36,16 +38,26 @@ export async function handle(request,env,{fetchImpl=fetch}={}){
   if(origin&&allowed.includes(origin))headers['Access-Control-Allow-Origin']=origin;
   const reply=(status,value,extra={})=>Response.json(value,{status,headers:{...headers,...extra}});
   const url=new URL(request.url);
-  if(request.method==='GET'&&url.pathname==='/health')return reply(200,{ready:!!(env.NUTRITION_API_KEY&&env.ACCESS_CODE?.length>=16&&env.AI_QUOTA),model:env.NUTRITION_MODEL||'gpt-4.1-mini',chatModel:env.CHAT_MODEL||'gpt-5-mini',gradingModel:env.GRADING_MODEL||'gpt-5'});
+  if(request.method==='GET'&&url.pathname==='/health')return reply(200,{ready:!!(env.NUTRITION_API_KEY&&env.ACCESS_CODE?.length>=16&&env.AI_QUOTA),model:env.NUTRITION_MODEL||'gpt-4.1-mini',chatModel:env.CHAT_MODEL||'gpt-5-mini',gradingModel:env.GRADING_MODEL||'gpt-5',articleImport:true});
   if(!origin||!allowed.includes(origin))return reply(403,{error:'这个网站尚未获准访问AI服务'});
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...headers,'Access-Control-Allow-Methods':'POST, GET, OPTIONS','Access-Control-Allow-Headers':'Content-Type, X-Access-Code','Access-Control-Max-Age':'600'}});
-  if(!['/analyze','/recipes','/travel-story','/chat','/grade-exam'].includes(url.pathname))return reply(404,{error:'接口不存在'});
+  if(!['/analyze','/recipes','/travel-story','/chat','/grade-exam','/study-article'].includes(url.pathname))return reply(404,{error:'接口不存在'});
   if(request.method!=='POST')return reply(405,{error:'请使用POST请求'},{Allow:'POST'});
-  if(!env.NUTRITION_API_KEY||!env.ACCESS_CODE||env.ACCESS_CODE.length<16||!env.AI_QUOTA)return reply(503,{error:'AI后端尚未完成配置，请在个人页查看连接说明'});
+  const isArticle=url.pathname==='/study-article';
+  if((!isArticle&&!env.NUTRITION_API_KEY)||!env.ACCESS_CODE||env.ACCESS_CODE.length<16||!env.AI_QUOTA)return reply(503,{error:'AI后端尚未完成配置，请在个人页查看连接说明'});
   const access=request.headers.get('x-access-code')||'';
   if(access.length>200||!await constantEqual(access,env.ACCESS_CODE))return reply(401,{error:'AI服务访问口令不正确'});
   let body;
-  try{body=await readJSON(request,url.pathname==='/grade-exam'?3500000:MAX_BODY);}catch(error){return reply(error.message==='BODY_LIMIT'?413:400,{error:error.message==='BODY_LIMIT'?'本次照片或文字太大':'请求格式无效'});}
+  try{body=await readJSON(request,isArticle?6000:url.pathname==='/grade-exam'?3500000:MAX_BODY);}catch(error){return reply(error.message==='BODY_LIMIT'?413:400,{error:error.message==='BODY_LIMIT'?'本次照片或文字太大':'请求格式无效'});}
+  if(isArticle){
+    let target;try{target=articleURL(body?.url);}catch(error){return reply(400,{error:error.message});}
+    try{
+      const quota=env.AI_QUOTA.get(env.AI_QUOTA.idFromName('study-import'));
+      const quotaResult=await quota.fetch('https://quota/check',{method:'POST',body:JSON.stringify({daily:200,minute:10})});
+      if(!(await quotaResult.json()).allowed)return reply(429,{error:'网页读取太频繁，请稍后重试'},{'Retry-After':'60'});
+    }catch{return reply(503,{error:'网页读取服务暂时不可用，请稍后重试'});}
+    try{return reply(200,await fetchWebArticle(target,{fetchImpl}));}catch(error){return reply(422,{error:error.message||'网页暂时无法读取，请复制正文后导入'});}
+  }
   const isChat=url.pathname==='/chat',isExam=url.pathname==='/grade-exam';let chatRequest,examRequest;
   const isRecipe=url.pathname==='/recipes',isStory=url.pathname==='/travel-story';let recipeRequest,storyRequest,photo;
   if(isExam){try{examRequest=validateExamRequest(body);photo=examRequest.photo;}catch{return reply(400,{error:'试卷照片或题数无效，请检查图片和设置'});}}
