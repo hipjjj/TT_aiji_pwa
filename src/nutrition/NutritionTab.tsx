@@ -109,8 +109,8 @@ export default function NutritionTab({onDataChange,onManageAI,initialDate}:{init
       <div className="daily-nutrients">{keys.map(key=>{const target=profile?.targets[key],status=rangeStatus(totals[key],target),percent=target?Math.min(100,Math.round(totals[key]/Math.max(target.max,1)*100)):0;return <div className={`daily-nutrient daily-${key} ${status==='超出目标'?'daily-over':''}`} key={key}>
         <span className="daily-nutrient-label">{labels[key].icon} {key==='carbs'?'碳水':labels[key].name}</span>
         <div className="daily-nutrient-value"><b>{ready?format(totals[key]):'—'}</b><small>{labels[key].unit}</small></div>
-        {target&&<div className="nutrient-progress" role="progressbar" aria-label={`${labels[key].name}目标进度`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}><i style={{width:`${percent}%`}}/></div>}
-        <p className="daily-nutrient-target">{target?`${format(target.min)}–${format(target.max)} ${labels[key].unit} · ${status}`:'未设置目标'}</p>
+        {target&&<div className="nutrient-progress" role="progressbar" aria-label={`${labels[key].name}目标进度`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-valuetext={`${format(totals[key])}${labels[key].unit}；目标 ${format(target.min)}–${format(target.max)}${labels[key].unit}；${status}`}><i style={{width:`${percent}%`}}/></div>}
+        {target&&key==='kcal'&&<p className="daily-nutrient-target">目标 {format(target.min)}–{format(target.max)} {labels[key].unit}</p>}
       </div>;})}</div>
       <div className="nutrition-summary-footer"><span>{current.length} 餐记录</span><span>营养为估算，请核对份量</span></div>
     </section>
