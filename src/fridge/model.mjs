@@ -6,8 +6,6 @@ import {
   round,
   validateNutrients,
 } from "../nutrition/model.mjs";
-import { recipeLibrary } from "./recipes.mjs";
-export { recipeLibrary };
 export const locations = ["冷藏", "冷冻", "常温"];
 export const pantryOptions = [
   "食用油",
@@ -398,19 +396,17 @@ export function assessRecipe(recipe, inventory, prefs, today = localDate()) {
         : "现在就能做",
   };
 }
-export function recommendRecipes(
+export function assessRecipeOptions(
+  recipes,
   inventory,
   prefs,
-  query = "",
   today = localDate(),
 ) {
-  return recipeLibrary
+  return recipes
     .filter(
       (recipe) =>
-        (!query || normalizeName(recipe.name).includes(normalizeName(query))) &&
         recipe.minutes <= prefs.maxMinutes &&
-        !blockedIngredients(recipe, prefs).length &&
-        (prefs.preference === "不限" || recipe.tags.includes(prefs.preference)),
+        !blockedIngredients(recipe, prefs).length,
     )
     .map((recipe) => assessRecipe(recipe, inventory, prefs, today))
     .sort(

@@ -1,0 +1,128 @@
+[
+  {
+    "id": "tomato-eggs",
+    "name": "番茄炒蛋",
+    "emoji": "🍅",
+    "servings": 2,
+    "minutes": 15,
+    "ingredients": [
+      {
+        "name": "番茄",
+        "amount": 2,
+        "unit": "个",
+        "foodId": "tomato",
+        "gramsPerUnit": 150
+      },
+      {
+        "name": "鸡蛋",
+        "amount": 3,
+        "unit": "个",
+        "foodId": "raw-egg",
+        "gramsPerUnit": 50
+      },
+      {
+        "name": "食用油",
+        "amount": 10,
+        "unit": "克",
+        "foodId": "oil",
+        "pantry": true
+      },
+      {
+        "name": "盐",
+        "amount": 1,
+        "unit": "克",
+        "pantry": true
+      }
+    ],
+    "steps": [
+      "番茄洗净切块，鸡蛋打散。",
+      "锅中放一半油，炒鸡蛋至凝固后盛出。",
+      "加剩余油炒番茄至出汁，放回鸡蛋，加盐翻炒；鸡蛋完全熟透后出锅。"
+    ],
+    "tags": [
+      "家常",
+      "快手"
+    ],
+    "source": "library",
+    "note": "参考家常配方；调味可调整。营养按食材库估算，油量、可食重量和做法会影响结果。部分蔬菜采用食物库中的熟食参考数据。"
+  },
+  {
+    "id": "banana-milk",
+    "name": "香蕉牛奶",
+    "emoji": "🍌",
+    "servings": 2,
+    "minutes": 5,
+    "ingredients": [
+      {
+        "name": "香蕉",
+        "amount": 2,
+        "unit": "根",
+        "foodId": "banana",
+        "gramsPerUnit": 100
+      },
+      {
+        "name": "牛奶",
+        "amount": 400,
+        "unit": "毫升",
+        "foodId": "milk",
+        "gramsPerUnit": 1
+      }
+    ],
+    "steps": [
+      "香蕉去皮切块。",
+      "与可直接饮用的牛奶一起搅打均匀。",
+      "现做现喝，不长时间常温存放。"
+    ],
+    "tags": [
+      "快手"
+    ],
+    "source": "library",
+    "note": "参考家常配方；调味可调整。营养按食材库估算，油量、可食重量和做法会影响结果。部分蔬菜采用食物库中的熟食参考数据。"
+  },
+  {
+    "id": "cucumber-tofu",
+    "name": "黄瓜拌豆腐",
+    "emoji": "🥒",
+    "servings": 2,
+    "minutes": 15,
+    "ingredients": [
+      {
+        "name": "北豆腐",
+        "amount": 250,
+        "unit": "克",
+        "foodId": "tofu"
+      },
+      {
+        "name": "黄瓜",
+        "amount": 200,
+        "unit": "克",
+        "foodId": "cucumber"
+      },
+      {
+        "name": "酱油",
+        "amount": 10,
+        "unit": "克",
+        "foodId": "soy-sauce",
+        "pantry": true
+      },
+      {
+        "name": "食用油",
+        "amount": 5,
+        "unit": "克",
+        "foodId": "oil",
+        "pantry": true
+      }
+    ],
+    "steps": [
+      "北豆腐切块，沸水煮熟，沥干冷却。",
+      "黄瓜洗净切块。",
+      "拌入酱油和油，及时食用。"
+    ],
+    "tags": [
+      "减脂",
+      "高蛋白"
+    ],
+    "source": "library",
+    "note": "参考家常配方；调味可调整。营养按食材库估算，油量、可食重量和做法会影响结果。部分蔬菜采用食物库中的熟食参考数据。"
+  }
+]

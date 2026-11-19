@@ -1,0 +1,64 @@
+.dining-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0 18px}
+.dining-links button,.dining-back{border:1px solid #e2d5ba;border-radius:14px;background:#fffaf0;color:#806a4c;font-size:14px;min-height:44px;padding:10px 6px}
+.dining-links button[aria-pressed=true]{background:#e9e7c3;border-color:#d0d2a2;color:#68763f;font-weight:700}
+.dining-back{padding:9px 15px;margin-bottom:8px;background:transparent}
+.dining-room .nutrition-house,.dining-room .fridge-house{margin-top:0}
+.dining-room .nutrition-summary{padding:18px 20px 14px;border-radius:22px;background:linear-gradient(120deg,#fff8e9,#f9eed7);border-color:#e1d3b4;box-shadow:0 3px 0 #c9b58e14}
+.nutrition-summary-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.nutrition-summary-heading>div{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.nutrition-summary-heading h2{font-size:17px;color:#737b42;background:#e9e6bd;padding:5px 12px;border-radius:18px}
+.nutrition-target-link{font-size:12px;color:#8c7859;background:transparent;border:0;padding:4px 6px;min-height:28px}
+.dining-room .nutrition-date input{width:144px;max-width:100%;font-size:16px;padding:10px 8px;background:#fffaf0;border-color:#e3d5ba}
+.daily-nutrients{display:grid;grid-template-columns:1fr 1.15fr;column-gap:20px}
+.daily-nutrient{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:4px 6px;padding:10px 0;border-bottom:1px solid #e6d9bf;min-width:0}
+.daily-fat{border-bottom:0}
+.daily-nutrient-label{font-size:14px;color:#88734f;white-space:nowrap}
+.daily-nutrient-value{display:flex;align-items:baseline;gap:4px;flex-wrap:wrap}
+.daily-nutrient-value b{font-size:22px;color:#745032;line-height:1.2;overflow-wrap:anywhere;max-width:100%}
+.daily-nutrient-value small{font-size:12px;color:#998363}
+.daily-nutrient-target{grid-column:1/-1;font-size:12px;line-height:1.6;color:#91805e;margin:0}
+.daily-nutrient .nutrient-progress{grid-column:1/-1;width:100%;margin:3px 0 0;background:#e9dcc3}
+.daily-nutrient .nutrient-progress i{background:#9aa55b}
+.daily-over .daily-nutrient-target{color:#a15c4c}
+.daily-over .nutrient-progress i{background:#d79582}
+.daily-kcal{grid-row:span 3;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;border-bottom:0;border-right:1px solid #decdb0;padding:12px 18px 12px 0;gap:12px}
+.daily-kcal .daily-nutrient-value{flex-direction:column;gap:6px}
+.daily-kcal .daily-nutrient-value b{font-size:46px;letter-spacing:-1px}
+.daily-kcal .daily-nutrient-value small{font-size:14px}
+.nutrition-summary-footer{display:flex;justify-content:space-between;gap:12px;border-top:1px dashed #d8c6a8;padding-top:12px;margin-top:12px;font-size:12px;line-height:1.6;color:#998363}
+.dining-room .nutrition-add{margin:22px 0 24px}
+.dining-room .nutrition-view{width:100%;padding:3px;border-radius:20px;border-color:#e3d5ba;background:#fff6e7;margin:0 0 20px}
+.dining-room .nutrition-view button{flex:1;padding:12px 6px;font-size:14px;border-radius:17px;color:#927653}
+.dining-room .nutrition-view button[aria-pressed=true]{background:#e5e4b8;color:#747e43}
+.dining-room .personal-food-library,.dining-room .nutrition-sources{background:transparent;border:0;border-top:1px solid #e4d8bf;border-radius:0;padding:16px 0;margin:18px 0;box-shadow:none}
+.dining-room .meal-records>.section-head h2{font-size:18px;color:#6e7543}
+.dining-room .meal-card{border-color:#e6d9bf;background:#fffbf2}
+.dining-room .fridge-overview{padding:16px 10px;margin-bottom:20px;box-shadow:none}
+.dining-room .fridge-overview b{font-size:26px;margin-top:6px}
+.dining-room .recipe-request-panel{background:#fff9ec;border:1px solid #e5d5b5;border-radius:22px;padding:20px}
+.dining-room .fridge-recipe-intro{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:0 0 18px;padding:0;background:transparent;border:0;border-radius:0}
+.dining-room .fridge-recipe-intro h3{font-size:19px;margin:0 0 8px;color:#737b42}
+.dining-room .fridge-recipe-intro p{font-size:12px;line-height:1.6;margin:0;color:#998363}
+.dining-room .fridge-recipe-intro button{font-size:12px}
+.dining-room .fridge-dish-search{margin-top:0;font-size:14px}
+.dining-room .fridge-dish-search input{font-size:16px}
+.dining-room .recipe-actions{grid-template-columns:1fr}
+.dining-room .recipe-actions button{font-size:16px;border-radius:20px}
+.dining-room .fridge-consent{margin-top:16px}
+.dining-room .fridge-consent span{font-size:12px!important}
+.dining-room .fridge-recipe-options{margin:16px 0 0}
+.dining-room .recipe-filters{margin-top:20px}
+.dining-room .fridge-recipes>.empty{margin-top:18px}
+@media(max-width:520px){
+  .dining-room .nutrition-summary{padding:16px}
+  .daily-nutrients{column-gap:14px;grid-template-columns:.9fr 1.1fr}
+  .daily-kcal{padding-right:14px}
+  .daily-kcal .daily-nutrient-value b{font-size:40px}
+  .daily-nutrient-value b{font-size:20px}
+  .daily-nutrient-label{font-size:13px}
+  .daily-nutrient-target{font-size:11px}
+  .nutrition-summary-footer{font-size:11px}
+  .dining-room .recipe-request-panel{padding:16px}
+  .dining-links{gap:6px}
+  .dining-links button{font-size:13px}
+}

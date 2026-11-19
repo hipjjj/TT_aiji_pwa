@@ -2,7 +2,7 @@ export const nutritionCopy={
   eyebrow:'Xiaobao’s Nutrition House',
   hero:'我是营养助手小包，今天也要好好吃饭哦！',
   subtitle:'把每一口，都吃得明明白白',
-  name:'吃饭小屋 · 饮食记录',
+  name:'小包的饭桌 · 饮食记录',
   today:'今天吃得怎么样？',
   add:'＋ 记下这一餐',
   local:'小包自己算',
@@ -10,5 +10,5 @@ export const nutritionCopy={
   analyzing:'小包正在认真研究这餐…',
   confirm:'小包估算好了，帮我检查一下份量吧！',
   saved:'记好啦！小包帮你收好这餐的营养记录了',
-  empty:'吃饭小屋开门啦，先记下今天的第一餐吧！',
+  empty:'这一天还没有记录餐食',
 };

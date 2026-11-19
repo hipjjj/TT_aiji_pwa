@@ -8,15 +8,14 @@ import { Modal } from "../nutrition/NutritionTab";
 import { fridgeCopy as copy } from "./copy";
 import {
   assessRecipe,
+  assessRecipeOptions,
   defaultPreferences,
   expiryStatus,
   formatQuantity,
   ingredientKey,
   locations,
   pantryOptions,
-  recipeLibrary,
   recipeMealPortions,
-  recommendRecipes,
   shoppingFromAssessment,
   sortedInventory,
   validateAIRecipeResult,
@@ -180,6 +179,7 @@ export default function FridgeTab({
     [recipeFilter, setRecipeFilter] = useState("全部"),
     [selected, setSelected] = useState<Recipe | null>(null);
   const [aiRecipes, setAIRecipes] = useState<Recipe[]>([]),
+    [hasRecipeResults, setHasRecipeResults] = useState(false),
     [aiNote, setAINote] = useState(""),
     [aiConsent, setAIConsent] = useState(false),
     [asking, setAsking] = useState(false);
@@ -321,19 +321,8 @@ export default function FridgeTab({
       setBusy(false);
     }
   };
-  const localResults = recommendRecipes(
-    inventory,
-    preferences,
-    query,
-  ) as Assessment[];
-  const aiResults = aiRecipes
-    .map((recipe) => assessRecipe(recipe, inventory, preferences) as Assessment)
-    .filter(
-      (result) =>
-        !result.blocked.length &&
-        result.recipe.minutes <= preferences.maxMinutes,
-    );
-  const results = [...localResults, ...aiResults].filter(
+  const aiResults = assessRecipeOptions(aiRecipes, inventory, preferences) as Assessment[];
+  const results = aiResults.filter(
     (result) => recipeFilter === "全部" || result.status === recipeFilter,
   );
   const detail = selected
@@ -379,11 +368,11 @@ export default function FridgeTab({
   const askAI = async () => {
     const code = readAccessCode();
     if (!apiURL || !code) {
-      setError("请先到“个人 → AI连接设置”配置服务，本地菜谱仍可使用。");
+      setError("请先到“个人 → AI连接设置”配置服务，再让小包推荐菜谱。");
       return;
     }
     if (!navigator.onLine) {
-      setError("问 AI 需要联网，本地食谱库仍可使用");
+      setError("问 AI 需要联网，冰箱和购物清单仍可离线使用");
       return;
     }
     if (!aiConsent) {
@@ -429,6 +418,8 @@ export default function FridgeTab({
             recipe.minutes <= preferences.maxMinutes,
         );
         setAIRecipes(allowed);
+        setRecipeFilter("全部");
+        setHasRecipeResults(true);
         setAINote(result.note);
         notice(
           allowed.length
@@ -441,7 +432,7 @@ export default function FridgeTab({
     } catch (error) {
       setError(
         controller.signal.aborted
-          ? "已停止分析，可继续查看本地食谱"
+          ? "已停止分析，可以稍后再试"
           : errorText(error),
       );
     } finally {
@@ -712,21 +703,8 @@ export default function FridgeTab({
   );
   const pending = shopping.filter((item) => !item.checked).length;
   return (
-    <section className="fridge-house">
-      <div className="fridge-heading">
-        <div>
-          <span className="park-label">Dudu Gao’s Little Kitchen</span>
-          <h2>{copy.name}</h2>
-        </div>
-        <button
-          className="nutrition-soft-button"
-          onClick={openPrefs}
-          disabled={!ready || busy || asking}
-        >
-          口味与调料
-        </button>
-      </div>
-      <div className="fridge-overview">
+    <section className={`fridge-house fridge-${view}`}>
+      {view === "inventory" && <div className="fridge-overview">
         <div>
           <span>冰箱里的小伙伴</span>
           <b>
@@ -748,7 +726,7 @@ export default function FridgeTab({
             <small>样待买</small>
           </b>
         </div>
-      </div>
+      </div>}
       {!hideNavigation&&<div className="fridge-view" role="group" aria-label="冰箱功能">
         <button
           aria-pressed={view === "inventory"}
@@ -913,15 +891,10 @@ export default function FridgeTab({
           )}
           {view === "recipes" && (
             <>
+              <section className="recipe-request-panel" aria-label="推荐今天的菜单">
               <div className="fridge-recipe-intro">
-                <span className="park-label">What’s for Dinner?</span>
-                <h3>有点食材，就有点期待</h3>
-                <p>
-                  {preferences.servings} 人份 · {preferences.maxMinutes} 分钟内
-                  · {preferences.preference}
-                  <br />
-                  优先照顾快到期的食材，模糊份量一起核对。
-                </p>
+                <div><h3>今天吃什么</h3><p>{preferences.servings} 人份 · {preferences.maxMinutes} 分钟内 · {preferences.preference}</p></div>
+                <button className="nutrition-soft-button" onClick={openPrefs} disabled={!ready||busy||asking}>口味与调料</button>
               </div>
               <label className="fridge-dish-search">
                 今天想吃什么？
@@ -934,24 +907,13 @@ export default function FridgeTab({
                   onChange={(event) => {
                     setQuery(event.target.value);
                     setAIRecipes([]);
+                    setHasRecipeResults(false);
+                    setRecipeFilter("全部");
                     setAINote("");
                   }}
                 />
               </label>
-              <div className="analysis-actions">
-                <button
-                  disabled={asking || busy}
-                  onClick={() => {
-                    setAIRecipes([]);
-                    setAINote("");
-                    setRecipeFilter("全部");
-                    setError("");
-                    notice("小包按冰箱库存和口味，整理好本地食谱啦");
-                  }}
-                >
-                  {copy.local}
-                  <small>20 道家常菜 · 无需联网</small>
-                </button>
+              <div className="analysis-actions recipe-actions">
                 <button
                   className="ai-calculate"
                   disabled={asking || busy}
@@ -969,8 +931,7 @@ export default function FridgeTab({
                   onChange={(event) => setAIConsent(event.target.checked)}
                 />
                 <span>
-                  点击问 AI
-                  时，同意发送本次食材名称、数量、想吃的菜和推荐条件；不发送照片、账单或身体资料。
+                  同意将本次食材名称、数量、想吃的菜和推荐条件发送给 AI，不含照片、账单或身体资料。
                 </span>
               </label>
               {asking && (
@@ -985,7 +946,7 @@ export default function FridgeTab({
                 </p>
               )}
               <div className="fridge-recipe-options">
-                <label>
+                {aiRecipes.length > 0 && <label>
                   <input
                     type="checkbox"
                     checked={preferences.showNutrition}
@@ -1009,12 +970,13 @@ export default function FridgeTab({
                     }}
                   />{" "}
                   显示营养估算
-                </label>
+                </label>}
                 <button className="fridge-text-button" onClick={onManageAI}>
                   去个人页设置AI
                 </button>
               </div>
-              <div className="fridge-zones recipe-filters">
+              </section>
+              {aiRecipes.length > 0 && <div className="fridge-zones recipe-filters">
                 {["全部", "现在就能做", "补几样就能做", "份量待核对"].map(
                   (filter) => (
                     <button
@@ -1026,7 +988,7 @@ export default function FridgeTab({
                     </button>
                   ),
                 )}
-              </div>
+              </div>}
               {aiNote && (
                 <p className="nutrition-small-note">AI 提醒：{aiNote}</p>
               )}
@@ -1038,8 +1000,8 @@ export default function FridgeTab({
               {!results.length ? (
                 <div className="empty">
                   <span aria-hidden="true">🍳</span>
-                  <h3>暂时没有符合条件的菜</h3>
-                  <p>换个菜名或调整口味条件，也可以让小包问 AI。</p>
+                  <h3>{hasRecipeResults ? "暂时没有符合条件的菜" : "让小包想想今天的菜单"}</h3>
+                  <p>{hasRecipeResults ? "换个菜名或调整口味条件，再试一次。" : "输入想吃的菜，或留空按冰箱食材推荐。"}</p>
                 </div>
               ) : (
                 <div className="fridge-recipe-grid">

@@ -1,17 +1,17 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   assessRecipe,
+  assessRecipeOptions,
   blockedIngredients,
   convertAmount,
   defaultPreferences,
   expiryStatus,
   ingredientKey,
   parseQuantity,
-  recipeLibrary,
   recipeMealPortions,
   recipeNutrition,
-  recommendRecipes,
   shoppingFromAssessment,
   stockMatch,
   validateAIRecipeResult,
@@ -21,6 +21,7 @@ import {
   validateRecipeRequest,
 } from "../src/fridge/model.mjs";
 import { sumNutrition } from "../src/nutrition/model.mjs";
+const recipeExamples = JSON.parse(readFileSync(new URL("./fixtures/recipe-assessment.json", import.meta.url)));
 const today = "2026-10-12";
 const stock = (name, quantity = "", unit = "", expiry = null) => ({
   id: crypto.randomUUID(),
@@ -92,7 +93,7 @@ test("expired inventory is excluded, soon expiring ingredients affect ranking an
     ).status,
     "missing",
   );
-  const tomato = recipeLibrary.find((r) => r.id === "tomato-eggs");
+  const tomato = recipeExamples.find((r) => r.id === "tomato-eggs");
   const inventory = [
     stock("西红柿", "2", "个", "2026-10-13"),
     stock("鸡蛋", "3", "个"),
@@ -107,7 +108,7 @@ test("expired inventory is excluded, soon expiring ingredients affect ranking an
   );
 });
 test("recipe quantities scale with diners and shopping lists buy shortfalls, flag unknown quantities and preserve source", () => {
-  const recipe = recipeLibrary.find((r) => r.id === "tomato-eggs");
+  const recipe = recipeExamples.find((r) => r.id === "tomato-eggs");
   const assessment = assessRecipe(
     recipe,
     [stock("番茄", "1", "个"), stock("鸡蛋", "一些")],
@@ -125,46 +126,20 @@ test("recipe quantities scale with diners and shopping lists buy shortfalls, fla
   assert.match(eggs.note, /需要6个/);
   assert.equal(eggs.recipeName, "番茄炒蛋");
 });
-test("allergy, avoidance, cooking time and dietary preferences filter local recipes", () => {
-  const noEgg = recommendRecipes([], { ...prefs, allergies: "蛋" }, "", today);
-  assert(
-    !noEgg.some((r) => r.recipe.ingredients.some((i) => i.name === "鸡蛋")),
-  );
-  const noSoy = recommendRecipes(
-    [],
-    { ...prefs, allergies: "大豆" },
-    "",
-    today,
-  );
-  assert(
-    !noSoy.some((r) =>
-      r.recipe.ingredients.some((i) =>
-        ["北豆腐", "嫩豆腐", "酱油"].includes(i.name),
-      ),
-    ),
-  );
-  assert(
-    recommendRecipes([], { ...prefs, maxMinutes: 10 }, "", today).every(
-      (r) => r.recipe.minutes <= 10,
-    ),
-  );
-  assert(
-    recommendRecipes([], { ...prefs, preference: "高蛋白" }, "", today).every(
-      (r) => r.recipe.tags.includes("高蛋白"),
-    ),
-  );
-  assert.equal(
-    blockedIngredients(
-      recipeLibrary.find((r) => r.id === "tomato-eggs"),
-      { ...prefs, avoid: "西红柿" },
-    ).length,
-    1,
-  );
+test("recipe suggestions contain only supplied options and respect allergies, avoidance and cooking time", () => {
+  assert.deepEqual(assessRecipeOptions([], [], prefs, today), []);
+  const noEgg = assessRecipeOptions(recipeExamples, [], { ...prefs, allergies: "蛋" }, today);
+  assert(noEgg.length > 0 && noEgg.length < recipeExamples.length);
+  assert(!noEgg.some(r => r.recipe.ingredients.some(i => i.name === "鸡蛋")));
+  const noSoy = assessRecipeOptions(recipeExamples, [], { ...prefs, allergies: "大豆" }, today);
+  assert(noSoy.length > 0 && noSoy.length < recipeExamples.length);
+  assert(!noSoy.some(r => r.recipe.ingredients.some(i => ["北豆腐", "嫩豆腐", "酱油"].includes(i.name))));
+  const quick = assessRecipeOptions(recipeExamples, [], { ...prefs, maxMinutes: 10 }, today);
+  assert.deepEqual(quick.map(r => r.recipe.id), ["banana-milk"]);
+  assert.equal(blockedIngredients(recipeExamples.find(r => r.id === "tomato-eggs"), { ...prefs, avoid: "西红柿" }).length, 1);
 });
-test("all local recipes have valid complete nutrition and optional diet record counts personal portions rather than full pan", () => {
-  assert.equal(recipeLibrary.length, 20);
-  for (const recipe of recipeLibrary) {
-    assert(recipe.steps.length >= 3);
+test("recipe meal records still count personal portions rather than the full pan", () => {
+  for (const recipe of recipeExamples) {
     const nutrition = recipeNutrition(recipe);
     assert(nutrition.complete, recipe.name);
     assert(nutrition.totals.kcal > 0);
