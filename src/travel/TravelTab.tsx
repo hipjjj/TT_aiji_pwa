@@ -1,6 +1,7 @@
 import {readAccessCode} from '../personal/access-code.mjs';
 import OverseasTravel from "./OverseasTravel";
-import {overseasFootprints} from "./overseas-model.mjs";
+import FootprintSummary from "./FootprintSummary";
+import {domesticFootprintGroups} from "./footprint-summary.mjs";
 import type { OverseasTrip } from "./overseas-types";
 import React, { useEffect, useRef, useState } from "react";
 import { db } from "../db";
@@ -19,7 +20,6 @@ import {
   validateUserScenic,
   validateVisitedCity,
   visitedCityIds,
-  visitedProvinceIds,
 } from "./model.mjs";
 import scenicData from "./scenic.json";
 import TravelMap from "./TravelMap";
@@ -115,9 +115,7 @@ export default function TravelTab() {
     const timeout = setTimeout(() => setMessage(""), 6000);
     return () => clearTimeout(timeout);
   }, [message]);
-  const visited = visitedCityIds(trips, manual),
-    visitedProvinces = visitedProvinceIds(visited);
-  const abroadFootprints = overseasFootprints(overseas);
+  const visited = visitedCityIds(trips, manual);
   const city = cityId ? cityById(cityId) : null,
     cityTrips = cityId
       ? trips.filter((trip) =>
@@ -596,38 +594,6 @@ export default function TravelTab() {
           <h2>{copy.name}</h2>
         </div>
       </div>
-      <div className="travel-summary">
-        <div>
-          <span>{view==='overseas'?'点亮的国家／地区':'点亮的省级区域'}</span>
-          <b>
-            {view==='overseas'?abroadFootprints.countries.size:visitedProvinces.size}
-            <small>个</small>
-          </b>
-        </div>
-        <div>
-          <span>{view==='overseas'?'去过的海外城市':'去过的城市／地区'}</span>
-          <b>
-            {view==='overseas'?abroadFootprints.cityCount:visited.size}
-            <small>个</small>
-          </b>
-        </div>
-        <div>
-          <span>{view==='overseas'?'收好的海外旅程':'全部收好的旅程'}</span>
-          <b>
-            {view==='overseas'?overseas.length:trips.length + overseas.length}
-            <small>段</small>
-          </b>
-        </div>
-      </div>
-      <div className="travel-primary-action" ref={setActionContainer}>
-      {view!=='overseas'&&<button
-        className="new-expense travel-add"
-        disabled={!ready || busy}
-        onClick={() => openTrip()}
-      >
-        ＋ 记下一段旅行 <span aria-hidden="true">✧</span>
-      </button>}
-      </div>
       <div className="travel-view" role="group" aria-label="旅行手册视图">
         <button aria-pressed={view === "map"} onClick={() => setView("map")}>国内行</button>
         <button aria-pressed={view === "overseas"} onClick={() => setView("overseas")}>海外小脚印</button>
@@ -636,25 +602,29 @@ export default function TravelTab() {
       {!ready ? (
         <p className="empty">黏黏包正在打开旅行册…</p>
       ) : view === "map" ? (
+        <>
         <TravelMap
           provinceId={provinceId}
           onProvince={setProvinceId}
           onCity={openCity}
           visited={visited}
         />
+        <FootprintSummary scope="domestic" groups={domesticFootprintGroups(trips,manual)} onJournals={()=>{setJournalFilter('domestic');setView('journal');}}/>
+        </>
       ) : view === "overseas" ? (
         <OverseasTravel
           trips={overseas}
           onChanged={reload}
           actionContainer={actionContainer}
+          onJournals={()=>{setJournalFilter('overseas');setView('journal');}}
         />
       ) : (
         <section className="travel-journal">
           <div className="section-head">
-            <h3>把回忆慢慢翻开</h3>
-            <span>{journeys.length} 段旅程</span>
+            <h3>我的游记</h3>
+            <span>{journeys.length} 篇游记</span>
           </div>
-          <div className="travel-grade-filters" aria-label="筛选旅行记录">
+          <div className="travel-grade-filters" aria-label="筛选游记">
             {(
               [
                 ["all", "全部"],
@@ -675,22 +645,15 @@ export default function TravelTab() {
             <div className="empty">
               <span aria-hidden="true">🧳</span>
               <h3>旅行册还留着空白页</h3>
-              <p>去过的城市、走过的景点，都可以记在这里。</p>
-              <button onClick={() => setView("overseas")}>记录海外旅行</button>
+              <p>去“国内行”或“海外小脚印”，记下一段旅行。</p>
             </div>
           ) : (
             <OverseasTravel
               trips={overseas}
               onChanged={reload}
                 >
-              {({ renderCard, open }) => (
+              {({ renderCard }) => (
                 <>
-                  <button
-                    className="travel-settings-link"
-                    onClick={() => open()}
-                  >
-                    ＋ 记录海外旅行
-                  </button>
                   {journeys.map((row) => (
                     <React.Fragment key={row.scope + row.trip.id}>
                       {row.scope === "domestic"
@@ -704,6 +667,9 @@ export default function TravelTab() {
           )}
         </section>
       )}
+      <div className="travel-primary-action" ref={setActionContainer}>
+        {view==='map'&&<button className="new-expense travel-add" disabled={!ready||busy} onClick={()=>openTrip()}>＋ 记下一段旅行</button>}
+      </div>
       <Modal
         {...modalProps}
         open={!!cityId}

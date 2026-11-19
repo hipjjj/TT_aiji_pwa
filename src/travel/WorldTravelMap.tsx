@@ -25,7 +25,7 @@ export default function WorldTravelMap({visited,onRecord}:{visited:Map<string,Se
   const keyboard=(event:React.KeyboardEvent<SVGElement>,code:string)=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();choose(code);}};
   return <section className="travel-map-card world-map-card">
     <div className="travel-map-heading"><div><span className="park-label">Little Footprints</span><h3>海外旅行足迹</h3></div><div className="travel-legend"><span><i/>去过</span><span><i/>没去过</span></div></div>
-    <div className="travel-breadcrumb"><strong>世界</strong><span>{visited.size} 个国家／地区已点亮</span></div>
+    <div className="travel-breadcrumb"><strong>世界</strong></div>
     {!data?<div className="travel-map-loading" role="status">{error?<><p>{error}</p><button onClick={()=>setAttempt(value=>value+1)}>重新加载地图</button></>:'黏黏包正在展开世界地图…'}</div>:
       <svg className="travel-map world-travel-map" viewBox="0 0 620 440" role="group" aria-label="海外旅行世界地图">
         <g className="world-map-grid" aria-hidden="true">{[-60,-30,0,30,60].map(latitude=><path key={latitude} d={`M16,${worldMapPoint([0,latitude])[1]}H604`}/>)}{[-120,-60,0,60,120].map(longitude=><path key={longitude} d={`M${worldMapPoint([longitude,0])[0]},73V367`}/>)}</g>

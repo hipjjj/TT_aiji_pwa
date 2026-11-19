@@ -1,4 +1,6 @@
 import WorldTravelMap from "./WorldTravelMap";
+import FootprintSummary from "./FootprintSummary";
+import {overseasFootprintGroups} from "./footprint-summary.mjs";
 import {readAccessCode} from '../personal/access-code.mjs';
 import React, { useEffect, useRef, useState } from "react";
 import {createPortal} from 'react-dom';
@@ -118,15 +120,16 @@ export default function OverseasTravel({
   trips,
   onChanged,
   actionContainer,
+  onJournals,
   children,
 }: {
   trips: OverseasTrip[];
   onChanged: () => Promise<void>;
   actionContainer?:HTMLDivElement|null;
+  onJournals?:()=>void;
   children?: (props: {
     cards: React.ReactNode;
     renderCard: (t: OverseasTrip) => React.ReactNode;
-    open: (t?: OverseasTrip) => void;
   }) => React.ReactNode;
 }) {
   const [editing, setEditing] = useState<OverseasTrip | null>(null),
@@ -329,12 +332,12 @@ export default function OverseasTravel({
               onPreview={setPreview}
             />
           ),
-          open: startEdit,
         })
       ) : (
         <section className="overseas-section">
           {actionContainer?createPortal(<button className="new-expense travel-add" onClick={() => startEdit()}>＋ 记录海外旅行</button>,actionContainer):<button className="new-expense travel-add" onClick={() => startEdit()}>＋ 记录海外旅行</button>}
           <WorldTravelMap visited={footprints.countries} onRecord={code=>startEdit(undefined,code)}/>
+          <FootprintSummary scope="overseas" groups={overseasFootprintGroups(trips)} onJournals={()=>onJournals?.()}/>
         </section>
       )}
       <Modal
