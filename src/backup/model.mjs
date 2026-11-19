@@ -1,5 +1,5 @@
 export const backupScopes = [
-  {id:"study",label:"学习室",description:"导入的英文文章、生词本和阅读足迹。"},
+  {id:"study",label:"学习",description:"导入的英文文章、生词本和阅读足迹。"},
   {
     id: "grading",
     label: "试卷批阅",
@@ -13,18 +13,18 @@ export const backupScopes = [
   { id: "bills", label: "账单", description: "账单明细与每月预算。" },
   {
     id: "nutrition",
-    label: "吃饭小屋 · 饮食",
+    label: "吃饭 · 饮食",
     description:
       "饮食、营养目标和我的食物库；不包含关联账单，新设备导入后不保留账单关联。",
   },
   {
     id: "fridge",
-    label: "吃饭小屋 · 冰箱",
+    label: "吃饭 · 冰箱",
     description: "食材库存、购物清单及冰箱偏好。",
   },
   {
     id: "travel",
-    label: "旅行册",
+    label: "旅行",
     description: "国内与海外旅行、足迹、景点及游记。",
   },
   {

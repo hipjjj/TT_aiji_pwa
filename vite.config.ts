@@ -19,7 +19,7 @@ export default defineConfig({
       manifest: {
         name: "天天爱记",
         short_name: "天天爱记",
-        description: "企鹅朋友陪你记账、吃饭、旅行、备课与学习",
+        description: "企鹅朋友陪你记账、吃饭、旅行、工作与学习",
         lang: "zh-CN",
         theme_color: "#dcecf7",
         background_color: "#fff9ed",
