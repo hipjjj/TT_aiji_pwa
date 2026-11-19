@@ -17,7 +17,7 @@ const builtinLibrary=foodLibrary as FoodDefinition[];
 const sourceText={dictionary:copy.local,ai:copy.ai,manual:'手动填写'};
 const format=(value:number)=>Number.isFinite(value)?value.toLocaleString('zh-CN',{maximumFractionDigits:1}):'—';
 const emptyTargets=()=>Object.fromEntries(keys.map(key=>[key,{min:'',max:''}])) as Record<NutrientKey,{min:string;max:string}>;
-export function Modal({open,onClose,title,children,className='',eyebrow=copy.eyebrow}:{open:boolean;onClose:()=>void;title:string;children:React.ReactNode;className?:string;eyebrow?:string}){
+export function Modal({open,onClose,title,children,className='',eyebrow=copy.eyebrow,heading}:{open:boolean;onClose:()=>void;title:string;children:React.ReactNode;className?:string;eyebrow?:string;heading?:React.ReactNode}){
   const ref=useRef<HTMLDialogElement>(null);
   useEffect(()=>{
     const dialog=ref.current;
@@ -42,7 +42,7 @@ export function Modal({open,onClose,title,children,className='',eyebrow=copy.eye
     };
   },[open]);
   useEffect(()=>()=>{ref.current?.close();},[]);
-  return <dialog ref={ref} className={`entry-dialog nutrition-dialog ${className}`} aria-label={title} onCancel={event=>{event.preventDefault();onClose();}} onClose={onClose}><div className="entry-heading"><div><span className="park-label">{eyebrow}</span><h2>{title}</h2></div><button type="button" className="close" autoFocus aria-label={`关闭${title}`} onClick={onClose}>×</button></div><div className="nutrition-dialog-body">{children}</div></dialog>;
+  return <dialog ref={ref} className={`entry-dialog nutrition-dialog ${className}`} aria-label={title} onCancel={event=>{event.preventDefault();onClose();}} onClose={onClose}><div className="entry-heading"><div className="modal-title">{heading??<><span className="park-label">{eyebrow}</span><h2>{title}</h2></>}</div><button type="button" className="close" autoFocus aria-label={`关闭${title}`} onClick={onClose}><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg></button></div><div className="nutrition-dialog-body">{children}</div></dialog>;
 }
 export default function NutritionTab({onDataChange,onManageAI,initialDate}:{initialDate?:string;onDataChange:()=>Promise<void>;onManageAI:()=>void}){
   const [personalFoods,setPersonalFoods]=useState<PersonalFood[]>([]),[librarySelections,setLibrarySelections]=useState<Record<string,{name:string;aliases:string;fist:string;note:string}>>({});

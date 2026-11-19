@@ -15,8 +15,11 @@ import { resolveProposal } from "./store";
 import type { ChatThread, ChatMessage, ChatMode, Proposal } from "./types";
 import { categories } from "../model.mjs";
 import { sumNutrition, standardizeAIFoods } from "../nutrition/model.mjs";
-import {Character, Family, type CharacterName} from '../home/Characters';
+import {Character} from '../home/Characters';
 import './style.css';
+import './layout.css';
+import {useChatViewport} from './useChatViewport';
+import ChatIdentity from './ChatIdentity';
 const today = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -363,6 +366,10 @@ export default function ChatRoom({
   const [photo, setPhoto] = useState<string | null>(null),
     [photoBusy, setPhotoBusy] = useState(false),
     [viewPhoto, setViewPhoto] = useState<string | null>(null);
+  const compact=useChatViewport();
+  const [showHelp,setShowHelp]=useState(false);
+  const composerInput=useRef<HTMLTextAreaElement>(null);
+  const messageList=useRef<HTMLElement>(null);
   const photoInput = useRef<HTMLInputElement>(null),
     photoEpoch = useRef(0);
   const clearPhoto = () => {
@@ -390,8 +397,7 @@ export default function ChatRoom({
     }
   };
   const request = useRef<AbortController | null>(null),
-    alive = useRef(true),
-    bottom = useRef<HTMLDivElement>(null);
+    alive = useRef(true);
   const loadThreads = async () =>
     setThreads(await db.chatThreads.orderBy("updatedAt").reverse().toArray());
   const loadMessages = async (id: string) =>
@@ -466,8 +472,10 @@ export default function ChatRoom({
     };
   }, []);
   useEffect(() => {
-    bottom.current?.scrollIntoView({ block: "end" });
-  }, [messages, busy]);
+    const list=messageList.current;
+    if(list)list.scrollTop=list.scrollHeight;
+  }, [messages, busy, compact]);
+  useEffect(()=>{const input=composerInput.current;if(input){input.style.height="0px";input.style.height=`${Math.min(compact?72:112,Math.max(48,input.scrollHeight))}px`;}},[text,compact]);
   const close = () => {
     request.current?.abort();
     void flushDraft().catch(() => {});
@@ -770,38 +778,16 @@ export default function ChatRoom({
       open
       onClose={close}
       title="企鹅小家"
-      eyebrow="A LITTLE HOME, ALL OF US"
-      className="chat-room"
+      className={`chat-room ${compact?'chat-compact':''}`}
+      heading={<ChatIdentity mode={mode}/>}
     >
-      <div className="chat-family-banner"><Family/></div>
       <div className="chat-top">
-        <button disabled={busy || !ready} onClick={() => setHistory(!history)}>
-          聊天记录
-        </button>
-        <button disabled={busy || !ready} onClick={() => void fresh(mode)}>
-          ＋ 新聊天
-        </button>
+        <label className="chat-mode-select"><span className="sr-only">选择聊天对象</span><select aria-label="选择聊天对象" value={mode} disabled={busy||!ready} onChange={e=>{const next=e.target.value as ChatMode;if(next!==mode)void switchMode(next).catch(()=>setError('切换企鹅失败，请重试'));}}>{(['群聊',...penguins] as ChatMode[]).map(m=><option key={m} value={m}>{m==='群聊'?'企鹅家族 · 群聊':m}</option>)}</select></label>
+        <button aria-label={history?'返回聊天':'查看聊天记录'} aria-pressed={history} disabled={busy||!ready} onClick={()=>{setHistory(!history);setShowHelp(false);}}>记录</button>
+        <button aria-label="开始新聊天" disabled={busy||!ready} onClick={()=>void fresh(mode)}>新聊</button>
+        <button aria-label="聊天使用说明" aria-expanded={showHelp} onClick={()=>setShowHelp(!showHelp)}>说明</button>
       </div>
-      <div className="chat-modes" aria-label="聊天模式">
-        {(["群聊", ...penguins] as ChatMode[]).map((m) => (
-          <button
-            disabled={busy || !ready}
-            key={m}
-            aria-pressed={mode === m}
-            onClick={() => {
-              if (m !== mode)
-                void switchMode(m).catch(() =>
-                  setError("切换企鹅失败，请重试"),
-                );
-            }}
-          >
-            {m === "群聊" ? "企鹅家族" : m}
-          </button>
-        ))}
-      </div>
-      <p className="chat-operation-hint">
-        记账等操作以卡片为准，点击“确认保存”后才会写入；企鹅对白不会自动保存。
-      </p>
+      {showHelp&&<aside className="chat-help"><p>记账等操作以卡片为准，点击“确认保存”后才会写入；企鹅对白不会自动保存。</p><p>每次可附1张图片，发送时交给AI查看；未发送图片切换聊天或关闭后不保留。文字草稿会自动收好。</p></aside>}
       {history ? (
         <section className="chat-history">
           <h3>小家的聊天记录</h3>
@@ -865,23 +851,19 @@ export default function ChatRoom({
       ) : (
         <>
           <section
+            ref={messageList}
             className="chat-messages"
             aria-label="聊天消息"
             aria-busy={busy}
           >
             {!messages.length && (
               <div className="chat-welcome">
-                <div className="chat-family">
-                  {(mode === "群聊" ? penguins : [mode]).map((n) => (
-                    <Character key={n} name={n as CharacterName} className="chat-portrait"/>
-                  ))}
-                </div>
                 <h3>
                   {mode === "群聊"
                     ? "大家都在，给你留了个位置。"
                     : `和${mode}坐一会儿`}
                 </h3>
-                <p>说说今天的小事吧。群聊中可以 @ 点名。</p>
+                <p>{mode==='群聊'?'今天的小事，大家都想听。可以 @ 点名。':`今天想告诉${mode}什么？`}</p>
                 <small>对话保存在这台设备，长期记忆需要你确认。</small>
               </div>
             )}
@@ -933,7 +915,6 @@ export default function ChatRoom({
                 小家里传来了叽叽咕咕的声音…
               </p>
             )}
-            <div ref={bottom} />
           </section>
           <form
             className="chat-composer"
@@ -962,38 +943,12 @@ export default function ChatRoom({
               hidden
               onChange={(e) => void loadPhoto(e)}
             />
-            <button
-              className="chat-upload"
-              type="button"
-              disabled={busy || photoBusy || !ready}
-              onClick={() => photoInput.current?.click()}
-            >
-              {photoBusy ? "正在压缩…" : "＋ 图片"}
-            </button>
-            <small className="chat-photo-help">
-              每次1张，发送时交给AI查看；发送前会压缩，未发送图片切换聊天或关闭后不保留。
-            </small>
-            <div>
-              <textarea
-                aria-label="给企鹅们的话"
-                placeholder={
-                  mode === "群聊"
-                    ? "今天想和大家说些什么？"
-                    : "告诉" + mode + "…"
-                }
-                maxLength={2000}
-                value={text}
-                disabled={busy || !ready}
-                onChange={(e) => changeText(e.target.value)}
-              />
-              <button
-                disabled={
-                  busy || photoBusy || !ready || (!text.trim() && !photo)
-                }
-              >
-                发送
-              </button>
+            <div className="chat-input-row">
+              <button className="chat-upload" type="button" aria-label="添加聊天图片" title="添加图片" disabled={busy||photoBusy||!ready} onClick={()=>photoInput.current?.click()}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" strokeWidth="1.6"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><path d="m4 17 5-5 4 4 3-3 5 5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/></svg></button>
+              <textarea ref={composerInput} rows={1} aria-label="给企鹅们的话" placeholder={mode==='群聊'?'说说今天的小事…':`告诉${mode}…`} maxLength={2000} value={text} disabled={busy||!ready} onFocus={()=>setShowHelp(false)} onChange={e=>changeText(e.target.value)}/>
+              <button className="chat-send" type="submit" disabled={busy||photoBusy||!ready||(!text.trim()&&!photo)}>发送</button>
             </div>
+            <small className="chat-composer-note">{photoBusy?'图片压缩中…':'发送时交给AI，聊天保存在本机'}</small>
             {busy && (
               <button type="button" onClick={() => request.current?.abort()}>
                 停止等待
