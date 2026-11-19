@@ -1,5 +1,5 @@
 export const travelCopy = {
-  name: "黏黏包的旅行册",
+  name: "黏黏包的旅行手册",
   eyebrow: "Niannian Bao’s Travel Book",
   hero: "我是旅行搭子黏黏包，陪你把回忆装进口袋！",
   subtitle: "每一步，都有小小的回忆",

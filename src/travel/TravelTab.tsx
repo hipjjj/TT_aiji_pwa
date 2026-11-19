@@ -1,5 +1,6 @@
 import {readAccessCode} from '../personal/access-code.mjs';
 import OverseasTravel from "./OverseasTravel";
+import {overseasFootprints} from "./overseas-model.mjs";
 import type { OverseasTrip } from "./overseas-types";
 import React, { useEffect, useRef, useState } from "react";
 import { db } from "../db";
@@ -36,7 +37,7 @@ import "./style.css";
 const library = scenicData as Scenic[];
 const failure = (error: unknown) =>
   error instanceof Error ? error.message : "暂时没有保存成功，请重试";
-export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
+export default function TravelTab() {
   const [overseas, setOverseas] = useState<OverseasTrip[]>([]),
     [journalFilter, setJournalFilter] = useState<
       "all" | "domestic" | "overseas"
@@ -115,6 +116,7 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
   }, [message]);
   const visited = visitedCityIds(trips, manual),
     visitedProvinces = visitedProvinceIds(visited);
+  const abroadFootprints = overseasFootprints(overseas);
   const city = cityId ? cityById(cityId) : null,
     cityTrips = cityId
       ? trips.filter((trip) =>
@@ -595,54 +597,38 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
       </div>
       <div className="travel-summary">
         <div>
-          <span>点亮的省级区域</span>
+          <span>{view==='overseas'?'点亮的国家／地区':'点亮的省级区域'}</span>
           <b>
-            {visitedProvinces.size}
+            {view==='overseas'?abroadFootprints.countries.size:visitedProvinces.size}
             <small>个</small>
           </b>
         </div>
         <div>
-          <span>去过的城市／地区</span>
+          <span>{view==='overseas'?'去过的海外城市':'去过的城市／地区'}</span>
           <b>
-            {visited.size}
+            {view==='overseas'?abroadFootprints.cityCount:visited.size}
             <small>个</small>
           </b>
         </div>
         <div>
-          <span>全部收好的旅程</span>
+          <span>{view==='overseas'?'收好的海外旅程':'全部收好的旅程'}</span>
           <b>
-            {trips.length + overseas.length}
+            {view==='overseas'?overseas.length:trips.length + overseas.length}
             <small>段</small>
           </b>
         </div>
       </div>
-      <button
+      {view!=='overseas'&&<button
         className="new-expense travel-add"
         disabled={!ready || busy}
         onClick={() => openTrip()}
       >
         ＋ 记下一段旅行 <span aria-hidden="true">✧</span>
-      </button>
-      <div className="travel-view" role="group" aria-label="旅行册视图">
-        <button aria-pressed={view === "map"} onClick={() => setView("map")}>
-          旅行地图
-        </button>
-        <button
-          aria-pressed={view === "journal"}
-          onClick={() => setView("journal")}
-        >
-          我的旅行记录
-        </button>
-        <button
-          className="travel-settings-link"
-          aria-pressed={view === "overseas"}
-          onClick={() => setView("overseas")}
-        >
-          海外小脚印
-        </button>
-        <button className="travel-settings-link" onClick={onManageAI}>
-          AI设置
-        </button>
+      </button>}
+      <div className="travel-view" role="group" aria-label="旅行手册视图">
+        <button aria-pressed={view === "map"} onClick={() => setView("map")}>国内行</button>
+        <button aria-pressed={view === "overseas"} onClick={() => setView("overseas")}>海外小脚印</button>
+        <button aria-pressed={view === "journal"} onClick={() => setView("journal")}>我的游记</button>
       </div>
       {!ready ? (
         <p className="empty">黏黏包正在打开旅行册…</p>
@@ -657,7 +643,6 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
         <OverseasTravel
           trips={overseas}
           onChanged={reload}
-          onManageAI={onManageAI}
         />
       ) : (
         <section className="travel-journal">
@@ -693,8 +678,7 @@ export default function TravelTab({ onManageAI }: { onManageAI: () => void }) {
             <OverseasTravel
               trips={overseas}
               onChanged={reload}
-              onManageAI={onManageAI}
-            >
+                >
               {({ renderCard, open }) => (
                 <>
                   <button

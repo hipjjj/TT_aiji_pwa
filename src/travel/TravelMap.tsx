@@ -5,7 +5,7 @@ import {
   mapProjection,
   splitGeometry,
 } from "./map.mjs";
-import { provinces, provinceById, cities } from "./model.mjs";
+import { provinces, provinceById } from "./model.mjs";
 import type { MapFeature, TravelMap as MapData } from "./types";
 export default function TravelMap({
   provinceId,
@@ -20,13 +20,11 @@ export default function TravelMap({
 }) {
   const [data, setData] = useState<MapData | null>(null),
     [error, setError] = useState(""),
-    [attempt, setAttempt] = useState(0),
-    [search, setSearch] = useState("");
+    [attempt, setAttempt] = useState(0);
   useEffect(() => {
     const controller = new AbortController();
     setData(null);
     setError("");
-    setSearch("");
     fetch(
       `${import.meta.env.BASE_URL}travel-maps/${provinceId || "national"}.json`,
       { signal: controller.signal },
@@ -80,12 +78,6 @@ export default function TravelMap({
     x: number;
     y: number;
   }[];
-  const items = provinceId
-    ? cities.filter((city) => city.provinceId === provinceId)
-    : provinces;
-  const displayed = items.filter(
-    (item) => !search || item.name.includes(search),
-  );
   const isVisited = (id: string) =>
     provinceId
       ? visited.has(id)
@@ -97,7 +89,7 @@ export default function TravelMap({
       <div className="travel-map-heading">
         <div>
           <span className="park-label">Little Footprints</span>
-          <h3>我的旅行足迹</h3>
+          <h3>国内旅行足迹</h3>
         </div>
         <div className="travel-legend">
           <span>
@@ -247,34 +239,12 @@ export default function TravelMap({
       )}
       <p className="travel-map-note">
         {provinceId
-          ? "点城市查看景点和记录；下方列表也能选择。"
+          ? "点击城市查看景点和旅行记录。"
           : "点省份进入城市地图，仍在同一个地图区域切换。"}
       </p>
       {province?.boundaryNote && (
         <p className="travel-data-note">{province.boundaryNote}</p>
       )}
-      <label className="travel-search">
-        <span className="sr-only">{provinceId ? "查找城市" : "查找省份"}</span>
-        <input
-          aria-label={provinceId ? "查找城市" : "查找省份"}
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder={provinceId ? "找一座城市…" : "找一个省份…"}
-        />
-      </label>
-      <div className="travel-region-list">
-        {displayed.map((item) => (
-          <button
-            key={item.id}
-            className={isVisited(item.id) ? "region-visited" : ""}
-            onClick={() => choose(item.id)}
-          >
-            <span aria-hidden="true">{isVisited(item.id) ? "★" : "○"}</span>
-            {item.name}
-          </button>
-        ))}
-        {!displayed.length && <p>没有找到这个名称，换个关键词试试。</p>}
-      </div>
       <details className="travel-map-source">
         <summary>地图和景区数据来源</summary>
         <p>

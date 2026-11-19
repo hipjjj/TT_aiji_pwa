@@ -1,3 +1,4 @@
+import WorldTravelMap from "./WorldTravelMap";
 import {readAccessCode} from '../personal/access-code.mjs';
 import React, { useEffect, useRef, useState } from "react";
 import { db } from "../db";
@@ -115,12 +116,10 @@ export function OverseasCards({
 export default function OverseasTravel({
   trips,
   onChanged,
-  onManageAI,
   children,
 }: {
   trips: OverseasTrip[];
   onChanged: () => Promise<void>;
-  onManageAI: () => void;
   children?: (props: {
     cards: React.ReactNode;
     renderCard: (t: OverseasTrip) => React.ReactNode;
@@ -149,7 +148,7 @@ export default function OverseasTravel({
     draftID = useRef(""),
     editVersion = useRef(0);
   useEffect(() => () => controller.current?.abort(), []);
-  const startEdit = (t?: OverseasTrip) => {
+  const startEdit = (t?: OverseasTrip, countryCode = "") => {
     controller.current?.abort();
     editVersion.current++;
     setAsking(false);
@@ -161,7 +160,7 @@ export default function OverseasTravel({
     setStops(
       t
         ? t.stops.map((s) => ({ ...s, spots: [...s.spots] }))
-        : [{ countryCode: "", city: "", spots: [] }],
+        : [{ countryCode, city: "", spots: [] }],
     );
     setNote(t?.note || "");
     setPhotos(t ? t.photos.map((p) => ({ ...p })) : []);
@@ -331,33 +330,8 @@ export default function OverseasTravel({
         })
       ) : (
         <section className="overseas-section">
-          <div className="section-head">
-            <h3>黏黏包的海外小脚印</h3>
-            <span>
-              {footprints.countries.size} 个国家／地区 · {footprints.cityCount}{" "}
-              个城市
-            </span>
-          </div>
-          <p className="nutrition-small-note">中国地图外的回忆，也一起收好。</p>
-          <button className="new-expense" onClick={() => startEdit()}>
-            ＋ 记录海外旅行
-          </button>
-          <div className="overseas-countries">
-            {[...footprints.countries].map(([code, citySet]) => (
-              <article key={code}>
-                <strong>{countryName(code)}</strong>
-                <p>{[...citySet].join("、")}</p>
-              </article>
-            ))}
-          </div>
-          {!trips.length ? (
-            <div className="empty">
-              <h3>给远方留一页</h3>
-              <p>记下国家、城市和照片，黏黏包陪你收好地图外的回忆。</p>
-            </div>
-          ) : (
-            cards
-          )}
+          <button className="new-expense travel-add" onClick={() => startEdit()}>＋ 记录海外旅行</button>
+          <WorldTravelMap visited={footprints.countries} onRecord={code=>startEdit(undefined,code)}/>
         </section>
       )}
       <Modal
@@ -598,17 +572,7 @@ export default function OverseasTravel({
               {error}
             </p>
           )}
-          <button
-            type="button"
-            className="travel-settings-link"
-            disabled={busy || asking || photoBusy}
-            onClick={() => {
-              if (confirm("前往个人页会离开当前未保存的海外旅行，确认离开？"))
-                onManageAI();
-            }}
-          >
-            前往个人页设置AI
-          </button>
+
         </form>
       </Modal>
       <Modal

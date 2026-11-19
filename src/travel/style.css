@@ -49,7 +49,8 @@
   box-shadow: 0 4px 0 #dd987d;
 }
 .travel-view {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
   gap: 4px;
   padding: 5px;
   background: #fffaf0;
@@ -63,8 +64,10 @@
   border-radius: 10px;
   background: transparent;
   color: #968a76;
-  font-size: 12px;
-  padding: 12px 7px;
+  font-size: 14px;
+  padding: 12px 4px;
+  min-height: 44px;
+  white-space: nowrap;
 }
 .travel-view button[aria-pressed="true"] {
   background: #f5dfcb;
@@ -769,7 +772,7 @@
     height: 120px;
   }
   .travel-view button {
-    font-size: 11px;
+    font-size: 13px;
   }
   .travel-data-note {
     font-size: 10px;
@@ -821,4 +824,20 @@
   pointer-events: none;
   filter: none;
 }
+
+.travel-house .overseas-section{margin-top:0}
+.world-map-grid path{stroke:#d9dcc5;stroke-width:.6;stroke-dasharray:3 5;fill:none}
+.world-map-land path{filter:none;stroke-width:.8}
+.world-map-land .world-map-background,.world-map-land .world-map-background:hover{fill:#e9e6d8;cursor:default;opacity:.65}
+.world-map-dots circle{fill:#e7dfca;stroke:#baad8e;stroke-width:.8;cursor:pointer}
+.world-map-dots circle.map-visited{fill:#f0bc9d;stroke:#c08d64}
+.world-map-dots circle:hover{fill:#d7c19c}
+.world-map-dots circle:focus-visible{stroke:#5482a7;stroke-width:3;outline:none}
+.world-map-stars{font-size:14px;fill:#a47746;pointer-events:none;paint-order:stroke;stroke:#fff8e8;stroke-width:2}
+.world-country-picker{border-top:1px solid #e8ddc7;padding-top:10px;margin-top:12px;color:#8d795b;font-size:13px}
+.world-country-picker summary{cursor:pointer;padding:8px 0}
+.world-country-picker label{margin-top:8px}
+.world-country-picker select{width:100%;font:inherit;font-size:16px;color:#806a4c;background:#fffaf0;border:1px solid #e2d5ba;border-radius:12px;padding:12px}
+.world-visited-cities{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.world-visited-cities span{padding:9px 13px;border:1px solid #d8d7ae;border-radius:12px;background:#efefd7;color:#758044;overflow-wrap:anywhere}
 .overseas-section{margin-top:18px}.overseas-section .section-head{align-items:flex-start;gap:10px;flex-wrap:wrap}.overseas-section .section-head h3{margin:0}.overseas-countries{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0}.overseas-countries article{background:#eef2df;border:1px solid #dae2c9;border-radius:18px;padding:12px 16px;max-width:100%;overflow-wrap:anywhere}.overseas-countries p{font-size:12px;margin-bottom:0}.overseas-fields{border:0;padding:0;margin:0;min-width:0}.overseas-stop{background:#f7efe2;border:1px dashed #dccab1;border-radius:16px;padding:12px;margin:12px 0}.overseas-fields label{display:block;margin:12px 0;font-size:13px}.overseas-fields label>input:not([type=checkbox]),.overseas-fields label>select,.overseas-fields label>textarea{display:block;width:100%;max-width:100%;box-sizing:border-box;font:inherit;font-size:16px;margin-top:6px;border:1px solid #dccaaf;border-radius:12px;background:#fffdfa;padding:10px;color:#665046}.overseas-fields textarea{min-height:85px;resize:vertical}.overseas-fields button:not(.primary){padding:10px 13px;border-radius:12px;border:1px solid #dbc7ad;background:#fff8e9;color:#775c45}.overseas-fields .form-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.overseas-fields .nutrition-checkbox{display:flex;gap:8px;align-items:flex-start}.overseas-fields .travel-edit-photos article{max-width:100%;min-width:0}.overseas-fields .travel-edit-photos input{width:100%;box-sizing:border-box}@media(max-width:360px){.overseas-fields .form-fields{grid-template-columns:1fr}.travel-view{flex-wrap:wrap}}
