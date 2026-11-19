@@ -24,9 +24,18 @@ export function Modal({open,onClose,title,children,className='',eyebrow=copy.eye
     if(!dialog)return;
     if(!open){dialog.close();return;}
     const viewport=window.visualViewport;
+    let resizeFrame=0;
     const fitViewport=()=>{
       dialog.style.setProperty('--nutrition-viewport-height',`${viewport?.height??window.innerHeight}px`);
       dialog.style.setProperty('--nutrition-viewport-top',`${viewport?.offsetTop??0}px`);
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame=requestAnimationFrame(()=>{
+        const field=document.activeElement,body=dialog.querySelector<HTMLElement>('.nutrition-dialog-body');
+        if(!body||!(field instanceof HTMLElement)||!body.contains(field)||!field.matches('input:not([type=file]):not([type=checkbox]),textarea,select'))return;
+        const input=field.getBoundingClientRect(),area=body.getBoundingClientRect();
+        if(input.bottom>area.bottom-16)body.scrollTop+=input.bottom-area.bottom+16;
+        else if(input.top<area.top+16)body.scrollTop-=area.top+16-input.top;
+      });
     };
     fitViewport();
     dialog.showModal();
@@ -35,10 +44,13 @@ export function Modal({open,onClose,title,children,className='',eyebrow=copy.eye
     viewport?.addEventListener('resize',fitViewport);
     viewport?.addEventListener('scroll',fitViewport);
     window.addEventListener('resize',fitViewport);
+    dialog.addEventListener('focusin',fitViewport);
     return()=>{
+      cancelAnimationFrame(resizeFrame);
       viewport?.removeEventListener('resize',fitViewport);
       viewport?.removeEventListener('scroll',fitViewport);
       window.removeEventListener('resize',fitViewport);
+      dialog.removeEventListener('focusin',fitViewport);
     };
   },[open]);
   useEffect(()=>()=>{ref.current?.close();},[]);
