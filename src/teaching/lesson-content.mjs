@@ -1,5 +1,6 @@
 // Extract the supplied lesson-plan layout without guessing new teaching content.
 const tidy=s=>s.replace(/\r/g,'').replace(/[ \t]+/g,' ').trim();
+const cleanPage=s=>s.split('\n').filter(line=>!/^\s*20\s*[-－—]\s*20\s*学年度.*$|^\s*教学设计\s*[（(]续[）)]\s*$|^\s*课\s*题\s+课\s*型\s+课\s*时\s*$/u.test(line)).join('\n');
 const clip=(s,n)=>{const text=tidy(s);if(text.length<=n)return text;const part=text.slice(0,n-1),boundary=Math.max(part.lastIndexOf(' '),part.lastIndexOf('\n'),part.lastIndexOf('。'));return part.slice(0,boundary>n*.65?boundary:n-1).trimEnd()+'…';};
 const sectionNames='Language skills|Cultural awareness|Thinking quality|Learning ability|Key words and phrases|Key sentences|Key grammar|Allocation of periods';
 function section(text,name){
@@ -13,7 +14,7 @@ export function extractUnitOverview(material,unit){
   return {goals:section(text,'Language skills').split(/\n\s*\d+[.)]\s*/).map(s=>clip(s,500)).filter(Boolean).slice(0,5),vocabulary:section(text,'Key words and phrases').replace(/\n/g,' ').split(/[,，;；]/).map(s=>clip(s,150).replace(/[.。]\s*$/,'')).filter(Boolean).slice(0,100),grammar:clip(section(text,'Key grammar'),600),pages:pages.map(p=>p.number)};
 }
 export function extractLessonContent(material,unit,period,overview=extractUnitOverview(material,unit)){
-  const pages=material.pages.filter(p=>p.number>=period.from&&p.number<=period.to),text=pages.map(p=>p.text).join('\n');
+  const pages=material.pages.filter(p=>p.number>=period.from&&p.number<=period.to),text=pages.map(p=>cleanPage(p.text)).join('\n');
   const stepStart=text.search(/(?:^|\n)\s*Step\s*1\b/i),prefix=text.slice(0,stepStart<0?1500:stepStart);
   const fraction=/\b\d{1,2}\s*\/\s*\d{1,2}\b/.exec(prefix),goalsText=fraction?prefix.slice(fraction.index+fraction[0].length):prefix.replace(/^.*\bUnit\s*\d+[^\n]*\n/i,'');
   const numbered=[...goalsText.matchAll(/(?:^|\n)\s*\d+[.)]\s*([\s\S]*?)(?=\n\s*\d+[.)]\s*|$)/g)].map(m=>clip(m[1],300));
