@@ -21,7 +21,7 @@ export async function replaceTeachingFile(id:string,file:File,fingerprint:string
     await db.teachingFiles.put({id,name:file.name,blob:new Blob([file],{type:teachingMime[material.format||'pdf']})});
   });
 }
-export async function saveMaterial(material: Material, file: File) { return db.transaction('rw', [db.teachingState, db.teachingFiles], async () => { const state = await changeTeaching(s => {if(material.role!=='primary'&&!s.materials.some(m=>m.id===material.primaryId&&!m.deletedAt))throw Error('主教材已删除，请先恢复或重新选择');return { ...s, materials: [...s.materials, material] };}); await db.teachingFiles.put({ id: material.id, name: file.name, blob: new Blob([file],{type:teachingMime[material.format||'pdf']}) }); return state; }); }
+export async function saveMaterial(material: Material, file: File) { return db.transaction('rw', [db.teachingState, db.teachingFiles], async () => { const state = await changeTeaching(s => {if(material.role!=='primary'&&(material.planningBasis!=='lessonPlan'||material.primaryId)&&!s.materials.some(m=>m.id===material.primaryId&&!m.deletedAt))throw Error('教材已删除，请先恢复或重新选择');return { ...s, materials: [...s.materials, material] };}); await db.teachingFiles.put({ id: material.id, name: file.name, blob: new Blob([file],{type:teachingMime[material.format||'pdf']}) }); return state; }); }
 export async function restoreTeaching(backup: {
     state: TeachingState;
     files: {

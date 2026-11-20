@@ -5,13 +5,13 @@ export function deleteMaterial(state,id,now=Date.now()){
 }
 export function restoreMaterial(state,id){
   const material=state.materials.find(m=>m.id===id);if(!material)throw Error('资料已被清空');
-  if(material.role!=='primary'&&!state.materials.some(m=>m.id===material.primaryId&&!m.deletedAt))throw Error('请先恢复关联的主教材');
+  if(material.role!=='primary'&&material.planningBasis!=='lessonPlan'&&!state.materials.some(m=>m.id===material.primaryId&&!m.deletedAt))throw Error('请先恢复关联的主教材');
   return {...state,materials:state.materials.map(m=>{if(m.id!==id)return m;const {deletedAt,...rest}=m;return rest;})};
 }
 /** @param {import('./types').TeachingState} state */
 export function teachingTrashSummary(state){
   const primary=new Set(state.materials.filter(m=>m.role==='primary'&&m.deletedAt).map(m=>m.id));
-  const materials=state.materials.filter(m=>m.deletedAt||m.role!=='primary'&&primary.has(m.primaryId));
+  const materials=state.materials.filter(m=>m.deletedAt||m.role!=='primary'&&m.planningBasis!=='lessonPlan'&&primary.has(m.primaryId));
   const materialIds=new Set(materials.map(m=>m.id)),terms=state.terms.filter(t=>t.deletedAt),termIds=new Set(terms.map(t=>t.id));
   const classes=state.classes.filter(c=>c.deletedAt||termIds.has(c.termId)||materialIds.has(c.materialId)),classIds=new Set(classes.map(c=>c.id));
   const plans=state.plans.filter(p=>classIds.has(p.classId)),progress=state.progress.filter(p=>classIds.has(p.classId));
@@ -37,7 +37,7 @@ export function purgeTeachingTrash(state,expectedToken){
   if(expectedToken!==summary.token)throw Error('已删除内容发生变化，请重新查看并确认清空');
   const materials=new Set(summary.materials.map(m=>m.id)),terms=new Set(summary.terms.map(t=>t.id)),classes=new Set(summary.classes.map(c=>c.id)),prep=new Set(summary.prepProgress.map(p=>p.id));
   const next={...state,
-    materials:state.materials.filter(m=>!materials.has(m.id)).map(m=>({...m,units:m.units.map(u=>u.analysis?{...u,analysis:removeSources(u.analysis,materials)}:u)})),
+    materials:state.materials.filter(m=>!materials.has(m.id)).map(m=>({...m,...(m.planningBasis==='lessonPlan'&&materials.has(m.primaryId)?{primaryId:''}:{}),units:m.units.map(u=>({...u,...(u.analysis?{analysis:removeSources(u.analysis,materials)}:{}),...(u.periods?{periods:u.periods.map(p=>{if(!p.reference||!materials.has(p.reference.materialId))return p;const {reference,...rest}=p;return rest;})}:{})}))})),
     terms:state.terms.filter(t=>!terms.has(t.id)),classes:state.classes.filter(c=>!classes.has(c.id)),
     plans:state.plans.filter(p=>!classes.has(p.classId)),progress:state.progress.filter(p=>!classes.has(p.classId)),prepProgress:state.prepProgress.filter(p=>!prep.has(p.id)),
   };

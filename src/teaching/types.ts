@@ -25,7 +25,24 @@ export type Analysis = {
         quote: string;
     }[];
 };
+export type TextbookReference = {
+    materialId: string;
+    from: number;
+    to: number;
+    printedFrom: string;
+    printedTo: string;
+    locked: boolean;
+    vocabulary: {word:string;meaning:string;page:number;quote:string;printedPage:number}[];
+};
+export type TeachingPeriod = {
+    number: number;
+    title: string;
+    from: number;
+    to: number;
+    reference?: TextbookReference;
+};
 export type Unit = {
+    periods?: TeachingPeriod[];
     unitId?:string;
     lessonFrom?:number;
     lessonTo?:number;
@@ -38,6 +55,7 @@ export type Unit = {
     analysis?: Analysis;
 };
 export type Material = {
+    planningBasis?: 'lessonPlan';
     deletedAt?:number;
     id: string;
     title: string;
@@ -61,6 +79,7 @@ export type Term = {
     weeks: number;
 };
 export type ClassRoom = {
+    prepGroupId?: string;
     deletedAt?:number;
     id: string;
     name: string;
@@ -117,6 +136,7 @@ export type WeekPlan = {
     locked: boolean;
 };
 export type Plan = {
+    materialId?: string;
     id: string;
     classId: string;
     createdAt: number;

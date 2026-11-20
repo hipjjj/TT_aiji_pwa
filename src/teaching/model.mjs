@@ -1,4 +1,5 @@
 import {materialLocation,teachingMime} from './files.mjs';
+import {isCourse,courseLessons} from './course.mjs';
 export const countLabels = { homework: '作业', dictation: '听写', prep: '教案课时' };
 export const emptyTeaching = () => ({ version: 1, materials: [], terms: [], classes: [], plans: [], progress: [], prepProgress: [] });
 export const zeroCounts = () => ({ homework: 0, dictation: 0, prep: 0 });
@@ -7,7 +8,7 @@ export function isDate(s) { if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.
     return false; const d = new Date(s + 'T12:00:00Z'); return !Number.isNaN(+d) && d.toISOString().slice(0, 10) === s; }
 export function addDays(s, n) { const d = new Date(s + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
 export function weekNumber(term, date) { return Math.floor((Date.parse(date + 'T12:00:00Z') - Date.parse(term.startDate + 'T12:00:00Z')) / 86400000 / 7) + 1; }
-export const prepGroup = c => c.sharedPrep ? `shared:${c.termId}:${c.materialId}` : c.id;
+export const prepGroup = c => c.prepGroupId || (c.sharedPrep ? `shared:${c.termId}:${c.materialId}` : c.id);
 const str = (v, max = 2000) => typeof v === 'string' && v.length <= max;
 const id = v => typeof v === 'string' && v.length > 0 && v.length <= 200;
 const unique = rows => new Set(rows.map(x => x.id)).size === rows.length;
@@ -21,6 +22,8 @@ export function validateTeaching(state) {
         if (!id(m.id) || !str(m.title, 200) || !['primary', 'auxiliary','lessonPlan'].includes(m.role) || !Array.isArray(m.pages) || m.pages.length > 300 || !Array.isArray(m.units) || m.units.length > 100 || !unique(m.units))
             throw Error('教材资料格式无效');
         if(m.format!==undefined&&!['pdf','docx','txt'].includes(m.format))throw Error('资料文件类型无效');
+        if(m.planningBasis!==undefined&&!isCourse(m))throw Error('教案课程类型无效');
+        if(isCourse(m)&&m.primaryId&&!state.materials.some(b=>b.id===m.primaryId&&b.role==='primary'))throw Error('参考教材不存在');
         m.pages.forEach((p, i) => { if (p.number !== i + 1 || !str(p.text, 50000) || !Array.isArray(p.bold) || p.bold.some(x => !str(x, 2000)))
             throw Error('教材页面无效'); });
         if (m.pages.reduce((s, p) => s + p.text.length, 0) > 1500000)
@@ -29,7 +32,14 @@ export function validateTeaching(state) {
         for (const u of m.units) {
             if (!id(u.id) || !str(u.title, 200) || !integer(u.from, 1, m.pages.length) || !integer(u.to, u.from, m.pages.length) || !str(u.printedFrom, 30) || !integer(u.lessons, 1, 100))
                 throw Error('单元页码或建议课时无效');
-            if(m.role==='lessonPlan'&&(!state.materials.some(b=>b.id===m.primaryId&&b.role==='primary'&&b.units.some(x=>x.id===u.unitId))||!integer(u.lessonFrom,1,100)||!integer(u.lessonTo,u.lessonFrom,100)))throw Error('教案所属单元或覆盖课时无效');
+            if(m.role==='lessonPlan'&&!isCourse(m)&&(!state.materials.some(b=>b.id===m.primaryId&&b.role==='primary'&&b.units.some(x=>x.id===u.unitId))||!integer(u.lessonFrom,1,100)||!integer(u.lessonTo,u.lessonFrom,100)))throw Error('教案所属单元或覆盖课时无效');
+            if(isCourse(m)){
+                if(!Array.isArray(u.periods)||!u.periods.length||u.periods.length>100||u.lessons!==u.periods.length||new Set(u.periods.map(p=>p.number)).size!==u.periods.length)throw Error('教案课时目录无效');
+                for(const p of u.periods){
+                    if(!integer(p.number,1,100)||!str(p.title,200)||!integer(p.from,u.from,u.to)||!integer(p.to,p.from,u.to))throw Error('教案课时编号或页码无效');
+                    if(p.reference){const r=p.reference,b=state.materials.find(b=>b.id===r.materialId&&b.role==='primary');if(!b||!integer(r.from,1,b.pages.length)||!integer(r.to,r.from,b.pages.length)||typeof r.locked!=='boolean'||!str(r.printedFrom,30)||!str(r.printedTo,30)||!Array.isArray(r.vocabulary)||r.vocabulary.length>100||r.vocabulary.some(w=>!str(w.word,100)||!str(w.meaning,300)||!integer(w.printedPage,1,500)||!integer(w.page,1,b.pages.length)||!str(w.quote,500)||!w.quote.trim()||!b.pages[w.page-1].text.includes(w.quote)))throw Error('教材页码或词表关联无效');}
+                }
+            }else if(u.periods!==undefined)throw Error('课时目录需关联教案课程');
             if (u.analysis)
                 validateTeachingAnalysis(u.analysis, state.materials);
         }
@@ -39,9 +49,10 @@ export function validateTeaching(state) {
         if (!id(t.id) || !str(t.title, 100) || !isDate(t.startDate) || !integer(t.weeks, 1, 60))
             throw Error('学期日期或周数无效');
     for (const c of state.classes) {
-        const term = state.terms.find(t => t.id === c.termId), material = state.materials.find(m => m.id === c.materialId && m.role === 'primary');
+        const term = state.terms.find(t => t.id === c.termId), material = state.materials.find(m => m.id === c.materialId && (m.role === 'primary'||isCourse(m)));
         if (!id(c.id) || !str(c.name, 100) || !term || !material || !integer(c.weeklyLessons, 0, 50) || !integer(c.lessonMinutes, 1, 180) || !integer(c.buffer, 0, 20) || typeof c.sharedPrep !== 'boolean')
             throw Error('班级或课表设置无效');
+        if(c.prepGroupId!==undefined&&!id(c.prepGroupId))throw Error('原教案统计范围无效');
         if (c.coveredLessons !== undefined && (!Array.isArray(c.coveredLessons) || c.coveredLessons.some(x => !id(x))))
             throw Error('初始已讲授范围无效');
         if (!Array.isArray(c.unitIds) || !c.unitIds.length || new Set(c.unitIds).size !== c.unitIds.length || c.unitIds.some(x => !material.units.some(u => u.id === x)))
@@ -64,6 +75,7 @@ export function validateTeaching(state) {
         const c = state.classes.find(c => c.id === p.classId), term = c && state.terms.find(t => t.id === c.termId);
         if (!id(p.id) || !c || !Number.isFinite(p.createdAt) || !Array.isArray(p.weeks) || p.weeks.length > 60 || !Array.isArray(p.warnings) || p.warnings.some(x => !str(x)))
             throw Error('教学计划格式无效');
+        if(p.materialId!==undefined&&!id(p.materialId))throw Error('计划资料编号无效');
         p.weeks.forEach((w, i) => { if (w.week !== i + 1 || !isDate(w.start) || !isDate(w.end) || !integer(w.capacity, 0, 200) || !integer(w.review, 0, 100) || !integer(w.buffer, 0, 100) || !str(w.note, 5000) || typeof w.locked !== 'boolean' || !Array.isArray(w.lessons) || w.lessons.length > 100 || w.lessons.some(l => !id(l.id) || !id(l.unitId) || !str(l.title, 300) || !str(l.content, 5000) || !str(l.source, 500)) || Object.keys(countLabels).some(k => !integer(w.counts?.[k])))
             throw Error('周计划内容无效'); });
     }
@@ -155,6 +167,7 @@ export function actualCounts(state, c) { const rows = state.progress.filter(p =>
 export function distribute(total, weights) { const sum = weights.reduce((s, n) => s + n, 0); if (!sum)
     return weights.map(() => 0); const raw = weights.map(n => total * n / sum), out = raw.map(Math.floor); let remainder = total - out.reduce((s, n) => s + n, 0); raw.map((n, i) => ({ i, f: n - out[i] })).filter(x => weights[x.i] > 0).sort((a, b) => b.f - a.f || a.i - b.i).slice(0, remainder).forEach(x => out[x.i]++); return out; }
 export function unitLessons(material,unit,materials=[material]){
+    if(isCourse(material))return courseLessons(material,unit,materials);
     const a=unit.analysis,parts=a?[...a.goals.map(x=>`重点：${x}`),...a.vocabulary.map(x=>`词汇：${x}`),...a.grammar.map(x=>`句型／语法：${x}`),...a.consolidation.map(x=>`巩固：${x}`)]:[];
     return Array.from({length:unit.lessons},(_,i)=>{const suggestion=a?.lessonSuggestions?.find(s=>s.lesson===i+1),refs=suggestion?.references?.map(n=>a.sources[n]).filter(Boolean)||[],locations=refs.map(r=>{const m=materials.find(m=>m.id===r.materialId);return `${m?.title||'教学资料'} · ${materialLocation(m,r.page)}`;});return {id:`${unit.id}:${i+1}`,unitId:unit.id,title:suggestion?.title?`${unit.title} · 第${i+1}课时 · ${suggestion.title}`:`${unit.title} · 建议第 ${i+1} 课`,content:suggestion?.content||(parts.length?parts.filter((_,n)=>n%unit.lessons===i).join('；')||'复习本单元重点，练习并检查理解；按班级进度调整。':'待补充具体教学内容，可先分析本单元或手动编辑。'),source:(locations.length?[...new Set(locations)].join('；'):`${material.title} · ${materialLocation(material,unit.from,unit.to)}${unit.printedFrom?` · 印刷起始页 ${unit.printedFrom}`:''}`).slice(0,500)};});
 }
@@ -226,9 +239,9 @@ export function generatePlan(state, c, fromWeek = 1, previous = latestPlan(state
     if (!c.schedule.length && c.exceptions.length)
         warnings.push('当前仅填写每周总课时，请在“周课时覆盖”中确认停补课所在周的有效课时。');
     if (m.units.some(u => c.unitIds.includes(u.id) && !u.analysis))
-        warnings.push('部分单元尚未分析，具体内容待补充；当前按你确认的建议课时排程。');
+        warnings.push(isCourse(m)?'部分单元尚未由AI整理，当前按已核对的教案课时与原文排程。':'部分单元尚未分析，具体内容待补充；当前按你确认的建议课时排程。');
     if(m.units.some(u=>c.unitIds.includes(u.id)&&u.analysis&&(u.analysis.sourceStatus==='pending'||u.analysis.sourceStatus==='partial'||u.analysis.sources.some(s=>state.materials.find(x=>x.id===s.materialId)?.deletedAt))))warnings.push('部分单元分析的来源已删除或待核对，请核对已有教学文字，必要时重新分析。');
-    return { id: crypto.randomUUID(), classId: c.id, createdAt: Date.now(), weeks, warnings };
+    return { id: crypto.randomUUID(), classId: c.id, materialId:m.id, createdAt: Date.now(), weeks, warnings };
 }
 export function mergeTeaching(current, incoming) { const out = structuredClone(current); for (const key of ['materials', 'terms', 'classes', 'plans', 'progress', 'prepProgress']) {
     const rows = new Map(out[key].map(x => [x.id, x]));

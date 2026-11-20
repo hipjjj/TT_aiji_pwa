@@ -5,7 +5,7 @@ import { validateTeachingAnalysis } from './model.mjs';
 import type { Material, Unit, Analysis } from './types';
 export async function analyzeUnit(unit: Unit, materials: Material[], signal: AbortSignal): Promise<Analysis> {
     if (!navigator.onLine)
-        throw Error('教材AI分析需要联网，已保存的分析和计划可离线查看');
+        throw Error('教案AI整理需要联网，已保存的分析和计划可离线查看');
     const config = await db.settings.get('ai'), access = readAccessCode(), url = config?.url || import.meta.env.VITE_NUTRITION_API_URL || '';
     if (!url || access.length < 16)
         throw Error('请先在个人页设置AI连接');

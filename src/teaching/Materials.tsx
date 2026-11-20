@@ -1,141 +1,79 @@
 import TrashPanel from './TrashPanel';
 import {activeMaterials} from './settings-model.mjs';
 import {deleteMaterial} from './trash-model.mjs';
-import {detectPlanSections,materialLocation,teachingMime} from './files.mjs';
-import React, { useEffect, useRef, useState } from 'react';
-import { db } from '../db';
-import { saveMaterial,replaceTeachingFile } from './store';
-import { detectUnits } from './model.mjs';
-import { analyzeUnit } from './ai';
-import type { Material, Unit, Analysis, TeachingState } from './types';
-import { NumberField } from './Settings';
-import { Modal } from '../nutrition/NutritionTab';
-export default function Materials({ state, onState, onSave, onManageAI }: {
-    state: TeachingState;
-    onState: (s: TeachingState) => void;
-    onSave: (fn: (s: TeachingState) => TeachingState) => Promise<boolean>;
-    onManageAI: () => void;
-}) {
-    const [role, setRole] = useState<Material['role']>('primary'), [primaryId, setPrimaryId] = useState(activeMaterials(state).find(m => m.role === 'primary')?.id || ''),[unitId,setUnitId]=useState(''), [busy, setBusy] = useState(''), [error, setError] = useState(''), [editing, setEditing] = useState<string | null>(null), [analysis, setAnalysis] = useState<{
-        materialId: string;
-        unitId: string;
-        value: Analysis;
-    } | null>(null), [attach, setAttach] = useState<Material | null>(null), [page, setPage] = useState<{
-        materialId: string;
-        page: number;
-    } | null>(null);
-    const attachInput = useRef<HTMLInputElement>(null), input = useRef<HTMLInputElement>(null), controller = useRef<AbortController | null>(null), alive = useRef(true);
-    useEffect(() => { alive.current = true; return () => { alive.current = false; controller.current?.abort(); }; }, []);
-    const materials=activeMaterials(state);
-    useEffect(()=>{if(!materials.some(m=>m.role==='primary'&&m.id===primaryId)){setPrimaryId(materials.find(m=>m.role==='primary')?.id||'');setUnitId('');}},[state.materials,primaryId]);
-    async function remove(id:string){if(busy)return;if(await onSave(s=>deleteMaterial(s,id))){setEditing(null);setAnalysis(null);setError('');}}
-    async function importPDF(file?: File) { if (!file || busy)
-        return; setError(''); const c = new AbortController(); controller.current = c; setBusy('准备读取资料…'); try {
-        const {readTeachingFile}=await import('./documents');
-        const {pages,format}=await readTeachingFile(file, c.signal, (n, total) => { if (alive.current)
-            setBusy(`读取资料 ${n} / ${total} 页`); });
-        if (c.signal.aborted)
-            return;
-        if(role!=='lessonPlan'&&format!=='pdf')throw Error('主教材和知识清单请使用PDF；Word和TXT请选“教案”');
-        const book=materials.find(m=>m.id===primaryId&&m.role==='primary');
-        const units = role==='lessonPlan'?detectPlanSections(pages,book?.units||[],unitId||book?.units[0]?.id):detectUnits(pages);
-        const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await file.arrayBuffer()))).map(n => n.toString(16).padStart(2, '0')).join('');
-        const m: Material = { id: crypto.randomUUID(), fingerprint: hash, title: file.name.replace(/\.(pdf|docx|txt)$/i, '').slice(0, 200), role,format, primaryId: role !== 'primary' ? primaryId : '', pages, units: units.length ? units : [{ id: 'unit-1', title: '待确认单元', from: 1, to: pages.length, printedFrom: '', lessons: 8,...(role==='lessonPlan'?{unitId:book?.units[0]?.id,lessonFrom:1,lessonTo:1}:{}) }], createdAt: Date.now() };
-        if (role !== 'primary' && !primaryId)
-            throw Error('请先选择关联的主教材');
-        const next = await saveMaterial(m, file);
-        if (alive.current) {
-            onState(next);
-            setEditing(m.id);
-            if (role === 'primary'){setPrimaryId(m.id);setUnitId('');}
-        }
-    }
-    catch (e) {
-        if (alive.current)
-            setError(c.signal.aborted ? '已取消导入' : e instanceof Error ? e.message : '资料导入失败');
-    }
-    finally {
-        if (alive.current)
-            setBusy('');
-    } }
-    async function analyze(m: Material, u: Unit) { setError(''); setBusy(`正在分析 ${u.title}…`); const c = new AbortController(); controller.current = c; let timedOut=false;const timer = setTimeout(() => {timedOut=true;c.abort();}, 80000); try {
-        const selectedMaterials = [m, ...materials.filter(x => x.role !== 'primary' && x.primaryId === m.id)];
-        const result = await analyzeUnit(u, selectedMaterials, c.signal);
-        if (alive.current)
-            setAnalysis({ materialId: m.id, unitId: u.id, value: result });
-    }
-    catch (e) {
-        if (alive.current)
-            setError(c.signal.aborted ? (timedOut?'本次分析等待超时，请重试或缩小单元页码范围；已有内容保留':'已停止本次分析，已有内容保留') : e instanceof Error ? e.message : '分析失败');
-    }
-    finally {
-        clearTimeout(timer);
-        if (alive.current)
-            setBusy('');
-    } }
-    async function attachPDF(file?: File) { if (!file || !attach || busy)
-        return; setError(''); setBusy('正在核对原文件…'); try {
-        if (file.size > 20 * 1024 * 1024)
-            throw Error('请选择20MB以内的原文件');
-        const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await file.arrayBuffer()))).map(n => n.toString(16).padStart(2, '0')).join('');
-        if (hash !== attach.fingerprint)
-            throw Error('文件与原来导入的资料不同，请选择同一份原文件');
-        await replaceTeachingFile(attach.id,file,hash);
-        setAttach(null);
-    }
-    catch (e) {
-        setError(e instanceof Error ? e.message : '无法补回原文件');
-    }
-    finally {
-        setBusy('');
-    } }
-    async function openPage(materialId: string, n: number) { try {
-        const f = await db.teachingFiles.get(materialId);
-        if (f) {
-            const url = URL.createObjectURL(f.blob);
-            const a = document.createElement('a');
-            const m=state.materials.find(m=>m.id===materialId);a.href=url+((m?.format||'pdf')==='pdf'?`#page=${n}`:'');if(m?.format&&m.format!=='pdf')a.download=f.name;
-            a.target = '_blank';
-            a.rel = 'noopener';
-            a.click();
-            setTimeout(() => URL.revokeObjectURL(url), 60000);
-        }
-        else
-            setPage({ materialId, page: n });
-    }
-    catch {
-        setPage({ materialId, page: n });
-    } }
-    return <div className="teach-materials"><section className="teach-card"><div className="teach-row"><h2>上传与整理资料</h2><button onClick={onManageAI}>AI连接</button></div><p className="teach-help">主教材、知识清单和教案收在这里。教案支持PDF、Word（DOCX）和TXT，按单元与课时整理后可交给AI整合。</p><div className="teach-grid"><label>资料类型<select value={role} disabled={!!busy} onChange={e => setRole(e.target.value as typeof role)}><option value="primary">主教材</option><option value="auxiliary">辅助知识清单</option><option value="lessonPlan">教案</option></select></label>{role !== 'primary' && <label>关联教材<select value={primaryId} required onChange={e => {setPrimaryId(e.target.value);setUnitId('');}}><option value="">请选择</option>{materials.filter(m => m.role === 'primary').map(m => <option key={m.id} value={m.id}>{m.title}</option>)}</select></label>}{role==='lessonPlan'&&<label>默认所属单元<select value={unitId||state.materials.find(m=>m.id===primaryId)?.units[0]?.id||''} onChange={e=>setUnitId(e.target.value)}>{state.materials.find(m=>m.id===primaryId)?.units.map(u=><option value={u.id} key={u.id}>{u.title}</option>)}</select></label>}</div><input hidden type="file" accept=".pdf,.docx,.txt" ref={attachInput} onChange={e => { const f = e.target.files?.[0]; e.target.value = ''; void attachPDF(f); }}/><input hidden type="file" accept={role==='lessonPlan'?'.pdf,.docx,.txt':'application/pdf,.pdf'} ref={input} onChange={e => { const f = e.target.files?.[0]; e.target.value = ''; void importPDF(f); }}/><button className="teach-primary" disabled={!!busy || (role !== 'primary' && !primaryId)} onClick={() => input.current?.click()}>＋ 选择文件上传</button>{busy && <div className="teach-status" role="status">{busy}<button onClick={() => controller.current?.abort()}>停止</button></div>}{error && <p className="teach-error" role="alert">{error}</p>}</section>
-    {materials.map(m => <section className="teach-card" key={m.id}><span className="teach-tag">{m.role === 'primary' ? '主教材' : m.role==='lessonPlan'?'教案':'辅助清单'} · {m.pages.length}{m.format&&m.format!=='pdf'?'段':'页'}</span><h3>{m.title}</h3>{m.role !== 'primary' && <p className="teach-help">关联：{state.materials.find(x => x.id === m.primaryId)?.title || '未关联'}</p>}<div className="teach-actions"><button disabled={!!busy} onClick={() => setEditing(editing === m.id ? null : m.id)}>{editing === m.id ? '收起目录' : '核对／编辑目录'}</button><button onClick={() => void openPage(m.id, 1)}>查看原文件</button><button disabled={!!busy} onClick={() => { setAttach(m); attachInput.current?.click(); }}>补回原文件</button><button className="teach-danger" disabled={!!busy} onClick={()=>void remove(m.id)}>删除资料</button></div>{m.role==='primary'&&state.classes.some(c=>c.materialId===m.id)&&<p className="teach-help">删除此教材会将关联班级和资料一并移出当前视图，可在“已删除内容”恢复。</p>}{editing === m.id && <Directory key={m.id} material={m} books={materials.filter(x=>x.role==='primary')} onSave={async (value) => { if (await onSave(s => ({ ...s, materials: s.materials.map(x => x.id === value.id ? {...value,...(x.deletedAt?{deletedAt:x.deletedAt}:{})} : x) })))
-            setEditing(null); }}/>}
-      {m.units.map(u => <details key={u.id}><summary>{u.title}<span className="teach-unit-status">{u.analysis ? u.analysis.sourceStatus==='pending'||u.analysis.sourceStatus==='partial'?'引用待核对':'已分析' : '待整理'}</span></summary><p className="teach-help">{materialLocation(m,u.from,u.to)}{m.role==='lessonPlan'?` · 第${u.lessonFrom}–${u.lessonTo}课时`:u.printedFrom?'':''}{u.printedFrom ? ` · 印刷起始页 ${u.printedFrom}` : ''}{m.role!=='lessonPlan'&&<> · 建议 {u.lessons} 课时</>}</p><button onClick={() => void openPage(m.id, u.from)}>定位原文</button>{m.role === 'primary' && <><div className="teach-actions"><button disabled={!!busy} onClick={() => void analyze(m, u)}>{materials.some(x=>x.role==='lessonPlan'&&x.primaryId===m.id&&x.units.some(s=>s.unitId===u.id))?'AI整合教案':u.analysis?'重新分析':'AI分析本单元'}</button><button disabled={!!busy} onClick={() => setAnalysis({ materialId: m.id, unitId: u.id, value: u.analysis || { goals: [], vocabulary: [], grammar: [], consolidation: [], extension: [], lessons: u.lessons, note: '教师手动整理', sources: [] } })}>手动整理</button></div>{u.analysis && <AnalysisView value={u.analysis} materials={state.materials} openPage={openPage}/>}</>}</details>)}
+import {materialLocation} from './files.mjs';
+import {isCourse,detectCourseUnits,suggestTextbookReferences,makeTextbookReference} from './course.mjs';
+import React,{useEffect,useRef,useState} from 'react';
+import {db} from '../db';
+import {saveMaterial,replaceTeachingFile} from './store';
+import {detectUnits} from './model.mjs';
+import {analyzeUnit} from './ai';
+import type {Material,Unit,Analysis,TeachingState,TeachingPeriod} from './types';
+import {NumberField} from './Settings';
+import {Modal} from '../nutrition/NutritionTab';
+export default function Materials({state,onState,onSave,onManageAI}:{state:TeachingState;onState:(s:TeachingState)=>void;onSave:(fn:(s:TeachingState)=>TeachingState)=>Promise<boolean>;onManageAI:()=>void}){
+  const [role,setRole]=useState<'lessonPlan'|'primary'>('lessonPlan'),[primaryId,setPrimaryId]=useState(''),[busy,setBusy]=useState(''),[error,setError]=useState(''),[editing,setEditing]=useState<string|null>(null),[analysis,setAnalysis]=useState<{materialId:string;unitId:string;value:Analysis}|null>(null),[attach,setAttach]=useState<Material|null>(null),[page,setPage]=useState<{materialId:string;page:number}|null>(null);
+  const input=useRef<HTMLInputElement>(null),attachInput=useRef<HTMLInputElement>(null),controller=useRef<AbortController|null>(null),alive=useRef(true);
+  useEffect(()=>{alive.current=true;return()=>{alive.current=false;controller.current?.abort();};},[]);
+  const all=activeMaterials(state),materials=all.filter(m=>m.role!=='auxiliary'),books=materials.filter(m=>m.role==='primary');
+  useEffect(()=>{if(primaryId&&!books.some(m=>m.id===primaryId))setPrimaryId('');},[state.materials,primaryId]);
+  async function remove(id:string){if(busy)return;if(await onSave(s=>deleteMaterial(s,id))){setEditing(null);setAnalysis(null);setError('');}}
+  async function importFile(file?:File){
+    if(!file||busy)return;setError('');const c=new AbortController();controller.current=c;setBusy('准备读取资料…');
+    try{
+      const {readTeachingFile}=await import('./documents');const {pages,format}=await readTeachingFile(file,c.signal,(n,total)=>{if(alive.current)setBusy(`读取资料 ${n} / ${total} 页`);});
+      if(c.signal.aborted)return;
+      if(role==='primary'&&format!=='pdf')throw Error('教材请使用PDF，教案支持PDF、DOCX和TXT');
+      const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',await file.arrayBuffer()))).map(n=>n.toString(16).padStart(2,'0')).join('');
+      const detected=role==='lessonPlan'?detectCourseUnits(pages):detectUnits(pages);
+      let m:Material={id:crypto.randomUUID(),fingerprint:hash,title:file.name.replace(/\.(pdf|docx|txt)$/i,'').slice(0,200),role,format,primaryId:'',pages,units:detected.length?detected:[{id:'unit-1',title:'待核对单元',from:1,to:pages.length,printedFrom:'',lessons:1}],createdAt:Date.now(),...(role==='lessonPlan'?{planningBasis:'lessonPlan' as const}:{})};
+      const book=books.find(b=>b.id===primaryId);if(isCourse(m)&&book)m=suggestTextbookReferences(m,book);
+      const next=await saveMaterial(m,file);if(alive.current){onState(next);setEditing(m.id);}
+    }catch(e){if(alive.current)setError(c.signal.aborted?'已取消导入':e instanceof Error?e.message:'资料导入失败');}finally{if(alive.current)setBusy('');}
+  }
+  async function analyze(m:Material,u:Unit){
+    setError('');setBusy(`正在整理 ${u.title}…`);const c=new AbortController();controller.current=c;let timedOut=false;const timer=setTimeout(()=>{timedOut=true;c.abort();},80000);
+    try{const result=await analyzeUnit(u,[m,...books.filter(b=>b.id===m.primaryId||u.periods?.some(p=>p.reference?.materialId===b.id))],c.signal);if(alive.current)setAnalysis({materialId:m.id,unitId:u.id,value:result});}
+    catch(e){if(alive.current)setError(c.signal.aborted?(timedOut?'本次整理超时，请重试或缩小教案范围；已有内容保留':'已停止本次整理，已有内容保留'):e instanceof Error?e.message:'整理失败');}
+    finally{clearTimeout(timer);if(alive.current)setBusy('');}
+  }
+  async function attachFile(file?:File){if(!file||!attach||busy)return;setError('');setBusy('正在核对原文件…');try{if(file.size>20*1024*1024)throw Error('请选择20MB以内的原文件');const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',await file.arrayBuffer()))).map(n=>n.toString(16).padStart(2,'0')).join('');if(hash!==attach.fingerprint)throw Error('文件与原来导入的资料不同，请选择同一份原文件');await replaceTeachingFile(attach.id,file,hash);setAttach(null);}catch(e){setError(e instanceof Error?e.message:'无法补回原文件');}finally{setBusy('');}}
+  async function openPage(materialId:string,n:number){try{const f=await db.teachingFiles.get(materialId);if(!f){setPage({materialId,page:n});return;}const url=URL.createObjectURL(f.blob),a=document.createElement('a'),m=state.materials.find(m=>m.id===materialId);a.href=url+((m?.format||'pdf')==='pdf'?`#page=${n}`:'');if(m?.format&&m.format!=='pdf')a.download=f.name;a.target='_blank';a.rel='noopener';a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);}catch{setPage({materialId,page:n});}}
+  return <div className="teach-materials">
+    <section className="teach-card"><div className="teach-row"><h2>上传与整理资料</h2><button onClick={onManageAI}>AI连接</button></div><p className="teach-help">先上传教案，按其中的单元与详细课时安排教学。教材可稍后补充，用于核对课文页码和课后词表。</p><div className="teach-grid"><label>资料类型<select value={role} disabled={!!busy} onChange={e=>setRole(e.target.value as typeof role)}><option value="lessonPlan">教案（安排教学）</option><option value="primary">教材（参考）</option></select></label>{role==='lessonPlan'&&<label>参考教材（可选）<select value={primaryId} onChange={e=>setPrimaryId(e.target.value)}><option value="">先独立整理教案</option>{books.map(b=><option key={b.id} value={b.id}>{b.title}</option>)}</select></label>}</div><input hidden type="file" accept=".pdf,.docx,.txt" ref={attachInput} onChange={e=>{const f=e.target.files?.[0];e.target.value='';void attachFile(f);}}/><input hidden type="file" accept={role==='lessonPlan'?'.pdf,.docx,.txt':'application/pdf,.pdf'} ref={input} onChange={e=>{const f=e.target.files?.[0];e.target.value='';void importFile(f);}}/><button className="teach-primary" disabled={!!busy} onClick={()=>input.current?.click()}>＋ 选择文件上传</button>{busy&&<div className="teach-status" role="status">{busy}<button onClick={()=>controller.current?.abort()}>停止</button></div>}{error&&<p className="teach-error" role="alert">{error}</p>}</section>
+    {materials.map(m=><section className="teach-card" key={m.id}><span className="teach-tag">{m.role==='primary'?'参考教材':'教案'} · {m.pages.length}{m.format&&m.format!=='pdf'?'段':'页'}{isCourse(m)?` · ${m.units.length}个单元 · ${m.units.reduce((n,u)=>n+u.lessons,0)}课时`:''}</span><h3>{m.title}</h3><div className="teach-actions"><button disabled={!!busy} onClick={()=>setEditing(editing===m.id?null:m.id)}>{editing===m.id?'收起目录':'核对／编辑目录'}</button><button onClick={()=>void openPage(m.id,1)}>查看原文件</button><button disabled={!!busy} onClick={()=>{setAttach(m);attachInput.current?.click();}}>补回原文件</button><button className="teach-danger" disabled={!!busy} onClick={()=>void remove(m.id)}>删除资料</button></div>
+      {m.role==='lessonPlan'&&!isCourse(m)&&<div className="teach-warning"><p>这是旧版上传的教案，可按原文件重新整理为独立教案课程。</p><button disabled={!!busy} onClick={()=>void onSave(s=>({...s,materials:s.materials.map(x=>x.id===m.id?{...x,planningBasis:'lessonPlan',units:detectCourseUnits(x.pages)}:x)}))}>按此教案建立课程</button></div>}
+      {state.classes.some(c=>c.materialId===m.id)&&<p className="teach-help">删除这份资料会暂时隐藏使用它安排教学的班级，可在“已删除内容”恢复。</p>}
+      {editing===m.id&&(isCourse(m)||m.role==='primary')&&<Directory key={m.id} material={m} books={books} onSave={async value=>{if(await onSave(s=>({...s,materials:s.materials.map(x=>x.id===value.id?{...value,...(x.deletedAt?{deletedAt:x.deletedAt}:{})}:x)})))setEditing(null);}}/>}
+      {m.units.map(u=><details key={u.id}><summary>{u.title}<span className="teach-unit-status">{isCourse(m)?`${u.lessons}个教案课时 · `:''}{u.analysis?u.analysis.sourceStatus==='pending'||u.analysis.sourceStatus==='partial'?'建议待核对':'已整理':isCourse(m)?'可直接按教案排课':'参考页码'}</span></summary><p className="teach-help">{materialLocation(m,u.from,u.to)}</p><button onClick={()=>void openPage(m.id,u.from)}>定位原文</button>{isCourse(m)&&<><div className="teach-actions"><button disabled={!!busy} onClick={()=>void analyze(m,u)}>{u.analysis?'重新整理教案':'AI整理本单元教案'}</button><button disabled={!!busy} onClick={()=>setAnalysis({materialId:m.id,unitId:u.id,value:u.analysis||{goals:[],vocabulary:[],grammar:[],consolidation:[],extension:[],lessons:u.lessons,note:'教师手动整理',sources:[]}})}>手动整理</button></div>{u.periods?.map(p=><div className="teach-lesson" key={p.number}><b>第{p.number}课时 · {p.title}</b><small>教案 {materialLocation(m,p.from,p.to)}</small>{p.reference?<><p className="teach-help">教材 PDF {p.reference.from}–{p.reference.to} · 印刷页 {p.reference.printedFrom||'待核对'}–{p.reference.printedTo||'待核对'} · {p.reference.locked?'关联已锁定':'关联待核对'}</p><details><summary>对应教材词表 · {p.reference.vocabulary.length}项</summary>{p.reference.vocabulary.map((w,i)=><p key={i}>{w.word} · {w.meaning}<small>词表 PDF {w.page} · 首现印刷页 {w.printedPage}</small></p>)}</details></>:<small>教材页码与词表尚未关联，可在“核对／编辑目录”补充。</small>}</div>)}{u.analysis&&<AnalysisView value={u.analysis} materials={state.materials} openPage={openPage}/>}</>}</details>)}
     </section>)}
+    {all.some(m=>m.role==='auxiliary')&&<details><summary>旧版资料存档</summary><p className="teach-help">旧版资料保留供查看或删除，不参与新的教案计划。</p>{all.filter(m=>m.role==='auxiliary').map(m=><div className="teach-setting-item" key={m.id}><span>{m.title}</span><div className="teach-actions"><button onClick={()=>void openPage(m.id,1)}>查看原文件</button><button className="teach-danger" disabled={!!busy} onClick={()=>void remove(m.id)}>删除资料</button></div></div>)}</details>}
     <TrashPanel state={state} onSave={onSave} onState={onState}/>
-    {analysis && <Modal open eyebrow="A LITTLE TEACHING DESK" title="确认单元教学建议" onClose={() => setAnalysis(null)}><>{error && <p className="teach-error" role="alert">{error}</p>}<AnalysisEditor key={analysis.unitId} value={analysis.value} onSave={async (value) => { if (await onSave(s => ({ ...s, materials: s.materials.map(m => m.id === analysis.materialId ? { ...m, units: m.units.map(u => u.id === analysis.unitId ? { ...u, lessons: value.lessons, analysis: value } : u) } : m) })))
-        setAnalysis(null);
-    else
-        setError('教学建议未能保存，请检查各项长度和引用，原内容保留'); }}/></></Modal>}
-    {page && <Modal open eyebrow="A LITTLE TEACHING DESK" title={`${materialLocation(state.materials.find(m=>m.id===page.materialId),page.page)} · 文字`} onClose={() => setPage(null)}><p className="teach-help">备份未包含原文件，仍可查阅已保存的文字。可使用“补回原文件”恢复原文件版面。</p><pre className="teach-source">{state.materials.find(m => m.id === page.materialId)?.pages[page.page - 1]?.text || '此页未提取文字'}</pre></Modal>}
+    {analysis&&<Modal open eyebrow="A LITTLE TEACHING DESK" title="确认教案教学建议" onClose={()=>setAnalysis(null)}><>{error&&<p className="teach-error" role="alert">{error}</p>}<AnalysisEditor key={analysis.unitId} value={analysis.value} onSave={async value=>{if(await onSave(s=>({...s,materials:s.materials.map(m=>m.id===analysis.materialId?{...m,units:m.units.map(u=>u.id===analysis.unitId?{...u,analysis:{...value,lessons:u.lessons}}:u)}:m)})))setAnalysis(null);}}/></></Modal>}
+    {page&&<Modal open eyebrow="A LITTLE TEACHING DESK" title={`${materialLocation(state.materials.find(m=>m.id===page.materialId),page.page)} · 文字`} onClose={()=>setPage(null)}><p className="teach-help">原文件未保存在本机，仍可查阅已保存的文字，或用“补回原文件”恢复版面。</p><pre className="teach-source">{state.materials.find(m=>m.id===page.materialId)?.pages[page.page-1]?.text||'此页未提取文字'}</pre></Modal>}
   </div>;
 }
-function Directory({ material, books, onSave }: {
-    material: Material;
-    books:Material[];
-    onSave: (m: Material) => Promise<void>;
-}) { const [m, setM] = useState(() => structuredClone(material)), [busy, setBusy] = useState(false); return <form className="teach-directory" onSubmit={async (e) => { e.preventDefault(); setBusy(true); try {
-    await onSave(m);
+function Directory({material,books,onSave}:{material:Material;books:Material[];onSave:(m:Material)=>Promise<void>}){
+  const [m,setM]=useState(()=>structuredClone(material)),[busy,setBusy]=useState(false);const course=isCourse(m),book=books.find(b=>b.id===m.primaryId),hasLocked=m.units.some(u=>u.periods?.some(p=>p.reference?.locked));
+  function updateUnit(index:number,change:Partial<Unit>){setM({...m,units:m.units.map((u,i)=>i===index?{...u,...change}:u)});}
+  return <form className="teach-directory" onSubmit={async e=>{e.preventDefault();setBusy(true);try{await onSave(m);}finally{setBusy(false);}}}><label>资料名称<input required maxLength={200} value={m.title} onChange={e=>setM({...m,title:e.target.value})}/></label>{course&&<><p className="teach-help">详细教案决定课时数量。请核对单元、每课时的原文范围；教材只补充页码与词表。自动匹配属于待核对关联，确认后可锁定。</p><label>参考教材（可选）<select value={m.primaryId} disabled={hasLocked} onChange={e=>setM({...m,primaryId:e.target.value,units:m.units.map(u=>({...u,periods:u.periods?.map(p=>{const {reference,...rest}=p;return rest;})}))})}><option value="">不关联教材</option>{books.map(b=><option key={b.id} value={b.id}>{b.title}</option>)}</select></label><button type="button" disabled={!book} onClick={()=>book&&setM(suggestTextbookReferences(m,book))}>匹配教材页码与词表</button></>}
+    {m.units.map((u,i)=><details key={u.id}><summary>{u.title}{course?` · ${u.lessons}课时`:''}</summary><label>单元名称<input required maxLength={200} value={u.title} onChange={e=>updateUnit(i,{title:e.target.value})}/></label>{course?u.periods?.map((p,j)=><fieldset key={j}><legend>第{p.number}课时</legend><NumberField label="课时编号" min={1} max={100} value={p.number} onChange={number=>updateUnit(i,{periods:u.periods?.map((x,k)=>j===k?{...x,number}:x)})}/><label>课时内容<input required maxLength={200} value={p.title} onChange={e=>updateUnit(i,{periods:u.periods?.map((x,k)=>j===k?{...x,title:e.target.value}:x)})}/></label><div className="teach-grid"><NumberField label="教案起始页／段" min={1} max={m.pages.length} value={p.from} onChange={from=>updateUnit(i,{from:Math.min(u.from,from),periods:u.periods?.map((x,k)=>j===k?{...x,from}:x)})}/><NumberField label="教案结束页／段" min={p.from} max={m.pages.length} value={p.to} onChange={to=>updateUnit(i,{to:Math.max(u.to,to),periods:u.periods?.map((x,k)=>j===k?{...x,to}:x)})}/></div><ReferenceEditor period={p} book={books.find(b=>b.id===p.reference?.materialId)||book} onChange={next=>updateUnit(i,{periods:u.periods?.map((x,k)=>j===k?next:x)})}/><button type="button" disabled={(u.periods?.length||0)<=1} onClick={()=>updateUnit(i,{periods:u.periods?.filter((_,k)=>j!==k),lessons:u.lessons-1})}>移除此课时</button></fieldset>):<div className="teach-grid"><NumberField label="教材PDF起始页" min={1} max={m.pages.length} value={u.from} onChange={from=>updateUnit(i,{from})}/><NumberField label="教材PDF结束页" min={u.from} max={m.pages.length} value={u.to} onChange={to=>updateUnit(i,{to})}/><label>印刷起始页<input maxLength={30} value={u.printedFrom} onChange={e=>updateUnit(i,{printedFrom:e.target.value})}/></label></div>}
+      {course&&<button type="button" onClick={()=>{let number=1;while(u.periods?.some(p=>p.number===number))number++;updateUnit(i,{lessons:u.lessons+1,periods:[...(u.periods||[]),{number,title:`第${number}课时`,from:u.from,to:u.from}]});}}>＋ 添加课时</button>}<button type="button" onClick={()=>setM({...m,units:m.units.filter((_,j)=>j!==i)})}>移除此单元</button>
+    </details>)}<div className="teach-actions"><button type="button" onClick={()=>{let n=1;while(m.units.some(u=>u.id===`unit-${n}`))n++;setM({...m,units:[...m.units,{id:`unit-${n}`,title:`Unit ${n}`,from:1,to:1,printedFrom:'',lessons:1,...(course?{periods:[{number:1,title:'第1课时',from:1,to:1}]}:{})}]});}}>＋ 添加单元</button><button className="teach-primary" disabled={busy}>保存目录与关联</button></div>
+  </form>;
 }
-finally {
-    setBusy(false);
-} }}><label>资料名称<input required maxLength={200} value={m.title} onChange={e => setM({ ...m, title: e.target.value })}/></label><p className="teach-help">请核对识别结果。PDF按实际页码定位；Word与TXT按文字分段定位。教案需确认所属单元和覆盖课时，再到主教材单元点击“AI整合教案”。</p>{m.units.map((u, i) => <fieldset key={u.id}><legend>{m.role==='lessonPlan'?'教案课时范围':u.id}</legend>{m.role==='lessonPlan'&&<><label>所属单元<select required value={u.unitId||''} onChange={e=>setM({...m,units:m.units.map((x,j)=>i===j?{...x,unitId:e.target.value}:x)})}>{books.find(b=>b.id===m.primaryId)?.units.map(x=><option key={x.id} value={x.id}>{x.title}</option>)}</select></label><div className="teach-grid"><NumberField label="起始课时" value={u.lessonFrom||1} min={1} max={100} onChange={lessonFrom=>setM({...m,units:m.units.map((x,j)=>i===j?{...x,lessonFrom}:x)})}/><NumberField label="结束课时" value={u.lessonTo||1} min={u.lessonFrom||1} max={100} onChange={lessonTo=>setM({...m,units:m.units.map((x,j)=>i===j?{...x,lessonTo}:x)})}/></div></>}<label>{m.role==='lessonPlan'?'课时标题':'单元名称'}<input required maxLength={200} value={u.title} onChange={e => setM({ ...m, units: m.units.map((x, j) => i === j ? { ...x, title: e.target.value } : x) })}/></label><div className="teach-grid"><NumberField label={m.format&&m.format!=='pdf'?'资料起始段':'PDF起始页'} value={u.from} min={1} max={m.pages.length} onChange={from => setM({ ...m, units: m.units.map((x, j) => i === j ? { ...x, from } : x) })}/><NumberField label={m.format&&m.format!=='pdf'?'资料结束段':'PDF结束页'} value={u.to} min={u.from} max={m.pages.length} onChange={to => setM({ ...m, units: m.units.map((x, j) => i === j ? { ...x, to } : x) })}/>{m.role!=='lessonPlan'&&<><label>印刷起始页<input maxLength={30} value={u.printedFrom} onChange={e => setM({ ...m, units: m.units.map((x, j) => i === j ? { ...x, printedFrom: e.target.value } : x) })}/></label><NumberField label="建议课时" value={u.lessons} min={1} max={100} onChange={lessons => setM({ ...m, units: m.units.map((x, j) => i === j ? { ...x, lessons } : x) })}/></>}</div><button type="button" onClick={() => setM({ ...m, units: m.units.filter((_, j) => i !== j) })}>移除此单元</button></fieldset>)}<div className="teach-actions"><button type="button" onClick={() => { let n = 1; while (m.units.some(u => u.id === `unit-${n}`))
-    n++; setM({ ...m, units: [...m.units, { id: `unit-${n}`, title: `Unit ${n}`, from: 1, to: 1, printedFrom: '', lessons: 8,...(m.role==='lessonPlan'?{unitId:books.find(b=>b.id===m.primaryId)?.units[0]?.id,lessonFrom:1,lessonTo:1}:{}) }] }); }}>{m.role==='lessonPlan'?'＋ 添加课时范围':'＋ 添加单元'}</button><button className="teach-primary" disabled={busy}>保存目录</button></div></form>; }
+function ReferenceEditor({period,book,onChange}:{period:TeachingPeriod;book?:Material;onChange:(p:TeachingPeriod)=>void}){
+  const r=period.reference;
+  if(!book)return <p className="teach-help">选择参考教材后，可关联此课时的页码和词表。</p>;
+  function range(from:number,to:number){if(book)onChange({...period,reference:makeTextbookReference(book,from,to)});}
+  return <div className="teach-reference"><h4>教材页码与生词</h4><p className="teach-help">{book.title}</p>{r?<><div className="teach-grid"><label>教材PDF起始页<input type="number" min={1} max={book.pages.length} disabled={r.locked} value={r.from} onChange={e=>range(Number(e.target.value),Math.max(r.to,Number(e.target.value)))}/></label><label>教材PDF结束页<input type="number" min={r.from} max={book.pages.length} disabled={r.locked} value={r.to} onChange={e=>range(r.from,Number(e.target.value))}/></label></div><p className="teach-help">印刷页 {r.printedFrom||'未识别'}–{r.printedTo||'未识别'} · 按词表标注的首次出现页匹配，需人工核对。</p><details><summary>词表关联 · {r.vocabulary.length}项</summary>{r.vocabulary.map((w,i)=><label className="teach-inline" key={i}><input type="checkbox" checked disabled={r.locked} onChange={()=>onChange({...period,reference:{...r,vocabulary:r.vocabulary.filter((_,j)=>j!==i)}})}/><span>{w.word} · {w.meaning}<small>词表PDF {w.page} · 首现印刷页 {w.printedPage}</small></span></label>)}{!r.vocabulary.length&&<p className="teach-help">此范围未找到可核对的词表条目，请查看教材原文。</p>}</details><label className="teach-inline"><input type="checkbox" checked={r.locked} onChange={e=>onChange({...period,reference:{...r,locked:e.target.checked}})}/>确认并锁定本课时的教材页码与词表关联</label></>:<button type="button" onClick={()=>range(book.units[0]?.from||1,book.units[0]?.from||1)}>手动关联教材页码</button>}</div>;
+}
 const sections = { goals: '保底重点', vocabulary: '重点词汇与短语', grammar: '基础句型与语法', consolidation: '补基础与巩固', extension: '选做拓展' } as const;
 export function AnalysisView({ value, materials, openPage }: {
     value: Analysis;
     materials: Material[];
     openPage: (id: string, n: number) => void;
-}) { return <div className="teach-analysis">{(value.sourceStatus==='pending'||value.sourceStatus==='partial')&&<p className="teach-warning">{value.sourceStatus==='pending'?'原文引用尚未定位，以下为待核对建议。':'部分引用待核对，已保留可定位的原文。'}</p>}{Object.entries(sections).map(([key, label]) => value[key as keyof typeof sections].length > 0 && <div key={key}><h4>{label}</h4><ul>{value[key as keyof typeof sections].map((text, i) => <li key={i}>{text}</li>)}</ul></div>)}<p className="teach-help">{value.note}</p>{!!value.lessonSuggestions?.length&&<details><summary>按教案整合的课时安排</summary>{value.lessonSuggestions.map(l=><div className="teach-lesson" key={l.lesson}><b>第{l.lesson}课时 · {l.title}</b><p>{l.content}</p></div>)}</details>}<details><summary>原文出处与核对</summary>{value.sources.map((s, i) => <blockquote key={i}><p>{s.quote}</p><button onClick={() => openPage(s.materialId, s.page)}>{materials.find(m => m.id === s.materialId)?.title} · {materialLocation(materials.find(m=>m.id===s.materialId),s.page)}</button></blockquote>)}{!value.sources.length && <p>暂无可定位的原文引用，请对照教材核对。</p>}</details></div>; }
+}) { return <div className="teach-analysis">{(value.sourceStatus==='pending'||value.sourceStatus==='partial')&&<p className="teach-warning">{value.sourceStatus==='pending'?'原文引用尚未定位，以下为待核对建议。':'部分引用待核对，已保留可定位的原文。'}</p>}{Object.entries(sections).map(([key, label]) => value[key as keyof typeof sections].length > 0 && <div key={key}><h4>{label}</h4><ul>{value[key as keyof typeof sections].map((text, i) => <li key={i}>{text}</li>)}</ul></div>)}<p className="teach-help">{value.note}</p>{!!value.lessonSuggestions?.length&&<details><summary>按教案整合的课时安排</summary>{value.lessonSuggestions.map(l=><div className="teach-lesson" key={l.lesson}><b>第{l.lesson}课时 · {l.title}</b><p>{l.content}</p></div>)}</details>}<details><summary>原文出处与核对</summary>{value.sources.map((s, i) => <blockquote key={i}><p>{s.quote}</p><button onClick={() => openPage(s.materialId, s.page)}>{materials.find(m => m.id === s.materialId)?.title} · {materialLocation(materials.find(m=>m.id===s.materialId),s.page)}</button></blockquote>)}{!value.sources.length && <p>暂无可定位的原文引用，请对照教案核对。</p>}</details></div>; }
 function AnalysisEditor({ value, onSave }: {
     value: Analysis;
     onSave: (a: Analysis) => Promise<void>;
@@ -144,4 +82,4 @@ function AnalysisEditor({ value, onSave }: {
 }
 finally {
     setBusy(false);
-} }}>{(a.sourceStatus==='pending'||a.sourceStatus==='partial')&&<p className="teach-warning">{a.sourceStatus==='pending'?'原文引用尚未定位，请先对照教材核对。结果仍可保存为待核对建议。':'部分原文引用尚未定位，请对照教材核对后保存。'}</p>}<p className="teach-help">这是可修改的教学建议。请核对后保存；重点词以原教材为准，建议不表示学生已经掌握。</p>{Object.entries(sections).map(([key, label]) => <label key={key}>{label}（每行一项）<textarea rows={3} maxLength={20000} value={a[key as keyof typeof sections].join('\n')} onChange={e => setA({ ...a, [key]: e.target.value.split('\n') })}/></label>)}{a.lessonSuggestions?.map((l,i)=><fieldset key={l.lesson}><legend>第{l.lesson}课时 · 教案安排</legend><label>课时标题<input maxLength={200} value={l.title} onChange={e=>setA({...a,lessonSuggestions:a.lessonSuggestions?.map((x,j)=>i===j?{...x,title:e.target.value}:x)})}/></label><label>教学内容<textarea rows={3} maxLength={3000} value={l.content} onChange={e=>setA({...a,lessonSuggestions:a.lessonSuggestions?.map((x,j)=>i===j?{...x,content:e.target.value}:x)})}/></label></fieldset>)}<NumberField label="建议课时" value={a.lessons} min={1} max={100} onChange={lessons => setA({ ...a, lessons })}/><label>估算说明／待核对差异<textarea rows={3} maxLength={3000} value={a.note} onChange={e => setA({ ...a, note: e.target.value })}/></label><details><summary>查看本次引用</summary>{a.sources.map((s, i) => <p key={i}>PDF {s.page}页：{s.quote}</p>)}</details><button className="teach-primary" disabled={busy}>{a.sourceStatus==='pending'||a.sourceStatus==='partial'?'保存待核对建议':'确认保存教学建议'}</button></form>; }
+} }}>{(a.sourceStatus==='pending'||a.sourceStatus==='partial')&&<p className="teach-warning">{a.sourceStatus==='pending'?'原文引用尚未定位，请先对照教材核对。结果仍可保存为待核对建议。':'部分原文引用尚未定位，请对照教案核对后保存。'}</p>}<p className="teach-help">这是可修改的教学建议。请核对后保存；重点词以教案与参考教材为准，建议不表示学生已经掌握。</p>{Object.entries(sections).map(([key, label]) => <label key={key}>{label}（每行一项）<textarea rows={3} maxLength={20000} value={a[key as keyof typeof sections].join('\n')} onChange={e => setA({ ...a, [key]: e.target.value.split('\n') })}/></label>)}{a.lessonSuggestions?.map((l,i)=><fieldset key={l.lesson}><legend>第{l.lesson}课时 · 教案安排</legend><label>课时标题<input maxLength={200} value={l.title} onChange={e=>setA({...a,lessonSuggestions:a.lessonSuggestions?.map((x,j)=>i===j?{...x,title:e.target.value}:x)})}/></label><label>教学内容<textarea rows={3} maxLength={3000} value={l.content} onChange={e=>setA({...a,lessonSuggestions:a.lessonSuggestions?.map((x,j)=>i===j?{...x,content:e.target.value}:x)})}/></label></fieldset>)}<p className="teach-help">课时数量按已核对的教案目录保留；需要增减课时请返回编辑目录。</p><label>估算说明／待核对差异<textarea rows={3} maxLength={3000} value={a.note} onChange={e => setA({ ...a, note: e.target.value })}/></label><details><summary>查看本次引用</summary>{a.sources.map((s, i) => <p key={i}>PDF {s.page}页：{s.quote}</p>)}</details><button className="teach-primary" disabled={busy}>{a.sourceStatus==='pending'||a.sourceStatus==='partial'?'保存待核对建议':'确认保存教学建议'}</button></form>; }

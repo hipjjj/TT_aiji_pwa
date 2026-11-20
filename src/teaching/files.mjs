@@ -1,7 +1,21 @@
 export const teachingMime={pdf:'application/pdf',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',txt:'text/plain'};
 export const materialLocation=(m,from,to=from)=>`${m?.format&&m.format!=='pdf'?'资料分段':'PDF'} ${from}${to!==from?'–'+to:''}`;
 /** @param {import('./types').Unit} unit @param {import('./types').Material[]} materials */
-export function selectTeachingMaterials(unit,materials){return materials.filter(m=>!m.deletedAt&&(m.role==='primary'||materials.some(b=>b.id===m.primaryId&&!b.deletedAt))).map(m=>{const ranges=m.role==='primary'?[unit]:m.role==='lessonPlan'?m.units.filter(x=>x.unitId===unit.id):m.units.filter(x=>x.id===unit.id);return {id:m.id,title:m.title,role:m.role,format:m.format||'pdf',pages:m.pages.filter(p=>ranges.some(u=>p.number>=u.from&&p.number<=u.to)),lessonRanges:m.role==='lessonPlan'?ranges.map(u=>({unitId:u.unitId,lessonFrom:u.lessonFrom,lessonTo:u.lessonTo,from:u.from,to:u.to,title:u.title})):[]};}).filter(m=>m.pages.length);}
+export function selectTeachingMaterials(unit,materials){
+  const course=materials.find(m=>m.planningBasis==='lessonPlan'&&m.role==='lessonPlan'&&!m.deletedAt);
+  if(course){
+    const lessonRanges=unit.periods.map(p=>({unitId:unit.id,lessonFrom:p.number,lessonTo:p.number,from:p.from,to:p.to,title:p.title}));
+    const selected=[{id:course.id,title:course.title,role:course.role,planningBasis:'lessonPlan',format:course.format||'pdf',pages:course.pages.filter(p=>p.number>=unit.from&&p.number<=unit.to),lessonRanges}];
+    for(const book of materials.filter(m=>m.role==='primary'&&!m.deletedAt)){
+      const refs=unit.periods.map(p=>p.reference).filter(r=>r?.materialId===book.id),numbers=new Set(refs.flatMap(r=>r.vocabulary.map(w=>w.page)));
+      const ranges=refs.length?refs:book.units.filter(u=>u.id===unit.id);
+      const pages=book.pages.filter(p=>numbers.has(p.number)||ranges.some(r=>p.number>=r.from&&p.number<=r.to));
+      if(pages.length)selected.push({id:book.id,title:book.title,role:book.role,format:book.format||'pdf',pages,lessonRanges:[]});
+    }
+    return selected;
+  }
+  return materials.filter(m=>!m.deletedAt&&(m.role==='primary'||materials.some(b=>b.id===m.primaryId&&!b.deletedAt))).map(m=>{const ranges=m.role==='primary'?[unit]:m.role==='lessonPlan'?m.units.filter(x=>x.unitId===unit.id):m.units.filter(x=>x.id===unit.id);return {id:m.id,title:m.title,role:m.role,format:m.format||'pdf',pages:m.pages.filter(p=>ranges.some(u=>p.number>=u.from&&p.number<=u.to)),lessonRanges:m.role==='lessonPlan'?ranges.map(u=>({unitId:u.unitId,lessonFrom:u.lessonFrom,lessonTo:u.lessonTo,from:u.from,to:u.to,title:u.title})):[]};}).filter(m=>m.pages.length);
+}
 export function textPages(text){
   text=text.replace(/\r\n?/g,'\n').replace(/\u0000/g,'').trim();
   if(!text||text.length>1500000)throw Error('资料没有可读文字或文字超过150万字符');

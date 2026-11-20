@@ -9,8 +9,8 @@ export default function TrashPanel({state,onSave,onState}:{state:TeachingState;o
   const summary=teachingTrashSummary(state);
   const counts=[['资料与原文件',summary.materials.length],['学期',summary.terms.length],['班级',summary.classes.length],['计划版本',summary.plans.length],['实际进度',summary.progress.length],['教案完成记录',summary.prepProgress.length]] as const;
   async function purge(){if(!token||busy)return;setBusy(true);setError('');try{const next=await emptyTeachingTrash(token);onState(next);setToken(null);setMessage('工作中的已删除内容已清空');}catch(e){setError(e instanceof Error?e.message:'清空失败，内容仍保留');setToken(null);try{onState(await readTeaching());}catch{/* Keep the last readable state and the error. */}}finally{setBusy(false);}}
-  return <details className="teach-trash"><summary>已删除内容 · {summary.roots}项</summary><p className="teach-help">这里汇总工作中的已删除资料、学期和班级。恢复主教材或学期后，未单独删除的关联内容会重新显示。</p>
-    {state.materials.filter(m=>m.deletedAt).map(m=><div className="teach-setting-item" key={m.id}><span>{m.title}<small>{m.role==='primary'?'主教材':m.role==='lessonPlan'?'教案':'辅助资料'}</small></span><button disabled={busy} onClick={()=>void onSave(s=>restoreMaterial(s,m.id))}>恢复资料</button></div>)}
+  return <details className="teach-trash"><summary>已删除内容 · {summary.roots}项</summary><p className="teach-help">这里汇总工作中的已删除资料、学期和班级。恢复教案、教材或学期后，未单独删除的关联内容会重新显示。</p>
+    {state.materials.filter(m=>m.deletedAt).map(m=><div className="teach-setting-item" key={m.id}><span>{m.title}<small>{m.role==='primary'?'参考教材':m.role==='lessonPlan'?'教案':'辅助资料'}</small></span><button disabled={busy} onClick={()=>void onSave(s=>restoreMaterial(s,m.id))}>恢复资料</button></div>)}
     {state.terms.filter(t=>t.deletedAt).map(t=><div className="teach-setting-item" key={t.id}><span>{t.title}</span><button disabled={busy} onClick={()=>void onSave(s=>restoreSetting(s,'term',t.id))}>恢复学期</button></div>)}
     {state.classes.filter(c=>c.deletedAt).map(c=><div className="teach-setting-item" key={c.id}><span>{c.name}</span><button disabled={busy} onClick={()=>void onSave(s=>restoreSetting(s,'class',c.id))}>恢复班级</button></div>)}
     {!summary.roots&&<p className="teach-help">暂无已删除内容。</p>}
