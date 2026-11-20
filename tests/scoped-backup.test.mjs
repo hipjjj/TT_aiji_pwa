@@ -88,6 +88,7 @@ function validate(data) {
 }
 test("each module produces a compatible backup containing only its whitelisted sections", () => {
   const allowed = {
+    teaching:["version","exportScope","expenses","teaching"],
     study:["version","exportScope","expenses","study"],
     all: [
       "version",

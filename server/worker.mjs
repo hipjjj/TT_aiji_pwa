@@ -1,4 +1,5 @@
 import {fetchWebArticle} from './study-article.mjs';
+import {handleTeaching} from './teaching.mjs';
 import {articleURL} from '../src/study/import-model.mjs';
 import {validateExamRequest,validateExamRecognition} from '../src/grading/model.mjs';
 import {examInstructions,examSchema} from './grading.mjs';
@@ -38,10 +39,10 @@ export async function handle(request,env,{fetchImpl=fetch}={}){
   if(origin&&allowed.includes(origin))headers['Access-Control-Allow-Origin']=origin;
   const reply=(status,value,extra={})=>Response.json(value,{status,headers:{...headers,...extra}});
   const url=new URL(request.url);
-  if(request.method==='GET'&&url.pathname==='/health')return reply(200,{ready:!!(env.NUTRITION_API_KEY&&env.ACCESS_CODE?.length>=16&&env.AI_QUOTA),model:env.NUTRITION_MODEL||'gpt-4.1-mini',chatModel:env.CHAT_MODEL||'gpt-5-mini',gradingModel:env.GRADING_MODEL||'gpt-5',articleImport:true});
+  if(request.method==='GET'&&url.pathname==='/health')return reply(200,{ready:!!(env.NUTRITION_API_KEY&&env.ACCESS_CODE?.length>=16&&env.AI_QUOTA),model:env.NUTRITION_MODEL||'gpt-4.1-mini',chatModel:env.CHAT_MODEL||'gpt-5-mini',gradingModel:env.GRADING_MODEL||'gpt-5',articleImport:true,teachingAnalysis:true});
   if(!origin||!allowed.includes(origin))return reply(403,{error:'这个网站尚未获准访问AI服务'});
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...headers,'Access-Control-Allow-Methods':'POST, GET, OPTIONS','Access-Control-Allow-Headers':'Content-Type, X-Access-Code','Access-Control-Max-Age':'600'}});
-  if(!['/analyze','/recipes','/travel-story','/chat','/grade-exam','/study-article'].includes(url.pathname))return reply(404,{error:'接口不存在'});
+  if(!['/analyze','/recipes','/travel-story','/chat','/grade-exam','/study-article','/teaching-analyze'].includes(url.pathname))return reply(404,{error:'接口不存在'});
   if(request.method!=='POST')return reply(405,{error:'请使用POST请求'},{Allow:'POST'});
   const isArticle=url.pathname==='/study-article';
   if((!isArticle&&!env.NUTRITION_API_KEY)||!env.ACCESS_CODE||env.ACCESS_CODE.length<16||!env.AI_QUOTA)return reply(503,{error:'AI后端尚未完成配置，请在个人页查看连接说明'});
@@ -49,6 +50,7 @@ export async function handle(request,env,{fetchImpl=fetch}={}){
   if(access.length>200||!await constantEqual(access,env.ACCESS_CODE))return reply(401,{error:'AI服务访问口令不正确'});
   let body;
   try{body=await readJSON(request,isArticle?6000:url.pathname==='/grade-exam'?3500000:MAX_BODY);}catch(error){return reply(error.message==='BODY_LIMIT'?413:400,{error:error.message==='BODY_LIMIT'?'本次照片或文字太大':'请求格式无效'});}
+  if(url.pathname==='/teaching-analyze')return handleTeaching(body,env,reply,fetchImpl);
   if(isArticle){
     let target;try{target=articleURL(body?.url);}catch(error){return reply(400,{error:error.message});}
     try{

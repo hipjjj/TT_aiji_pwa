@@ -1,4 +1,6 @@
+import {emptyTeaching} from '../teaching/model.mjs';
 export const backupScopes = [
+  {id:"teaching",label:"教学进度",description:"教材分析、班级校历、周计划、检查任务和实际进度；原PDF可选。"},
   {id:"study",label:"学习",description:"导入的英文文章、生词本和阅读足迹。"},
   {
     id: "grading",
@@ -8,7 +10,7 @@ export const backupScopes = [
   {
     id: "all",
     label: "全部数据",
-    description: "账单、饮食、食物库、冰箱、旅行、备课、学习、聊天和记忆。",
+    description: "账单、饮食、食物库、冰箱、旅行、备课、教学计划、学习、聊天和记忆。",
   },
   { id: "bills", label: "账单", description: "账单明细与每月预算。" },
   {
@@ -43,6 +45,7 @@ export const scopeLabel = (scope) =>
 export const scopeHasPhotos = (scope) =>
   ["all", "nutrition", "travel", "chat", "grading"].includes(scope);
 const sections = {
+  teaching:["teaching"],
   study:["study"],
   grading: ["grading"],
   bills: ["budgets"],
@@ -99,6 +102,7 @@ export function buildScopedBackup(
   if (!backupScopes.some((x) => x.id === scope))
     throw Error("请选择有效导出范围");
   const has = (section) => scope === "all" || scope === section;
+  /** @type {any} */
   const out = {
     version: 1,
     exportScope: scope,
@@ -119,6 +123,7 @@ export function buildScopedBackup(
     };
     if (scope === "nutrition") out.nutritionExpenseLinksOmitted = true;
   }
+  if (has("teaching") && (snapshot.teaching !== undefined || scope === "teaching")) out.teaching=snapshot.teaching||{state:emptyTeaching(),files:[],filesIncluded:false};
   if (has("grading"))
     out.grading = {
       settings: snapshot.gradingSettings || null,

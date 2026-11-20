@@ -1,3 +1,5 @@
+import {emptyTeaching,validateTeaching} from '../teaching/model.mjs';
+import {blobDataURL} from '../teaching/store';
 import {emptyStudy,studyKey,validateStudy} from '../study/model.mjs';
 import { db } from "../db";
 import {
@@ -6,6 +8,7 @@ import {
   selectTravelSnapshot,
 } from "./model.mjs";
 export type BackupScope =
+  | "teaching"
   | "study"
   | "grading"
   | "all"
@@ -20,12 +23,14 @@ export async function createBackup(
   scope: BackupScope,
   includePhotos: boolean,
   selection: TravelSelection | null = null,
+  includeTeachingPDF=false,
 ) {
   if (!backupScopes.some((x) => x.id === scope))
     throw Error("请选择有效导出范围");
   if (selection && scope !== "travel")
     throw Error("单篇旅行只能在旅行册范围导出");
   const groups = {
+    teaching:["teachingState",...(includeTeachingPDF?["teachingFiles"]:[])],
     study:["appMeta"],
     grading: ["examGrades", "gradingSettings"],
     bills: ["expenses", "budgets"],
@@ -46,7 +51,8 @@ export async function createBackup(
     : scope === "all"
       ? [...new Set(Object.values(groups).flat())]
       : groups[scope];
-  return db.transaction(
+  let teachingFiles:{id:string;name:string;blob:Blob}[]=[];
+  const result=await db.transaction(
     "r",
     names.map((name) => db.table(name)),
     async () => {
@@ -61,7 +67,9 @@ export async function createBackup(
         ),
       );
       const studyRow=data.appMeta?.find((x:{id:string})=>x.id===studyKey);
+      teachingFiles=data.teachingFiles||[];
       const snapshot = {
+        teaching:data.teachingState?{state:validateTeaching(data.teachingState.find((x:{id:string})=>x.id==='main')?.state||emptyTeaching()),files:[],filesIncluded:includeTeachingPDF}:undefined,
         study: data.appMeta ? (studyRow ? validateStudy(JSON.parse(String(studyRow.value))) : emptyStudy()) : undefined,
         examGrades: data.examGrades,
         gradingSettings:
@@ -99,6 +107,8 @@ export async function createBackup(
       );
     },
   );
+  if(result.teaching&&includeTeachingPDF)result.teaching.files=await Promise.all(teachingFiles.map(async f=>({id:f.id,name:f.name,dataURL:await blobDataURL(f.blob)})));
+  return result;
 }
 
 export type TravelExportChoice = TravelSelection & {

@@ -1,0 +1,22 @@
+import React, { useState } from 'react';
+import type { ClassRoom, WeekPlan, Progress, TeachingState, PrepProgress, Counts } from './types';
+import { countLabels, prepGroup, zeroCounts } from './model.mjs';
+import { NumberField } from './Settings';
+export default function WeekEditor({ week, c, state, mode, onSave, onClose }: {
+    week: WeekPlan;
+    c: ClassRoom;
+    state: TeachingState;
+    mode: 'actual' | 'plan';
+    onSave: (w: WeekPlan, p: Progress, prep: PrepProgress) => Promise<void>;
+    onClose: () => void;
+}) {
+    const old = state.progress.find(p => p.classId === c.id && p.week === week.week), group = prepGroup(c), prep = state.prepProgress.find(p => p.groupId === group && p.week === week.week);
+    const [w, setW] = useState(() => structuredClone(week)), [p, setP] = useState<Progress>(old ? structuredClone(old) : { id: `${c.id}:${week.week}`, classId: c.id, week: week.week, lessons: 0, completed: [], consolidation: '', note: '', counts: zeroCounts() }), [prepCount, setPrepCount] = useState(prep?.count || 0), [busy, setBusy] = useState(false);
+    return <form className="teaching" onSubmit={async (e) => { e.preventDefault(); setBusy(true); try {
+        await onSave(w, p, { id: `${group}:${week.week}`, groupId: group, week: week.week, count: prepCount });
+    }
+    finally {
+        setBusy(false);
+    } }}><p className="teach-help">第{week.week}周 · {week.start}—{week.end}</p>{mode === 'actual' ? <><NumberField label="本周实际授课节数" value={p.lessons} max={100} onChange={lessons => setP({ ...p, lessons })}/><fieldset><legend>确认已经讲授的内容</legend><p className="teach-help">只勾选确实讲过的内容，未勾选的内容仍待安排。需要复习的内容可写在下方。</p><div className="teach-checks">{week.lessons.map(l => <label key={l.id}><input type="checkbox" checked={p.completed.includes(l.id)} onChange={e => setP({ ...p, completed: e.target.checked ? [...p.completed, l.id] : p.completed.filter(id => id !== l.id) })}/><span>{l.title}<small>{l.content}</small></span></label>)}</div></fieldset><label>待巩固／需要重讲<textarea maxLength={5000} rows={3} value={p.consolidation} onChange={e => setP({ ...p, consolidation: e.target.value })}/></label><label>实际教到哪里／备注<textarea maxLength={5000} rows={3} placeholder="可填写教材页码、跳讲范围和课堂情况" value={p.note} onChange={e => setP({ ...p, note: e.target.value })}/></label><div className="teach-grid">{(['homework', 'dictation'] as const).map(key => <NumberField key={key} label={`${countLabels[key]}实际完成次数`} value={p.counts[key]} onChange={value => setP({ ...p, counts: { ...p.counts, [key]: value } })}/>)}<NumberField label={`教案实际完成课时${c.sharedPrep ? '（共享）' : ''}`} value={prepCount} onChange={setPrepCount}/></div></> : <><p className="teach-help">每节课只是建议，可改内容与顺序。实际讲授情况在“更新进度”中记录。</p>{w.lessons.map((l, i) => <fieldset key={l.id}><legend>建议第{i + 1}课</legend><label>标题<input required maxLength={300} value={l.title} onChange={e => setW({ ...w, lessons: w.lessons.map((x, j) => i === j ? { ...x, title: e.target.value } : x) })}/></label><label>教学内容<textarea rows={3} maxLength={5000} value={l.content} onChange={e => setW({ ...w, lessons: w.lessons.map((x, j) => i === j ? { ...x, content: e.target.value } : x) })}/></label><div className="teach-actions"><button disabled={i === 0} type="button" onClick={() => { const rows = [...w.lessons]; [rows[i - 1], rows[i]] = [rows[i], rows[i - 1]]; setW({ ...w, lessons: rows }); }}>上移</button><button disabled={i === w.lessons.length - 1} type="button" onClick={() => { const rows = [...w.lessons]; [rows[i + 1], rows[i]] = [rows[i], rows[i + 1]]; setW({ ...w, lessons: rows }); }}>下移</button><button type="button" onClick={() => setW({ ...w, lessons: w.lessons.filter((_, j) => i !== j) })}>留待重排</button></div></fieldset>)}<div className="teach-grid">{(Object.keys(countLabels) as (keyof Counts)[]).map(key => <NumberField key={key} label={`${countLabels[key]}计划量`} value={w.counts[key]} onChange={value => setW({ ...w, counts: { ...w.counts, [key]: value } })}/>)}</div><label>本周补充安排<textarea rows={3} maxLength={5000} value={w.note} onChange={e => setW({ ...w, note: e.target.value })}/></label><label className="teach-inline"><input type="checkbox" checked={w.locked} onChange={e => setW({ ...w, locked: e.target.checked })}/>锁定本周，后续自动重排时保留</label></>}
+    <div className="teach-actions"><button type="button" onClick={onClose}>取消</button><button className="teach-primary" disabled={busy}>{mode === 'actual' ? '保存实际进度' : '保存周安排'}</button></div></form>;
+}

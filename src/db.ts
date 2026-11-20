@@ -7,6 +7,7 @@ import type {
   ChatGrowth,
 } from "./chat/types";
 import Dexie, { type Table } from "dexie";
+import type {TeachingState} from './teaching/types';
 import { normalizeCategory } from "./model.mjs";
 import type {
   PersonalFood,
@@ -23,6 +24,8 @@ import type {
 } from "./fridge/types";
 import type { Trip, VisitedCity, UserScenic } from "./travel/types";
 export const db = new Dexie("riri-expenses") as Dexie & {
+  teachingState: Table<{id:string;state:TeachingState;updatedAt:number},string>;
+  teachingFiles: Table<{id:string;name:string;blob:Blob},string>;
   chatThreads: Table<ChatThread, string>;
   chatMessages: Table<ChatMessage, string>;
   chatMemories: Table<ChatMemory, string>;
@@ -140,3 +143,5 @@ db.version(9).stores({
 db.version(10).stores({personalFoods:"id,&key,updatedAt"});
 
 db.version(11).stores({gradingSettings:"id",examGrades:"id,createdAt"});
+// Additive only: existing records and photo bytes are never rewritten.
+db.version(12).stores({teachingState:'id',teachingFiles:'id'});

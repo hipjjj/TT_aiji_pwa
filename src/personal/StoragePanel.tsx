@@ -40,6 +40,8 @@ export default function StoragePanel() {
         db.examGrades,
         db.gradingSettings,
         db.appMeta,
+        db.teachingState,
+        db.teachingFiles,
       ];
       const arrays = await db.transaction("r", tables, () =>
         Promise.all(tables.map((t) => t.toArray())),
@@ -53,9 +55,11 @@ export default function StoragePanel() {
         appBytes += new Blob([JSON.stringify(list)]).size;
         for (const row of list) {
           const r = row as unknown as {
+            blob?:Blob;
             photo?: string;
             photos?: { dataURL: string }[];
           };
+          if(r.blob)appBytes+=r.blob.size;
           const pictures = [
             ...(r.photo ? [r.photo] : []),
             ...(r.photos || []).map((p) => p.dataURL),

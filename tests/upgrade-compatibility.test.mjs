@@ -14,7 +14,7 @@ test('a v1 database upgrades with its original expense preserved',async()=>{
   await db.delete();
   const old=new Dexie('riri-expenses');old.version(1).stores({expenses:'id,date,category'});
   await old.expenses.put({id:'old-2019',date:'2019-01-01',category:'住房',cents:120000,note:'原始旧账单'});old.close();
-  await db.open();assert.equal(db.name,'riri-expenses');assert.equal(db.verno,11);
+  await db.open();assert.equal(db.name,'riri-expenses');assert.equal(db.verno,12);
   assert.deepEqual(await db.expenses.get('old-2019'),{id:'old-2019',date:'2019-01-01',category:'生活缴费',cents:120000,note:'原始旧账单'});
   await db.delete();
 });
@@ -28,7 +28,7 @@ test('a populated pre-redesign v11 database retains all 21 tables and photo byte
     if(table.name==='settings'){row.id='ai';row.url='https://example.com/old-worker';}
     await table.put(row);expected[table.name]=[row];}
   old.close();await db.open();
-  assert.deepEqual(db.tables.map(t=>t.name).sort(),Object.keys(originalSchema).sort());
+  assert.deepEqual(db.tables.map(t=>t.name).sort(),[...Object.keys(originalSchema),'teachingState','teachingFiles'].sort());expected.teachingState=[];expected.teachingFiles=[];
   for(const table of db.tables)assert.deepEqual(await table.toArray(),expected[table.name],table.name);
   db.close();await db.open();for(const table of db.tables)assert.deepEqual(await table.toArray(),expected[table.name],`${table.name} after reload`);
   const folder=mkdtempSync(join(tmpdir(),'tt-compat-'));
