@@ -38,6 +38,7 @@ export type Unit = {
     analysis?: Analysis;
 };
 export type Material = {
+    deletedAt?:number;
     id: string;
     title: string;
     role: 'primary' | 'auxiliary' | 'lessonPlan';

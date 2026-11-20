@@ -1,7 +1,7 @@
 export const teachingMime={pdf:'application/pdf',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',txt:'text/plain'};
 export const materialLocation=(m,from,to=from)=>`${m?.format&&m.format!=='pdf'?'资料分段':'PDF'} ${from}${to!==from?'–'+to:''}`;
 /** @param {import('./types').Unit} unit @param {import('./types').Material[]} materials */
-export function selectTeachingMaterials(unit,materials){return materials.map(m=>{const ranges=m.role==='primary'?[unit]:m.role==='lessonPlan'?m.units.filter(x=>x.unitId===unit.id):m.units.filter(x=>x.id===unit.id);return {id:m.id,title:m.title,role:m.role,format:m.format||'pdf',pages:m.pages.filter(p=>ranges.some(u=>p.number>=u.from&&p.number<=u.to)),lessonRanges:m.role==='lessonPlan'?ranges.map(u=>({unitId:u.unitId,lessonFrom:u.lessonFrom,lessonTo:u.lessonTo,from:u.from,to:u.to,title:u.title})):[]};}).filter(m=>m.pages.length);}
+export function selectTeachingMaterials(unit,materials){return materials.filter(m=>!m.deletedAt&&(m.role==='primary'||materials.some(b=>b.id===m.primaryId&&!b.deletedAt))).map(m=>{const ranges=m.role==='primary'?[unit]:m.role==='lessonPlan'?m.units.filter(x=>x.unitId===unit.id):m.units.filter(x=>x.id===unit.id);return {id:m.id,title:m.title,role:m.role,format:m.format||'pdf',pages:m.pages.filter(p=>ranges.some(u=>p.number>=u.from&&p.number<=u.to)),lessonRanges:m.role==='lessonPlan'?ranges.map(u=>({unitId:u.unitId,lessonFrom:u.lessonFrom,lessonTo:u.lessonTo,from:u.from,to:u.to,title:u.title})):[]};}).filter(m=>m.pages.length);}
 export function textPages(text){
   text=text.replace(/\r\n?/g,'\n').replace(/\u0000/g,'').trim();
   if(!text||text.length>1500000)throw Error('资料没有可读文字或文字超过150万字符');

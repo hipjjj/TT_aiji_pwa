@@ -1,7 +1,10 @@
+import TrashPanel from './TrashPanel';
+import {activeMaterials} from './settings-model.mjs';
+import {deleteMaterial} from './trash-model.mjs';
 import {detectPlanSections,materialLocation,teachingMime} from './files.mjs';
 import React, { useEffect, useRef, useState } from 'react';
 import { db } from '../db';
-import { saveMaterial } from './store';
+import { saveMaterial,replaceTeachingFile } from './store';
 import { detectUnits } from './model.mjs';
 import { analyzeUnit } from './ai';
 import type { Material, Unit, Analysis, TeachingState } from './types';
@@ -13,7 +16,7 @@ export default function Materials({ state, onState, onSave, onManageAI }: {
     onSave: (fn: (s: TeachingState) => TeachingState) => Promise<boolean>;
     onManageAI: () => void;
 }) {
-    const [role, setRole] = useState<Material['role']>('primary'), [primaryId, setPrimaryId] = useState(state.materials.find(m => m.role === 'primary')?.id || ''),[unitId,setUnitId]=useState(''), [busy, setBusy] = useState(''), [error, setError] = useState(''), [editing, setEditing] = useState<string | null>(null), [analysis, setAnalysis] = useState<{
+    const [role, setRole] = useState<Material['role']>('primary'), [primaryId, setPrimaryId] = useState(activeMaterials(state).find(m => m.role === 'primary')?.id || ''),[unitId,setUnitId]=useState(''), [busy, setBusy] = useState(''), [error, setError] = useState(''), [editing, setEditing] = useState<string | null>(null), [analysis, setAnalysis] = useState<{
         materialId: string;
         unitId: string;
         value: Analysis;
@@ -23,6 +26,9 @@ export default function Materials({ state, onState, onSave, onManageAI }: {
     } | null>(null);
     const attachInput = useRef<HTMLInputElement>(null), input = useRef<HTMLInputElement>(null), controller = useRef<AbortController | null>(null), alive = useRef(true);
     useEffect(() => { alive.current = true; return () => { alive.current = false; controller.current?.abort(); }; }, []);
+    const materials=activeMaterials(state);
+    useEffect(()=>{if(!materials.some(m=>m.role==='primary'&&m.id===primaryId)){setPrimaryId(materials.find(m=>m.role==='primary')?.id||'');setUnitId('');}},[state.materials,primaryId]);
+    async function remove(id:string){if(busy)return;if(await onSave(s=>deleteMaterial(s,id))){setEditing(null);setAnalysis(null);setError('');}}
     async function importPDF(file?: File) { if (!file || busy)
         return; setError(''); const c = new AbortController(); controller.current = c; setBusy('准备读取资料…'); try {
         const {readTeachingFile}=await import('./documents');
@@ -31,7 +37,7 @@ export default function Materials({ state, onState, onSave, onManageAI }: {
         if (c.signal.aborted)
             return;
         if(role!=='lessonPlan'&&format!=='pdf')throw Error('主教材和知识清单请使用PDF；Word和TXT请选“教案”');
-        const book=state.materials.find(m=>m.id===primaryId&&m.role==='primary');
+        const book=materials.find(m=>m.id===primaryId&&m.role==='primary');
         const units = role==='lessonPlan'?detectPlanSections(pages,book?.units||[],unitId||book?.units[0]?.id):detectUnits(pages);
         const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await file.arrayBuffer()))).map(n => n.toString(16).padStart(2, '0')).join('');
         const m: Material = { id: crypto.randomUUID(), fingerprint: hash, title: file.name.replace(/\.(pdf|docx|txt)$/i, '').slice(0, 200), role,format, primaryId: role !== 'primary' ? primaryId : '', pages, units: units.length ? units : [{ id: 'unit-1', title: '待确认单元', from: 1, to: pages.length, printedFrom: '', lessons: 8,...(role==='lessonPlan'?{unitId:book?.units[0]?.id,lessonFrom:1,lessonTo:1}:{}) }], createdAt: Date.now() };
@@ -53,8 +59,8 @@ export default function Materials({ state, onState, onSave, onManageAI }: {
             setBusy('');
     } }
     async function analyze(m: Material, u: Unit) { setError(''); setBusy(`正在分析 ${u.title}…`); const c = new AbortController(); controller.current = c; let timedOut=false;const timer = setTimeout(() => {timedOut=true;c.abort();}, 80000); try {
-        const materials = [m, ...state.materials.filter(x => x.role !== 'primary' && x.primaryId === m.id)];
-        const result = await analyzeUnit(u, materials, c.signal);
+        const selectedMaterials = [m, ...materials.filter(x => x.role !== 'primary' && x.primaryId === m.id)];
+        const result = await analyzeUnit(u, selectedMaterials, c.signal);
         if (alive.current)
             setAnalysis({ materialId: m.id, unitId: u.id, value: result });
     }
@@ -74,7 +80,7 @@ export default function Materials({ state, onState, onSave, onManageAI }: {
         const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await file.arrayBuffer()))).map(n => n.toString(16).padStart(2, '0')).join('');
         if (hash !== attach.fingerprint)
             throw Error('文件与原来导入的资料不同，请选择同一份原文件');
-        await db.teachingFiles.put({ id: attach.id, name: file.name, blob: new Blob([file],{type:teachingMime[attach.format||'pdf']}) });
+        await replaceTeachingFile(attach.id,file,hash);
         setAttach(null);
     }
     catch (e) {
@@ -100,11 +106,12 @@ export default function Materials({ state, onState, onSave, onManageAI }: {
     catch {
         setPage({ materialId, page: n });
     } }
-    return <div className="teach-materials"><section className="teach-card"><div className="teach-row"><h2>上传与整理资料</h2><button onClick={onManageAI}>AI连接</button></div><p className="teach-help">主教材、知识清单和教案收在这里。教案支持PDF、Word（DOCX）和TXT，按单元与课时整理后可交给AI整合。</p><div className="teach-grid"><label>资料类型<select value={role} disabled={!!busy} onChange={e => setRole(e.target.value as typeof role)}><option value="primary">主教材</option><option value="auxiliary">辅助知识清单</option><option value="lessonPlan">教案</option></select></label>{role !== 'primary' && <label>关联教材<select value={primaryId} required onChange={e => {setPrimaryId(e.target.value);setUnitId('');}}><option value="">请选择</option>{state.materials.filter(m => m.role === 'primary').map(m => <option key={m.id} value={m.id}>{m.title}</option>)}</select></label>}{role==='lessonPlan'&&<label>默认所属单元<select value={unitId||state.materials.find(m=>m.id===primaryId)?.units[0]?.id||''} onChange={e=>setUnitId(e.target.value)}>{state.materials.find(m=>m.id===primaryId)?.units.map(u=><option value={u.id} key={u.id}>{u.title}</option>)}</select></label>}</div><input hidden type="file" accept=".pdf,.docx,.txt" ref={attachInput} onChange={e => { const f = e.target.files?.[0]; e.target.value = ''; void attachPDF(f); }}/><input hidden type="file" accept={role==='lessonPlan'?'.pdf,.docx,.txt':'application/pdf,.pdf'} ref={input} onChange={e => { const f = e.target.files?.[0]; e.target.value = ''; void importPDF(f); }}/><button className="teach-primary" disabled={!!busy || (role !== 'primary' && !primaryId)} onClick={() => input.current?.click()}>＋ 选择文件上传</button>{busy && <div className="teach-status" role="status">{busy}<button onClick={() => controller.current?.abort()}>停止</button></div>}{error && <p className="teach-error" role="alert">{error}</p>}</section>
-    {state.materials.map(m => <section className="teach-card" key={m.id}><span className="teach-tag">{m.role === 'primary' ? '主教材' : m.role==='lessonPlan'?'教案':'辅助清单'} · {m.pages.length}{m.format&&m.format!=='pdf'?'段':'页'}</span><h3>{m.title}</h3>{m.role !== 'primary' && <p className="teach-help">关联：{state.materials.find(x => x.id === m.primaryId)?.title || '未关联'}</p>}<div className="teach-actions"><button disabled={!!busy} onClick={() => setEditing(editing === m.id ? null : m.id)}>{editing === m.id ? '收起目录' : '核对／编辑目录'}</button><button onClick={() => void openPage(m.id, 1)}>查看原文件</button><button disabled={!!busy} onClick={() => { setAttach(m); attachInput.current?.click(); }}>补回原文件</button></div>{editing === m.id && <Directory key={m.id} material={m} books={state.materials.filter(x=>x.role==='primary')} onSave={async (value) => { if (await onSave(s => ({ ...s, materials: s.materials.map(x => x.id === value.id ? value : x) })))
+    return <div className="teach-materials"><section className="teach-card"><div className="teach-row"><h2>上传与整理资料</h2><button onClick={onManageAI}>AI连接</button></div><p className="teach-help">主教材、知识清单和教案收在这里。教案支持PDF、Word（DOCX）和TXT，按单元与课时整理后可交给AI整合。</p><div className="teach-grid"><label>资料类型<select value={role} disabled={!!busy} onChange={e => setRole(e.target.value as typeof role)}><option value="primary">主教材</option><option value="auxiliary">辅助知识清单</option><option value="lessonPlan">教案</option></select></label>{role !== 'primary' && <label>关联教材<select value={primaryId} required onChange={e => {setPrimaryId(e.target.value);setUnitId('');}}><option value="">请选择</option>{materials.filter(m => m.role === 'primary').map(m => <option key={m.id} value={m.id}>{m.title}</option>)}</select></label>}{role==='lessonPlan'&&<label>默认所属单元<select value={unitId||state.materials.find(m=>m.id===primaryId)?.units[0]?.id||''} onChange={e=>setUnitId(e.target.value)}>{state.materials.find(m=>m.id===primaryId)?.units.map(u=><option value={u.id} key={u.id}>{u.title}</option>)}</select></label>}</div><input hidden type="file" accept=".pdf,.docx,.txt" ref={attachInput} onChange={e => { const f = e.target.files?.[0]; e.target.value = ''; void attachPDF(f); }}/><input hidden type="file" accept={role==='lessonPlan'?'.pdf,.docx,.txt':'application/pdf,.pdf'} ref={input} onChange={e => { const f = e.target.files?.[0]; e.target.value = ''; void importPDF(f); }}/><button className="teach-primary" disabled={!!busy || (role !== 'primary' && !primaryId)} onClick={() => input.current?.click()}>＋ 选择文件上传</button>{busy && <div className="teach-status" role="status">{busy}<button onClick={() => controller.current?.abort()}>停止</button></div>}{error && <p className="teach-error" role="alert">{error}</p>}</section>
+    {materials.map(m => <section className="teach-card" key={m.id}><span className="teach-tag">{m.role === 'primary' ? '主教材' : m.role==='lessonPlan'?'教案':'辅助清单'} · {m.pages.length}{m.format&&m.format!=='pdf'?'段':'页'}</span><h3>{m.title}</h3>{m.role !== 'primary' && <p className="teach-help">关联：{state.materials.find(x => x.id === m.primaryId)?.title || '未关联'}</p>}<div className="teach-actions"><button disabled={!!busy} onClick={() => setEditing(editing === m.id ? null : m.id)}>{editing === m.id ? '收起目录' : '核对／编辑目录'}</button><button onClick={() => void openPage(m.id, 1)}>查看原文件</button><button disabled={!!busy} onClick={() => { setAttach(m); attachInput.current?.click(); }}>补回原文件</button><button className="teach-danger" disabled={!!busy} onClick={()=>void remove(m.id)}>删除资料</button></div>{m.role==='primary'&&state.classes.some(c=>c.materialId===m.id)&&<p className="teach-help">删除此教材会将关联班级和资料一并移出当前视图，可在“已删除内容”恢复。</p>}{editing === m.id && <Directory key={m.id} material={m} books={materials.filter(x=>x.role==='primary')} onSave={async (value) => { if (await onSave(s => ({ ...s, materials: s.materials.map(x => x.id === value.id ? {...value,...(x.deletedAt?{deletedAt:x.deletedAt}:{})} : x) })))
             setEditing(null); }}/>}
-      {m.units.map(u => <details key={u.id}><summary>{u.title}<span className="teach-unit-status">{u.analysis ? u.analysis.sourceStatus==='pending'||u.analysis.sourceStatus==='partial'?'引用待核对':'已分析' : '待整理'}</span></summary><p className="teach-help">{materialLocation(m,u.from,u.to)}{m.role==='lessonPlan'?` · 第${u.lessonFrom}–${u.lessonTo}课时`:u.printedFrom?'':''}{u.printedFrom ? ` · 印刷起始页 ${u.printedFrom}` : ''}{m.role!=='lessonPlan'&&<> · 建议 {u.lessons} 课时</>}</p><button onClick={() => void openPage(m.id, u.from)}>定位原文</button>{m.role === 'primary' && <><div className="teach-actions"><button disabled={!!busy} onClick={() => void analyze(m, u)}>{state.materials.some(x=>x.role==='lessonPlan'&&x.primaryId===m.id&&x.units.some(s=>s.unitId===u.id))?'AI整合教案':u.analysis?'重新分析':'AI分析本单元'}</button><button disabled={!!busy} onClick={() => setAnalysis({ materialId: m.id, unitId: u.id, value: u.analysis || { goals: [], vocabulary: [], grammar: [], consolidation: [], extension: [], lessons: u.lessons, note: '教师手动整理', sources: [] } })}>手动整理</button></div>{u.analysis && <AnalysisView value={u.analysis} materials={state.materials} openPage={openPage}/>}</>}</details>)}
+      {m.units.map(u => <details key={u.id}><summary>{u.title}<span className="teach-unit-status">{u.analysis ? u.analysis.sourceStatus==='pending'||u.analysis.sourceStatus==='partial'?'引用待核对':'已分析' : '待整理'}</span></summary><p className="teach-help">{materialLocation(m,u.from,u.to)}{m.role==='lessonPlan'?` · 第${u.lessonFrom}–${u.lessonTo}课时`:u.printedFrom?'':''}{u.printedFrom ? ` · 印刷起始页 ${u.printedFrom}` : ''}{m.role!=='lessonPlan'&&<> · 建议 {u.lessons} 课时</>}</p><button onClick={() => void openPage(m.id, u.from)}>定位原文</button>{m.role === 'primary' && <><div className="teach-actions"><button disabled={!!busy} onClick={() => void analyze(m, u)}>{materials.some(x=>x.role==='lessonPlan'&&x.primaryId===m.id&&x.units.some(s=>s.unitId===u.id))?'AI整合教案':u.analysis?'重新分析':'AI分析本单元'}</button><button disabled={!!busy} onClick={() => setAnalysis({ materialId: m.id, unitId: u.id, value: u.analysis || { goals: [], vocabulary: [], grammar: [], consolidation: [], extension: [], lessons: u.lessons, note: '教师手动整理', sources: [] } })}>手动整理</button></div>{u.analysis && <AnalysisView value={u.analysis} materials={state.materials} openPage={openPage}/>}</>}</details>)}
     </section>)}
+    <TrashPanel state={state} onSave={onSave} onState={onState}/>
     {analysis && <Modal open eyebrow="A LITTLE TEACHING DESK" title="确认单元教学建议" onClose={() => setAnalysis(null)}><>{error && <p className="teach-error" role="alert">{error}</p>}<AnalysisEditor key={analysis.unitId} value={analysis.value} onSave={async (value) => { if (await onSave(s => ({ ...s, materials: s.materials.map(m => m.id === analysis.materialId ? { ...m, units: m.units.map(u => u.id === analysis.unitId ? { ...u, lessons: value.lessons, analysis: value } : u) } : m) })))
         setAnalysis(null);
     else
