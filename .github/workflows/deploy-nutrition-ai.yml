@@ -83,18 +83,20 @@ jobs:
       - name: Verify teaching analysis before deploying
         run: |
           node --input-type=module - <<'JS'
-          import {teachingSchema,teachingInstructions} from './server/teaching.mjs';
+          import {teachingSchema,teachingInstructions,prepareTeachingInput,resolveTeachingAnalysis} from './server/teaching.mjs';
           import {validateTeachingAnalysis} from './src/teaching/model.mjs';
-          const materials=[{id:'synthetic-book',title:'Synthetic textbook check',role:'primary',pages:[{number:12,text:'Happy Holiday. We visited a farm last weekend. The simple past tense describes completed past events.',bold:[]}]}];
+          import {teachingSmokeRequest} from './tests/helpers/teaching-smoke-fixture.mjs';
+          const request=teachingSmokeRequest(),materials=request.materials;
+          const prepared=prepareTeachingInput(request);
           const response=await fetch('https://api.openai.com/v1/responses',{
             method:'POST',headers:{Authorization:`Bearer ${process.env.NUTRITION_API_KEY}`,'Content-Type':'application/json'},
-            body:JSON.stringify({model:'gpt-5-mini',reasoning:{effort:'minimal'},store:false,instructions:teachingInstructions,input:[{role:'user',content:[{type:'input_text',text:JSON.stringify({unitTitle:'Happy Holiday',materials})}]}],max_output_tokens:3500,text:{format:{type:'json_schema',name:'teaching_unit',strict:true,schema:teachingSchema}}}),signal:AbortSignal.timeout(65000)
+            body:JSON.stringify({model:'gpt-5-mini',reasoning:{effort:'minimal'},store:false,instructions:teachingInstructions,input:[{role:'user',content:[{type:'input_text',text:JSON.stringify(prepared.input)}]}],max_output_tokens:6500,text:{format:{type:'json_schema',name:'teaching_unit',strict:true,schema:teachingSchema}}}),signal:AbortSignal.timeout(65000)
           });
           if(!response.ok)throw Error(`Teaching preflight failed with HTTP ${response.status}`);
           const output=await response.json();if(output.status!=='completed')throw Error('Teaching preflight did not complete');
           const text=(output.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==='output_text').map(x=>x.text).join('');
-          const result=validateTeachingAnalysis(JSON.parse(text),materials);if(!result.sources.length)throw Error('Teaching analysis has no verifiable citations');
-          console.log('PASS: real teaching analysis with strict output and verified source quotes; synthetic text only');
+          const result=resolveTeachingAnalysis(JSON.parse(text),prepared,materials);validateTeachingAnalysis(result,materials);if(!result.sources.length||result.sourceStatus!=='verified')throw Error('Teaching analysis has unverified source IDs');
+          console.log('PASS: realistic-length teaching analysis with anchored PDF quotes and typography; synthetic text only');
           JS
       - name: Deploy Worker and quota storage
         id: worker
@@ -196,4 +198,27 @@ jobs:
           const graded=gradeExam({id:'main',title:'Synthetic check',questionCount:3,key:['B','D','A'],points:[2,3,5],updatedAt:1},examResult.answers.map(x=>({...x,confirmed:true})));
           if (graded.earned!==10||graded.total!==10) throw new Error('Local deterministic exam scoring failed');
           console.log('PASS: deployed GPT-5 answer recognition and local 10/10 score; no student data or records used');
+          JS
+      - name: Verify deployed teaching analysis with realistic unit length
+        env:
+          SERVICE_URL: ${{ steps.worker.outputs.url }}
+        run: |
+          node --input-type=module - <<'JS'
+          import {teachingSmokeRequest} from './tests/helpers/teaching-smoke-fixture.mjs';
+          import {validateTeachingAnalysis} from './src/teaching/model.mjs';
+          const body=teachingSmokeRequest();let response,data;
+          for(let attempt=0;attempt<3;attempt++){
+            response=await fetch(`${process.env.SERVICE_URL}/teaching-analyze`,{
+              method:'POST',headers:{Origin:'https://hipjjj.github.io','Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
+              body:JSON.stringify(body),signal:AbortSignal.timeout(80000)
+            });
+            data=await response.json();
+            if(response.status!==429||/明天/.test(data.error||''))break;
+            const retry=Math.max(1,Math.min(60,Number(response.headers.get('Retry-After'))||60));
+            await new Promise(resolve=>setTimeout(resolve,retry*1000));
+          }
+          if(!response.ok)throw Error(`Deployed teaching analysis failed with HTTP ${response.status}: ${data.code||'unknown error'}`);
+          const result=validateTeachingAnalysis(data,body.materials);
+          if(!result.sources.length||result.sourceStatus!=='verified')throw Error('Deployed teaching citations need review');
+          console.log('PASS: authenticated deployed teaching endpoint, realistic unit length, exact original PDF quotes and page attribution; no user records created');
           JS

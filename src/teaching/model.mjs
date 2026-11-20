@@ -72,6 +72,7 @@ export function validateTeaching(state) {
     return state;
 }
 export function validateTeachingAnalysis(value, materials) {
+    if(value?.sourceStatus!==undefined&&!['verified','partial','pending'].includes(value.sourceStatus))throw Error('原文引用状态无效');
     if (!value || !integer(value.lessons, 1, 100) || !str(value.note, 3000))
         throw Error('AI教学建议格式无效');
     for (const key of ['goals', 'vocabulary', 'grammar', 'consolidation', 'extension'])

@@ -15,8 +15,11 @@ export async function analyzeUnit(unit: Unit, materials: Material[], signal: Abo
     const textSize = selected.reduce((n, m) => n + m.pages.reduce((s, p) => s + p.text.length, 0), 0);
     if (textSize > 120000)
         throw Error('本单元资料超过12万字符，请缩小页码范围后分段分析');
-    const response = await fetch(endpoint.origin + '/teaching-analyze', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Access-Code': access }, body: JSON.stringify({ unitTitle: unit.title, materials: selected }), signal });
-    const data = await response.json();
+    let response:Response;
+    try{response=await fetch(endpoint.origin + '/teaching-analyze', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Access-Code': access }, body: JSON.stringify({ unitTitle: unit.title, materials: selected }), signal });}
+    catch(e){if(signal.aborted)throw e;throw Error('连接教学AI服务中断，请检查网络后重试；已有分析仍保留');}
+    let data;
+    try{data=await response.json();}catch{throw Error('教学AI服务返回异常，请稍后重试；已有分析仍保留');}
     if (!response.ok)
         throw Error(response.status === 404 ? '教学分析服务尚未更新，请稍后重试；仍可手动设置课时和周计划' : data.error || '教材分析暂时不可用');
     return validateTeachingAnalysis(data, materials);

@@ -10,6 +10,7 @@ export type Quota = {
     mode: 'minimum' | 'exact';
 };
 export type Analysis = {
+    sourceStatus?: 'verified' | 'partial' | 'pending';
     goals: string[];
     vocabulary: string[];
     grammar: string[];
