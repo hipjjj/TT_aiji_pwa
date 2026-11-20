@@ -14,9 +14,9 @@ export default function Settings({state,selected,onSave,onClose,onSelected,onSta
     const [mode,setMode]=useState<'overview'|'class'|'term'>('overview'),[editing,setEditing]=useState(selected),[termEditing,setTermEditing]=useState('');
     const terms=activeTerms(state),classes=activeClasses(state);
     const remove=async(kind:'term'|'class',id:string)=>{if(await onSave(s=>deleteSetting(s,kind,id)))setMode('overview');};
-    return <section className="teach-card"><div className="teach-row"><h2>管理学期与班级</h2><button onClick={onClose}>收起设置</button></div>
+    return <section className="teach-card"><h2>管理学期与班级</h2>
     {mode==='overview'?<><div className="teach-actions"><button onClick={()=>{setTermEditing('');setMode('term');}}>＋ 新增学期</button><button disabled={!terms.length||!activeMaterials(state).some(m=>m.role==='primary'&&m.units.length)} onClick={()=>{setEditing('');setMode('class');}}>＋ 新增班级</button></div>
-    {!terms.length&&<p className="teach-help">先新建学期，再添加班级。资料可从页面上方“上传资料”进入。</p>}
+    {!terms.length&&<p className="teach-help">先新建学期，再添加班级。需要导入资料时，返回教学进度后进入“上传资料”。</p>}
     <h3>已保存的学期</h3>{terms.map(t=><div className="teach-setting-item" key={t.id}><div><b>{t.title}</b><small>{t.startDate}起 · {t.weeks}周 · {classes.filter(c=>c.termId===t.id).length}个班级</small></div><div className="teach-actions"><button onClick={()=>{setTermEditing(t.id);setMode('term');}}>编辑学期</button><button onClick={()=>void remove('term',t.id)}>删除学期</button></div></div>)}
     <h3>已保存的班级</h3>{classes.map(c=><div className="teach-setting-item" key={c.id}><div><b>{c.name}</b><small>{terms.find(t=>t.id===c.termId)?.title}</small></div><div className="teach-actions"><button onClick={()=>{setEditing(c.id);setMode('class');}}>编辑班级</button><button onClick={()=>void remove('class',c.id)}>删除班级</button></div></div>)}
     <TrashPanel state={state} onSave={onSave} onState={onState}/></>:

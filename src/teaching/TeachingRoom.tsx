@@ -12,7 +12,7 @@ const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(
 export default function TeachingRoom({ onManageAI }: {
     onManageAI: () => void;
 }) {
-    const [state, setState] = useState<TeachingState>(() => emptyTeaching() as TeachingState), [ready, setReady] = useState(false), [selected, setSelected] = useState(''), [view, setView] = useState<'week' | 'term'>('week'), [materialsOpen,setMaterialsOpen]=useState(false),[settings, setSettings] = useState(false), [week, setWeek] = useState(1), [error, setError] = useState(''), [message, setMessage] = useState(''), [candidate, setCandidate] = useState<Plan | null>(null), [editor, setEditor] = useState<{
+    const [state, setState] = useState<TeachingState>(() => emptyTeaching() as TeachingState), [ready, setReady] = useState(false), [selected, setSelected] = useState(''), [view, setView] = useState<'week' | 'term'>('week'), [panel, setPanel] = useState<'materials' | 'settings' | null>(null), [week, setWeek] = useState(1), [error, setError] = useState(''), [message, setMessage] = useState(''), [candidate, setCandidate] = useState<Plan | null>(null), [editor, setEditor] = useState<{
         week: WeekPlan;
         mode: 'actual' | 'plan';
     } | null>(null), [saving, setSaving] = useState(false);
@@ -59,7 +59,7 @@ export default function TeachingRoom({ onManageAI }: {
     function cloneClass() { if (!c)
         return; const copy = { ...structuredClone(c), id: crypto.randomUUID(), name: `${c.name}（副本）`, quotas: { homework: { ...c.quotas.homework, initial: 0 }, dictation: { ...c.quotas.dictation, initial: 0 }, prep: { ...c.quotas.prep, initial: c.sharedPrep ? c.quotas.prep.initial : 0 } } }; void save(s => ({ ...s, classes: [...s.classes, copy] })).then(ok => { if (ok) {
         setSelected(copy.id);
-        setSettings(true);
+        setPanel('settings');
     } }); }
     async function moveLesson(id: string, from: number, to: number) { if (!c || !plan || from === to)
         return; const target = plan.weeks.find(w => w.week === to); if (!target)
@@ -70,12 +70,11 @@ export default function TeachingRoom({ onManageAI }: {
         return; const next = { ...structuredClone(plan), id: crypto.randomUUID(), createdAt: Date.now(), weeks: plan.weeks.map(w => w.week === from ? { ...w, lessons: w.lessons.filter(l => l.id !== id) } : w.week === to ? { ...w, lessons: [...w.lessons, lesson] } : w) }; setCandidate(next); }
     if (!ready)
         return <section className="teaching teach-card"><p role="status">正在打开教学手册…</p>{error && <p className="teach-error">{error}</p>}</section>;
-    return <section className="teaching" aria-label="教学进度"><div className="teach-heading"><span className="park-label">ONE WEEK, A LITTLE PROGRESS</span><div className="teach-row"><h2>教学进度</h2><div className="teach-actions"><button onClick={()=>{setMaterialsOpen(!materialsOpen);setSettings(false);}}>{materialsOpen?'返回教学进度':'上传资料'}</button><button onClick={()=>{setSettings(!settings);setMaterialsOpen(false);}}>管理设置</button></div></div><p>把本周要教的、要练的，慢慢安排好。</p></div>
+    return <section className="teaching" aria-label="教学进度"><div className="teach-heading"><span className="park-label">ONE WEEK, A LITTLE PROGRESS</span><div className="teach-row"><h2>教学进度</h2><div className="teach-actions">{panel ? <button onClick={() => setPanel(null)}>返回教学进度</button> : <><button onClick={() => setPanel('materials')}>上传资料</button><button onClick={() => setPanel('settings')}>管理设置</button></>}</div></div><p>把本周要教的、要练的，慢慢安排好。</p></div>
     {error && <p className="teach-error" role="alert">{error}</p>}{message && <p className="teach-message" role="status">{message}</p>}
-    {settings && <Settings state={state} selected={selected} onSave={save} onClose={() => setSettings(false)} onSelected={setSelected} onState={acceptState}/>}
-    {!materialsOpen&&!!classes.length && <label className="teach-class-select">当前班级<select value={selected} onChange={e => { setSelected(e.target.value); setCandidate(null); setEditor(null); }}>{classes.map(c => <option value={c.id} key={c.id}>{state.terms.find(t => t.id === c.termId)?.title} · {c.name}</option>)}</select></label>}
-    {!materialsOpen&&<div className="teach-tabs" role="group" aria-label="教学视图">{([['week', '本周'], ['term', '学期']] as const).map(([id, title]) => <button key={id} aria-pressed={view === id} onClick={() => setView(id)}>{title}</button>)}</div>}
-    {materialsOpen ? <Materials state={state} onState={acceptState} onSave={save} onManageAI={onManageAI}/> : !c ? <div className="teach-card teach-empty"><span aria-hidden="true">📖</span><h3>从一份教材开始</h3><p>从上方“上传资料”导入课本、知识清单与教案，再设置班级和校历。</p><div className="teach-actions"><button onClick={() => setSettings(true)}>设置学期与班级</button></div></div> : <>
+    {!panel&&!!classes.length && <label className="teach-class-select">当前班级<select value={selected} onChange={e => { setSelected(e.target.value); setCandidate(null); setEditor(null); }}>{classes.map(c => <option value={c.id} key={c.id}>{state.terms.find(t => t.id === c.termId)?.title} · {c.name}</option>)}</select></label>}
+    {!panel&&<div className="teach-tabs" role="group" aria-label="教学视图">{([['week', '本周'], ['term', '学期']] as const).map(([id, title]) => <button key={id} aria-pressed={view === id} onClick={() => setView(id)}>{title}</button>)}</div>}
+    {panel === 'settings' ? <Settings state={state} selected={selected} onSave={save} onClose={() => setPanel(null)} onSelected={setSelected} onState={acceptState}/> : panel === 'materials' ? <Materials state={state} onState={acceptState} onSave={save} onManageAI={onManageAI}/> : !c ? <div className="teach-card teach-empty"><span aria-hidden="true">📖</span><h3>从一份教材开始</h3><p>从上方“上传资料”导入课本、知识清单与教案，再设置班级和校历。</p><div className="teach-actions"><button onClick={() => setPanel('settings')}>设置学期与班级</button></div></div> : <>
       <div className="teach-context"><span>{term?.title}</span><span>{state.materials.find(m => m.id === c.materialId)?.title}</span></div>
       {view === 'week' ? <><div className="teach-week-nav"><button disabled={week <= 1} onClick={() => setWeek(week - 1)} aria-label="上一周">‹</button><label>查看周次<select value={week} onChange={e => setWeek(Number(e.target.value))}>{Array.from({ length: term!.weeks }, (_, i) => <option key={i + 1} value={i + 1}>第{i + 1}周</option>)}</select></label><button disabled={week >= term!.weeks} onClick={() => setWeek(week + 1)} aria-label="下一周">›</button></div>{plan?.weeks.find(w => w.week === week) ? renderWeek(plan.weeks.find(w => w.week === week)!, true) : <div className="teach-card teach-empty"><h3>准备好这学期的安排</h3><p>请先确认教材单元与课时、考试范围和检查要求。生成后可先预览再保存。</p><button className="teach-primary" disabled={saving} onClick={replan}>生成周计划</button></div>}
       {progress.some(p => p.consolidation) && <details className="teach-card"><summary>收好的待巩固内容</summary>{progress.filter(p => p.consolidation).map(p => <p key={p.id}>第{p.week}周：{p.consolidation}</p>)}</details>}</> : <>
