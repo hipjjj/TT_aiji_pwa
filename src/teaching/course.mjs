@@ -1,5 +1,6 @@
 // New courses are independent lesson plans. Legacy textbook-based records keep
 // their original shape and IDs so backups and actual progress remain readable.
+import {extractLessonContent,extractUnitOverview} from './lesson-content.mjs';
 export const isCourse=m=>m?.role==='lessonPlan'&&m.planningBasis==='lessonPlan';
 /** @param {import('./types').Unit} u @returns {number[]} */
 export const periodNumbers=u=>u.periods?u.periods.map(p=>p.number):Array.from({length:u.lessons},(_,i)=>i+1);
@@ -77,11 +78,12 @@ export function suggestTextbookReferences(course,book){
     })};
   })};
 }
-export function courseLessons(material,unit,materials){
+export function courseLessons(material,unit,materials,contentMode='auto'){
+  const overview=extractUnitOverview(material,unit);
   return [...unit.periods].sort((a,b)=>a.number-b.number).map(p=>{
-    const suggestion=unit.analysis?.lessonSuggestions?.find(l=>l.lesson===p.number),book=materials.find(m=>m.id===p.reference?.materialId&&!m.deletedAt),ref=book&&p.reference;
-    const text=material.pages.filter(page=>page.number>=p.from&&page.number<=p.to).map(page=>page.text).join('\n');
+    const suggestion=contentMode==='local'?undefined:unit.analysis?.lessonSuggestions?.find(l=>l.lesson===p.number),book=materials.find(m=>m.id===p.reference?.materialId&&!m.deletedAt),ref=book&&p.reference;
+    const local=extractLessonContent(material,unit,p,overview);
     const words=ref?.vocabulary.map(w=>`${w.word} ${w.meaning}`).join('；');
-    return {id:`${unit.id}:${p.number}`,unitId:unit.id,title:`${unit.title} · 第${p.number}课时 · ${p.title}`.slice(0,300),content:((suggestion?.content||text.slice(0,3000))+(words?'\n教材词表：'+words:'')).slice(0,5000),source:(`${material.title} · 教案${material.format&&material.format!=='pdf'?'分段':'PDF'} ${p.from}–${p.to}`+(ref?`；${book.title} · 教材PDF ${ref.from}–${ref.to}${ref.printedFrom?' · 印刷页 '+ref.printedFrom+'–'+ref.printedTo:''}${ref.locked?' · 已锁定关联':' · 关联待核对'}`:'；教材关联待补充')).slice(0,500)};
+    return {id:`${unit.id}:${p.number}`,unitId:unit.id,title:`${unit.title} · 第${p.number}课时 · ${p.title}`.slice(0,300),content:((suggestion?.content||local.content)+(words?'\n教材词表：'+words:'')).slice(0,5000),source:(`${material.title} · 教案${material.format&&material.format!=='pdf'?'分段':'PDF'} ${p.from}–${p.to}`+(!suggestion?' · 按原文提取':'')+(local.overviewPages.length&&!suggestion?`；单元集备 ${local.overviewPages.join('、')}`:'')+(ref?`；${book.title} · 教材PDF ${ref.from}–${ref.to}${ref.printedFrom?' · 印刷页 '+ref.printedFrom+'–'+ref.printedTo:''}${ref.locked?' · 已锁定关联':' · 关联待核对'}`:'')).slice(0,500)};
   });
 }

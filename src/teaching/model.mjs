@@ -76,6 +76,7 @@ export function validateTeaching(state) {
         if (!id(p.id) || !c || !Number.isFinite(p.createdAt) || !Array.isArray(p.weeks) || p.weeks.length > 60 || !Array.isArray(p.warnings) || p.warnings.some(x => !str(x)))
             throw Error('教学计划格式无效');
         if(p.materialId!==undefined&&!id(p.materialId))throw Error('计划资料编号无效');
+        if(p.method!==undefined&&!['local','ai'].includes(p.method))throw Error('计划生成方式无效');
         p.weeks.forEach((w, i) => { if (w.week !== i + 1 || !isDate(w.start) || !isDate(w.end) || !integer(w.capacity, 0, 200) || !integer(w.review, 0, 100) || !integer(w.buffer, 0, 100) || !str(w.note, 5000) || typeof w.locked !== 'boolean' || !Array.isArray(w.lessons) || w.lessons.length > 100 || w.lessons.some(l => !id(l.id) || !id(l.unitId) || !str(l.title, 300) || !str(l.content, 5000) || !str(l.source, 500)) || Object.keys(countLabels).some(k => !integer(w.counts?.[k])))
             throw Error('周计划内容无效'); });
     }
@@ -166,15 +167,17 @@ export function actualCounts(state, c) { const rows = state.progress.filter(p =>
 // Largest-remainder allocation keeps task counts integral and preserves the required total.
 export function distribute(total, weights) { const sum = weights.reduce((s, n) => s + n, 0); if (!sum)
     return weights.map(() => 0); const raw = weights.map(n => total * n / sum), out = raw.map(Math.floor); let remainder = total - out.reduce((s, n) => s + n, 0); raw.map((n, i) => ({ i, f: n - out[i] })).filter(x => weights[x.i] > 0).sort((a, b) => b.f - a.f || a.i - b.i).slice(0, remainder).forEach(x => out[x.i]++); return out; }
-export function unitLessons(material,unit,materials=[material]){
-    if(isCourse(material))return courseLessons(material,unit,materials);
+export function unitLessons(material,unit,materials=[material],contentMode='auto'){
+    if(isCourse(material))return courseLessons(material,unit,materials,contentMode);
     const a=unit.analysis,parts=a?[...a.goals.map(x=>`重点：${x}`),...a.vocabulary.map(x=>`词汇：${x}`),...a.grammar.map(x=>`句型／语法：${x}`),...a.consolidation.map(x=>`巩固：${x}`)]:[];
     return Array.from({length:unit.lessons},(_,i)=>{const suggestion=a?.lessonSuggestions?.find(s=>s.lesson===i+1),refs=suggestion?.references?.map(n=>a.sources[n]).filter(Boolean)||[],locations=refs.map(r=>{const m=materials.find(m=>m.id===r.materialId);return `${m?.title||'教学资料'} · ${materialLocation(m,r.page)}`;});return {id:`${unit.id}:${i+1}`,unitId:unit.id,title:suggestion?.title?`${unit.title} · 第${i+1}课时 · ${suggestion.title}`:`${unit.title} · 建议第 ${i+1} 课`,content:suggestion?.content||(parts.length?parts.filter((_,n)=>n%unit.lessons===i).join('；')||'复习本单元重点，练习并检查理解；按班级进度调整。':'待补充具体教学内容，可先分析本单元或手动编辑。'),source:(locations.length?[...new Set(locations)].join('；'):`${material.title} · ${materialLocation(material,unit.from,unit.to)}${unit.printedFrom?` · 印刷起始页 ${unit.printedFrom}`:''}`).slice(0,500)};});
 }
-export function generatePlan(state, c, fromWeek = 1, previous = latestPlan(state, c.id)) {
+/** @returns {import('./types').Plan} */
+export function generatePlan(state, c, fromWeek = 1, previous = latestPlan(state, c.id),options={}) {
     if(!c.materialId)throw Error('请先添加教案，再为这个班级一键排课');
     if(c.deletedAt||state.terms.find(t=>t.id===c.termId)?.deletedAt||state.materials.find(m=>m.id===c.materialId)?.deletedAt)throw Error('请先恢复已删除的学期、班级或教材');
     const term = state.terms.find(t => t.id === c.termId), m = state.materials.find(m => m.id === c.materialId), warnings = [];
+    const contentMode=options.contentMode||(previous?.method==='local'?'local':'auto');
     const actual = state.progress.filter(p => p.classId === c.id), done = new Set([...(c.coveredLessons || []), ...actual.flatMap(p => p.completed)]);
     const weeks = Array.from({ length: term.weeks }, (_, i) => { const week = i + 1, start = addDays(term.startDate, i * 7), old = previous?.weeks[i]; if (old && (old.locked || week < fromWeek || actual.some(p => p.week === week)))
         return structuredClone(old); const capacity = weeklyCapacity(term, c, week); return { week, start, end: addDays(start, 6), capacity, review: 0, buffer: Math.min(capacity, c.buffer), lessons: [], counts: zeroCounts(), note: '', locked: false }; });
@@ -204,7 +207,7 @@ export function generatePlan(state, c, fromWeek = 1, previous = latestPlan(state
     for (const e of c.exams)
         for (const unit of e.unitIds)
             deadlines.set(unit, Math.min(deadlines.get(unit) || Infinity, weekNumber(term, e.date) - 1));
-    const tasks = m.units.filter(u => c.unitIds.includes(u.id)).flatMap(u => unitLessons(m, u,state.materials)).filter(l => !done.has(l.id) && !occupied.has(l.id));
+    const tasks = m.units.filter(u => c.unitIds.includes(u.id)).flatMap(u => unitLessons(m, u,state.materials,contentMode)).filter(l => !done.has(l.id) && !occupied.has(l.id));
     tasks.sort((a, b) => (deadlines.get(a.unitId) ?? Infinity) - (deadlines.get(b.unitId) ?? Infinity));
     for (const w of weeks) {
         if (fixed(w))
@@ -239,10 +242,10 @@ export function generatePlan(state, c, fromWeek = 1, previous = latestPlan(state
     }
     if (!c.schedule.length && c.exceptions.length)
         warnings.push('当前仅填写每周总课时，请在“周课时覆盖”中确认停补课所在周的有效课时。');
-    if (m.units.some(u => c.unitIds.includes(u.id) && !u.analysis))
+    if (contentMode!=='local'&&m.units.some(u => c.unitIds.includes(u.id) && !u.analysis))
         warnings.push(isCourse(m)?'部分单元尚未由AI整理，当前按已核对的教案课时与原文排程。':'部分单元尚未分析，具体内容待补充；当前按你确认的建议课时排程。');
-    if(m.units.some(u=>c.unitIds.includes(u.id)&&u.analysis&&(u.analysis.sourceStatus==='pending'||u.analysis.sourceStatus==='partial'||u.analysis.sources.some(s=>state.materials.find(x=>x.id===s.materialId)?.deletedAt))))warnings.push('部分单元分析的来源已删除或待核对，请核对已有教学文字，必要时重新分析。');
-    return { id: crypto.randomUUID(), classId: c.id, materialId:m.id, createdAt: Date.now(), weeks, warnings };
+    if(contentMode!=='local'&&m.units.some(u=>c.unitIds.includes(u.id)&&u.analysis&&(u.analysis.sourceStatus==='pending'||u.analysis.sourceStatus==='partial'||u.analysis.sources.some(s=>state.materials.find(x=>x.id===s.materialId)?.deletedAt))))warnings.push('部分单元分析的来源已删除或待核对，请核对已有教学文字，必要时重新分析。');
+    return { id: crypto.randomUUID(), classId: c.id, materialId:m.id,...(contentMode==='local'?{method:'local'}:contentMode==='ai'?{method:'ai'}:{}), createdAt: Date.now(), weeks, warnings };
 }
 export function mergeTeaching(current, incoming) { const out = structuredClone(current); for (const key of ['materials', 'terms', 'classes', 'plans', 'progress', 'prepProgress']) {
     const rows = new Map(out[key].map(x => [x.id, x]));

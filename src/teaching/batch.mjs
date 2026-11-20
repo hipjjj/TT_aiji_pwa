@@ -20,5 +20,5 @@ export async function prepareCoursePlan({read,change,classId,materialId,date,sig
   }
   check();const state=await change(s=>assignCourse(s,classId,materialId)),target=state.classes.find(c=>c.id===classId),term=state.terms.find(t=>t.id===target.termId),previous=latestPlan(state,classId);
   const from=previous?Math.max(1,Math.min(term.weeks,weekNumber(term,date))):1;
-  return {state,plan:generatePlan(state,target,from,previous)};
+  return {state,plan:generatePlan(state,target,from,previous,{contentMode:'ai'})};
 }

@@ -136,6 +136,7 @@ export type WeekPlan = {
     locked: boolean;
 };
 export type Plan = {
+    method?: 'local' | 'ai';
     materialId?: string;
     id: string;
     classId: string;
