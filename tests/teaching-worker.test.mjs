@@ -47,7 +47,7 @@ test('source IDs retain file and PDF page attribution across long primary and au
 test('invalid input, wrong credentials and quota exhaustion stop before a model call',async()=>{
   let calls=0;const fetchImpl=async()=>{calls++;throw Error('unexpected');};assert.equal((await handle(request({...body(),materials:[]}),env(),{fetchImpl})).status,400);
   const wrong=env();wrong.ACCESS_CODE='another-access-code';assert.equal((await handle(request(body()),wrong,{fetchImpl})).status,401);
-  const limited=env();limited.AI_QUOTA.get=()=>({fetch:async()=>Response.json({allowed:false,reason:'day'})});const response=await handle(request(body()),limited,{fetchImpl});assert.equal(response.status,429);assert.match((await response.json()).error,/明天/);assert.equal(calls,0);
+  const limited=env();limited.AI_QUOTA.get=()=>({fetch:async()=>Response.json({allowed:false,reason:'minute'})});const response=await handle(request(body()),limited,{fetchImpl});assert.equal(response.status,429);assert.equal((await response.json()).code,'WORK_RATE_LIMIT');assert.equal(calls,0);
 });
 
 test('timeouts, truncated output and malformed content have distinct actionable error codes',async()=>{
@@ -56,7 +56,7 @@ test('timeouts, truncated output and malformed content have distinct actionable 
     [async()=>Response.json({status:'incomplete',incomplete_details:{reason:'max_output_tokens'},output:[]}),502,'AI_OUTPUT_LIMIT'],
     [async()=>Response.json({status:'incomplete',output:[]}),502,'AI_INCOMPLETE'],
     [async()=>Response.json({status:'completed',output:[{content:[{type:'output_text',text:'broken json'}]}]}),502,'AI_RESULT_FORMAT'],
-    [async()=>Response.json({}, {status:429}),429,'AI_UPSTREAM'],
+    [async()=>Response.json({}, {status:429}),429,'API_RATE_LIMIT'],
   ];
   for(const [fetchImpl,status,code] of cases){const response=await handle(request(body()),env(),{fetchImpl});assert.equal(response.status,status);assert.equal((await response.json()).code,code);}
 });

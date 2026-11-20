@@ -6,6 +6,7 @@ on:
     branches: [main, feature/study-pdf-url-20261118]
     paths:
       - 'server/**'
+      - 'scripts/live-ai-fetch.mjs'
       - 'src/teaching/model.mjs'
       - '.github/workflows/deploy-nutrition-ai.yml'
 
@@ -70,7 +71,7 @@ jobs:
           const photo='data:image/png;base64,'+readFileSync('tests/fixtures/choice-paper.png').toString('base64');
           const response=await fetch('https://api.openai.com/v1/responses',{
             method:'POST',headers:{Authorization:`Bearer ${process.env.NUTRITION_API_KEY}`,'Content-Type':'application/json'},
-            body:JSON.stringify({model,store:false,...(/^gpt-5(?:-20\d\d-\d\d-\d\d)?$/.test(model)?{reasoning:{effort:'minimal'}}:{}),instructions:examInstructions,input:[{role:'user',content:[{type:'input_text',text:JSON.stringify({questionCount:3,task:'只提取学生作答，不解题、不判分'})},{type:'input_image',image_url:photo,detail:'high'}]}],max_output_tokens:3000,text:{format:{type:'json_schema',name:'exam_answers',strict:true,schema:examSchema}}}),signal:AbortSignal.timeout(65000)
+            body:JSON.stringify({model,store:false,reasoning:{effort:'medium'},instructions:examInstructions,input:[{role:'user',content:[{type:'input_text',text:JSON.stringify({questionCount:3,task:'只提取学生作答，不解题、不判分'})},{type:'input_image',image_url:photo,detail:'high'}]}],max_output_tokens:6000,text:{format:{type:'json_schema',name:'exam_answers',strict:true,schema:examSchema}}}),signal:AbortSignal.timeout(110000)
           });
           if (!response.ok) throw new Error(`Exam model preflight failed with HTTP ${response.status}; previous backend has not been changed`);
           const output=await response.json();
@@ -90,7 +91,7 @@ jobs:
           const prepared=prepareTeachingInput(request);
           const response=await fetch('https://api.openai.com/v1/responses',{
             method:'POST',headers:{Authorization:`Bearer ${process.env.NUTRITION_API_KEY}`,'Content-Type':'application/json'},
-            body:JSON.stringify({model:'gpt-5-mini',reasoning:{effort:'minimal'},store:false,instructions:teachingInstructions,input:[{role:'user',content:[{type:'input_text',text:JSON.stringify(prepared.input)}]}],max_output_tokens:6500,text:{format:{type:'json_schema',name:'teaching_unit',strict:true,schema:teachingSchema}}}),signal:AbortSignal.timeout(65000)
+            body:JSON.stringify({model:'gpt-6.2-astra',reasoning:{effort:'medium'},store:false,instructions:teachingInstructions,input:[{role:'user',content:[{type:'input_text',text:JSON.stringify(prepared.input)}]}],max_output_tokens:12000,text:{format:{type:'json_schema',name:'teaching_unit',strict:true,schema:teachingSchema}}}),signal:AbortSignal.timeout(110000)
           });
           if(!response.ok)throw Error(`Teaching preflight failed with HTTP ${response.status}`);
           const output=await response.json();if(output.status!=='completed')throw Error('Teaching preflight did not complete');
@@ -143,17 +144,19 @@ jobs:
           import {defaultPreferences,validateAIRecipeResult} from './src/fridge/model.mjs';
           import {validateStoryResult} from './src/travel/model.mjs';
           import {validateChatResult} from './src/chat/model.mjs';
+          import {fetchLive} from './scripts/live-ai-fetch.mjs';
           const origin='https://hipjjj.github.io';
           let ready=false;
           for (let attempt=0;attempt<6;attempt++) {
             const response=await fetch(`${process.env.SERVICE_URL}/health`,{headers:{Origin:origin},signal:AbortSignal.timeout(15000)});
             const health=await response.json();
-            ready=response.ok && health.ready===true && health.chatModel==='gpt-5-mini' && health.model==='gpt-4.1-mini' && health.gradingModel==='gpt-5' && health.teachingAnalysis===true;
+            ready=response.ok && health.ready===true && health.chatModel==='gpt-5-mini' && health.model==='gpt-4.1-mini' && health.gradingModel==='gpt-6.2-astra' && health.teachingModel==='gpt-6.2-astra' && health.teachingAnalysis===true;
             if (ready) break;
             await new Promise(resolve=>setTimeout(resolve,3000));
           }
           if (!ready) throw new Error('Deployed backend did not become ready');
-          const response=await fetch(`${process.env.SERVICE_URL}/analyze`,{
+          async function verifyOtherFeatures(){
+          const response=await fetchLive(`${process.env.SERVICE_URL}/analyze`,{
             method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
             body:JSON.stringify({text:'熟米饭150克，水煮鸡蛋1个',photo:null}),signal:AbortSignal.timeout(45000)
           });
@@ -161,21 +164,21 @@ jobs:
           const result=validateAIAnalysis(await response.json());
           if (!result.foods.length) throw new Error('Live AI verification returned no food');
           console.log('PASS: deployed health, authentication, quota storage, and real OpenAI text analysis');
-          const recipes=await fetch(`${process.env.SERVICE_URL}/recipes`,{
+          const recipes=await fetchLive(`${process.env.SERVICE_URL}/recipes`,{
             method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
             body:JSON.stringify({mode:'dish',dish:'番茄炒蛋',inventory:[{name:'番茄',quantity:'2',unit:'个'},{name:'鸡蛋',quantity:'3',unit:'个'}],preferences:defaultPreferences}),signal:AbortSignal.timeout(45000)
           });
           if (!recipes.ok) throw new Error(`Live recipe verification failed with HTTP ${recipes.status}`);
           if (!validateAIRecipeResult(await recipes.json()).recipes.length) throw new Error('Live recipe verification returned no recipes');
           console.log('PASS: real OpenAI recipe recommendation');
-          const story=await fetch(`${process.env.SERVICE_URL}/travel-story`,{
+          const story=await fetchLive(`${process.env.SERVICE_URL}/travel-story`,{
             method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
             body:JSON.stringify({title:'东京的小旅行',startDate:'2026-10-01',endDate:'2026-10-03',stops:[{city:'日本·东京',spots:['浅草寺']}],note:'在街边看到了喜欢的小店。'}),signal:AbortSignal.timeout(45000)
           });
           if (!story.ok) throw new Error(`Live travel story verification failed with HTTP ${story.status}`);
           validateStoryResult(await story.json());
           console.log('PASS: real OpenAI overseas travel story draft');
-          const chat=await fetch(`${process.env.SERVICE_URL}/chat`,{
+          const chat=await fetchLive(`${process.env.SERVICE_URL}/chat`,{
             method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
             body:JSON.stringify({mode:'鲍比',messages:[{speaker:'用户',text:'鲍比，请生成三张待确认卡片：1今天午饭35元餐饮账单；2今天午餐饮食，熟米饭150克和水煮鸡蛋50克，请估算四项营养；3冰箱添加冷藏牛奶1盒。'}],memories:[],growth:0,today:new Date().toISOString().slice(0,10)}),signal:AbortSignal.timeout(45000)
           });
@@ -185,19 +188,21 @@ jobs:
           if (!chatResult.proposals.some(p=>p.kind==='饮食'&&p.mealType==='午餐'&&p.foods.length===2)) throw new Error('Live chat failed to generate meal nutrition confirmation');
           if (!chatResult.proposals.some(p=>p.kind==='食材'&&p.name.includes('牛奶')&&p.location==='冷藏')) throw new Error('Live chat failed to generate fridge confirmation');
           console.log('PASS: real OpenAI expense, meal nutrition and fridge cards; no user records were saved');
+          }
+          try{await verifyOtherFeatures();}catch(e){if(e.code!=='LOCAL_DAILY_LIMIT')throw e;console.log('NOTICE: other-module live smoke limited by its existing daily budget; work AI checks continue independently');}
           const {readFileSync}=await import('node:fs');
           const {validateExamRecognition,gradeExam}=await import('./src/grading/model.mjs');
           const paper='data:image/png;base64,'+readFileSync('tests/fixtures/choice-paper.png').toString('base64');
-          const exam=await fetch(`${process.env.SERVICE_URL}/grade-exam`,{
+          const exam=await fetchLive(`${process.env.SERVICE_URL}/grade-exam`,{
             method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
-            body:JSON.stringify({questionCount:3,photo:paper}),signal:AbortSignal.timeout(80000)
+            body:JSON.stringify({questionCount:3,photo:paper}),signal:AbortSignal.timeout(125000)
           });
           if (!exam.ok) throw new Error(`Live exam verification failed with HTTP ${exam.status}`);
           const examResult=validateExamRecognition(await exam.json(),3);
           if (examResult.answers.map(x=>x.answer).join('')!=='BDA') throw new Error('Live exam endpoint misread synthetic answer marks');
           const graded=gradeExam({id:'main',title:'Synthetic check',questionCount:3,key:['B','D','A'],points:[2,3,5],updatedAt:1},examResult.answers.map(x=>({...x,confirmed:true})));
           if (graded.earned!==10||graded.total!==10) throw new Error('Local deterministic exam scoring failed');
-          console.log('PASS: deployed GPT-5 answer recognition and local 10/10 score; no student data or records used');
+          console.log('PASS: deployed GPT-6.2 Astra answer recognition and local 10/10 score; no student data or records used');
           JS
       - name: Verify deployed teaching analysis with realistic unit length
         env:
@@ -210,7 +215,7 @@ jobs:
           for(let attempt=0;attempt<3;attempt++){
             response=await fetch(`${process.env.SERVICE_URL}/teaching-analyze`,{
               method:'POST',headers:{Origin:'https://hipjjj.github.io','Content-Type':'application/json','X-Access-Code':process.env.ACCESS_CODE},
-              body:JSON.stringify(body),signal:AbortSignal.timeout(80000)
+              body:JSON.stringify(body),signal:AbortSignal.timeout(125000)
             });
             data=await response.json();
             if(response.status!==429||/明天/.test(data.error||''))break;

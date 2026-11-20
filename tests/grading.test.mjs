@@ -206,14 +206,14 @@ test("exam endpoint isolates higher-quality model and high-detail vision; never 
     },
   );
   assert.equal(response.status, 200);
-  assert.equal(sent.model, "gpt-5");
+  assert.equal(sent.model, "gpt-6.2-astra");
   assert.equal(sent.store, false);
   assert.equal(sent.input[0].content[1].detail, "high");
   assert.equal(sent.text.format.name, "exam_answers");
   assert(!JSON.stringify(sent).includes("private-"));
   assert.equal(calls, 1);
   const data = await response.json();
-  assert.equal(data.model, "gpt-5");
+  assert.equal(data.model, "gpt-6.2-astra");
   assert.equal(data.answers[1].answer, "?");
   assert.equal(data.answers[1].number, 2);
 });

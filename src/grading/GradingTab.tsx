@@ -179,7 +179,7 @@ export default function GradingTab({ onManageAI }: { onManageAI: () => void }) {
     const controller = new AbortController(),
       version = ++generation.current;
     abort.current = controller;
-    const timer = setTimeout(() => controller.abort(), 80000);
+    const timer = setTimeout(() => controller.abort(), 125000);
     try {
       const config = await db.settings.get("ai"),
         access = readAccessCode(),

@@ -1,4 +1,5 @@
 import {validateTeachingAnalysis} from '../src/teaching/model.mjs';
+import {WORK_MODEL,workReasoning,checkWorkRate,workUpstreamError} from './work-ai.mjs';
 
 const list=(maxItems,maxLength)=>({type:'array',maxItems,items:{type:'string',maxLength}});
 export const teachingSchema={
@@ -75,20 +76,18 @@ export async function handleTeaching(body,env,reply,fetchImpl){
   let request;
   try{request=validateTeachingRequest(body);}catch(e){return reply(400,{error:e.message,code:'INVALID_MATERIAL'});}
   try{
-    const quota=env.AI_QUOTA.get(env.AI_QUOTA.idFromName('xiaobao-global'));
-    const response=await quota.fetch('https://quota/check',{method:'POST',body:JSON.stringify({daily:Number(env.DAILY_AI_LIMIT)||30,minute:Number(env.PER_MINUTE_AI_LIMIT)||5})});
-    const status=await response.json();
-    if(!status.allowed)return reply(429,{error:status.reason==='day'?'今天的AI额度已用完，请明天再试':'AI调用太频繁，请稍等一分钟再试',code:'AI_QUOTA'},{'Retry-After':String(status.retryAfter||60)});
+    const status=await checkWorkRate(env);
+    if(!status.allowed)return reply(429,{error:'工作区请求过快，正在等待后重试',code:'WORK_RATE_LIMIT',retryAfter:status.retryAfter||60},{'Retry-After':String(status.retryAfter||60)});
   }catch{return reply(503,{error:'AI额度检查暂时不可用，请稍后重试',code:'QUOTA_UNAVAILABLE'});}
-  const prepared=prepareTeachingInput(request),model=env.TEACHING_MODEL||env.CHAT_MODEL||'gpt-5-mini';
+  const prepared=prepareTeachingInput(request),model=env.TEACHING_MODEL||WORK_MODEL;
   let output;
   try{
     const response=await fetchImpl('https://api.openai.com/v1/responses',{
       method:'POST',headers:{Authorization:`Bearer ${env.NUTRITION_API_KEY}`,'Content-Type':'application/json'},
-      body:JSON.stringify({model,store:false,...(/^gpt-5-mini(?:-|$)/.test(model)?{reasoning:{effort:'minimal'}}:{}),instructions:teachingInstructions,input:[{role:'user',content:[{type:'input_text',text:JSON.stringify(prepared.input)}]}],max_output_tokens:6500,text:{format:{type:'json_schema',name:'teaching_unit',strict:true,schema:teachingSchema}}}),
-      signal:AbortSignal.timeout(65000),
+      body:JSON.stringify({model,store:false,reasoning:workReasoning,instructions:teachingInstructions,input:[{role:'user',content:[{type:'input_text',text:JSON.stringify(prepared.input)}]}],max_output_tokens:12000,text:{format:{type:'json_schema',name:'teaching_unit',strict:true,schema:teachingSchema}}}),
+      signal:AbortSignal.timeout(110000),
     });
-    if(!response.ok)return reply(response.status===429?429:502,{error:response.status===429?'AI服务额度或频率受限，请稍后再试':'教材AI服务暂时不可用，请稍后重试',code:'AI_UPSTREAM'});
+    if(!response.ok)return reply(response.status===429?429:502,await workUpstreamError(response));
     output=await response.json();
   }catch(e){
     const timeout=e?.name==='TimeoutError'||e?.name==='AbortError';
