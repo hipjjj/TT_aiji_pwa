@@ -7,7 +7,7 @@ const origin='https://hipjjj.github.io';
 const env=()=>({NUTRITION_API_KEY:'fixture-key',ACCESS_CODE:'fixture-access-code',AI_QUOTA:{idFromName:()=>1,get:()=>({fetch:async()=>Response.json({allowed:true})})}});
 const body=()=>({unitTitle:'Happy Holiday',materials:[{id:'book',title:'主教材',role:'primary',pages:[{number:12,text:'It just took my breath away. This is an English textbook.',bold:[]}]}],privateLedger:'must-not-leave-client'});
 const request=value=>new Request('https://worker.test/teaching-analyze',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','X-Access-Code':'fixture-access-code'},body:JSON.stringify(value)});
-const analysis=()=>({goals:['描述假期'],vocabulary:['holiday 假期'],grammar:['一般过去时'],consolidation:['复习基础动词'],extension:[],lessons:8,note:'AI建议，核对教材',references:['S1']});
+const analysis=()=>({goals:['描述假期'],vocabulary:['holiday 假期'],grammar:['一般过去时'],consolidation:['复习基础动词'],extension:[],lessons:8,note:'AI建议，核对教材',references:['S1'],lessonSuggestions:[]});
 const completed=value=>Response.json({status:'completed',output:[{content:[{type:'output_text',text:JSON.stringify(value)}]}]});
 
 test('teaching endpoint transmits only selected material and restores exact citations using reference IDs',async()=>{

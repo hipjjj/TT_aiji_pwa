@@ -10,6 +10,7 @@ export type Quota = {
     mode: 'minimum' | 'exact';
 };
 export type Analysis = {
+    lessonSuggestions?: {lesson:number;title:string;content:string;references?:number[]}[];
     sourceStatus?: 'verified' | 'partial' | 'pending';
     goals: string[];
     vocabulary: string[];
@@ -25,6 +26,9 @@ export type Analysis = {
     }[];
 };
 export type Unit = {
+    unitId?:string;
+    lessonFrom?:number;
+    lessonTo?:number;
     id: string;
     title: string;
     from: number;
@@ -36,7 +40,8 @@ export type Unit = {
 export type Material = {
     id: string;
     title: string;
-    role: 'primary' | 'auxiliary';
+    role: 'primary' | 'auxiliary' | 'lessonPlan';
+    format?: 'pdf' | 'docx' | 'txt';
     fingerprint?: string;
     primaryId: string;
     pages: {
@@ -48,12 +53,14 @@ export type Material = {
     createdAt: number;
 };
 export type Term = {
+    deletedAt?:number;
     id: string;
     title: string;
     startDate: string;
     weeks: number;
 };
 export type ClassRoom = {
+    deletedAt?:number;
     id: string;
     name: string;
     termId: string;

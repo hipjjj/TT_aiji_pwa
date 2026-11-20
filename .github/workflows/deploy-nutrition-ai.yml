@@ -95,7 +95,7 @@ jobs:
           if(!response.ok)throw Error(`Teaching preflight failed with HTTP ${response.status}`);
           const output=await response.json();if(output.status!=='completed')throw Error('Teaching preflight did not complete');
           const text=(output.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==='output_text').map(x=>x.text).join('');
-          const result=resolveTeachingAnalysis(JSON.parse(text),prepared,materials);validateTeachingAnalysis(result,materials);if(!result.sources.length||result.sourceStatus!=='verified')throw Error('Teaching analysis has unverified source IDs');
+          const result=resolveTeachingAnalysis(JSON.parse(text),prepared,materials);validateTeachingAnalysis(result,materials);if(!result.sources.length||result.sourceStatus!=='verified'||![1,2,3].every(n=>result.lessonSuggestions.some(l=>l.lesson===n)))throw Error('Teaching analysis has unverified sources or missing lesson-plan periods');
           console.log('PASS: realistic-length teaching analysis with anchored PDF quotes and typography; synthetic text only');
           JS
       - name: Deploy Worker and quota storage
@@ -219,6 +219,6 @@ jobs:
           }
           if(!response.ok)throw Error(`Deployed teaching analysis failed with HTTP ${response.status}: ${data.code||'unknown error'}`);
           const result=validateTeachingAnalysis(data,body.materials);
-          if(!result.sources.length||result.sourceStatus!=='verified')throw Error('Deployed teaching citations need review');
-          console.log('PASS: authenticated deployed teaching endpoint, realistic unit length, exact original PDF quotes and page attribution; no user records created');
+          if(!result.sources.length||result.sourceStatus!=='verified'||![1,2,3].every(n=>result.lessonSuggestions.some(l=>l.lesson===n)))throw Error('Deployed teaching citations or lesson-plan periods need review');
+          console.log('PASS: authenticated deployed teaching endpoint, realistic unit length, uploaded lesson plans, exact original quotes and attribution; no user records created');
           JS

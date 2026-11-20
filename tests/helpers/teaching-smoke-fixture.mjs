@@ -6,5 +6,6 @@ export function teachingSmokeRequest(){
   return {unitTitle:'Happy Holiday',materials:[
     {id:'synthetic-book',title:'Synthetic English unit',role:'primary',pages:Array.from({length:10},(_,i)=>({number:10+i,text:`Unit 1 · Happy Holiday\nSection ${i<5?'A':'B'} · PDF page ${10+i}\n`+passage.repeat(6)+'\nGrammar: past tense. Vocabulary: holiday, farm, visit, river, tired.\n',bold:[]}))},
     {id:'synthetic-notes',title:'Synthetic supplementary notes',role:'auxiliary',pages:Array.from({length:6},(_,i)=>({number:1+i,text:`Unit 1 · 辅助知识清单\n第${i+1}页\n`+notes.repeat(6),bold:[]}))},
+    {id:'synthetic-plan',title:'Synthetic uploaded lesson plan',role:'lessonPlan',format:'docx',lessonRanges:Array.from({length:3},(_,i)=>({unitId:'unit-1',lessonFrom:i+1,lessonTo:i+1,from:i+1,to:i+1,title:`Period ${i+1}`})),pages:[{number:1,text:'Unit 1. Period 1. Begin by sharing holiday photos. Use where and what question cards. Let pairs practise short past-tense answers before a whole-class recap.',bold:[]},{number:2,text:'Unit 1. Period 2. Read the farm story. Let students sort event cards, locate past-tense verbs, and retell the events with sentence frames.',bold:[]},{number:3,text:'Unit 1. Period 3. Review core holiday words through a short dictation. Guide students to write three sentences about a familiar holiday and check the past tense in pairs.',bold:[]}]},
   ]};
 }

@@ -1,3 +1,4 @@
+import {selectTeachingMaterials} from './files.mjs';
 import { db } from '../db';
 import { readAccessCode } from '../personal/access-code.mjs';
 import { validateTeachingAnalysis } from './model.mjs';
@@ -11,7 +12,7 @@ export async function analyzeUnit(unit: Unit, materials: Material[], signal: Abo
     const endpoint = new URL(url);
     if (endpoint.protocol !== 'https:' || endpoint.pathname !== '/' || endpoint.search || endpoint.hash || endpoint.username || endpoint.password)
         throw Error('请在个人页重新设置有效的AI地址');
-    const selected = materials.map(m => { const u = m.role === 'primary' ? unit : m.units.find(x => x.id === unit.id); return { id: m.id, title: m.title, role: m.role, pages: u ? m.pages.filter(p => p.number >= u.from && p.number <= u.to) : [] }; }).filter(m => m.pages.length);
+    const selected=selectTeachingMaterials(unit,materials);
     const textSize = selected.reduce((n, m) => n + m.pages.reduce((s, p) => s + p.text.length, 0), 0);
     if (textSize > 120000)
         throw Error('本单元资料超过12万字符，请缩小页码范围后分段分析');
